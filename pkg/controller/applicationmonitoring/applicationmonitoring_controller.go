@@ -2,11 +2,16 @@ package applicationmonitoring
 
 import (
 	"context"
+	"fmt"
+	"strings"
+
+	"k8s.io/apimachinery/pkg/apis/meta/v1"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	applicationmonitoringv1alpha1 "github.com/integr8ly/application-monitoring-operator/pkg/apis/applicationmonitoring/v1alpha1"
+	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
@@ -18,6 +23,14 @@ import (
 )
 
 var log = logf.Log.WithName("controller_applicationmonitoring")
+
+const (
+	PhaseInstallPrometheusOperator = iota
+	PhaseCreatePrometheusCRs
+	PhaseInstallGrafanaOperator
+	PhaseCreateGrafanaCR
+	PhaseDone
+)
 
 /**
 * USER ACTION REQUIRED: This is a scaffold file intended for the user to modify with their own Controller
@@ -87,7 +100,7 @@ func (r *ReconcileApplicationMonitoring) Reconcile(request reconcile.Request) (r
 	instance := &applicationmonitoringv1alpha1.ApplicationMonitoring{}
 	err := r.client.Get(context.TODO(), request.NamespacedName, instance)
 	if err != nil {
-		if errors.IsNotFound(err) {
+		if kerrors.IsNotFound(err) {
 			// Request object not found, could have been deleted after reconcile request.
 			// Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
 			// Return and don't requeue
@@ -97,34 +110,107 @@ func (r *ReconcileApplicationMonitoring) Reconcile(request reconcile.Request) (r
 		return reconcile.Result{}, err
 	}
 
-	reqLogger.Info("TODO: Reconcile implementation")
-	// Deploy prometheus-operator
-	// Create Prometheus & AlertManager resources
-	// Deploy grafana-operator
-	// Create Grafana resource
+	instanceCopy := instance.DeepCopy()
+
+	switch instanceCopy.Status.Phase {
+	case PhaseInstallPrometheusOperator:
+		return r.InstallPrometheusOperator(instanceCopy)
+	case PhaseCreatePrometheusCRs:
+		return r.CreatePrometheusCRs(instanceCopy)
+	case PhaseInstallGrafanaOperator:
+		return r.InstallGrafanaOperator(instanceCopy)
+	case PhaseCreateGrafanaCR:
+		return r.CreateGrafanaCR(instanceCopy)
+	}
 
 	return reconcile.Result{}, nil
 }
 
-// newPodForCR returns a busybox pod with the same name/namespace as the cr
-func newPodForCR(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) *corev1.Pod {
-	labels := map[string]string{
-		"app": cr.Name,
+func (r *ReconcileApplicationMonitoring) InstallPrometheusOperator(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
+	log.Info("Phase: Install PrometheusOperator")
+
+	for _, resourceName := range []string{PrometheusOperatorServiceAccountName, PrometheusServiceAccountName, PrometheusServiceName, AlertManagerSecretName, AlertManagerServiceAccountName, AlertManagerServiceName, PrometheusOperatorDeploymentName} {
+		if err := r.CreateResource(cr, resourceName); err != nil {
+			log.Info(fmt.Sprintf("Error in InstallPrometheusOperator, resourceName=%s : err=%s", resourceName, err))
+			// Requeue so it can be attempted again
+			return reconcile.Result{Requeue: true}, err
+		}
 	}
-	return &corev1.Pod{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      cr.Name + "-pod",
-			Namespace: cr.Namespace,
-			Labels:    labels,
-		},
-		Spec: corev1.PodSpec{
-			Containers: []corev1.Container{
-				{
-					Name:    "busybox",
-					Image:   "busybox",
-					Command: []string{"sleep", "3600"},
-				},
-			},
-		},
+
+	log.Info("PrometheusOperator installation complete")
+	return reconcile.Result{Requeue: true}, r.UpdatePhase(cr, PhaseCreatePrometheusCRs)
+}
+
+func (r *ReconcileApplicationMonitoring) CreatePrometheusCRs(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
+	log.Info("Phase: Create Prometheus CRs")
+
+	for _, resourceName := range []string{AlertManagerCRName, PrometheusCRName, PrometheusRuleCRName, ServiceMonitorGrafanaCRName, ServiceMonitorPrometheusCRName} {
+		if err := r.CreateResource(cr, resourceName); err != nil {
+			log.Info(fmt.Sprintf("Error in CreatePrometheusCRs, resourceName=%s : err=%s", resourceName, err))
+			// Requeue so it can be attempted again
+			return reconcile.Result{Requeue: true}, err
+		}
 	}
+
+	log.Info("Prometheus CRs installation complete")
+	return reconcile.Result{Requeue: true}, r.UpdatePhase(cr, PhaseInstallGrafanaOperator)
+}
+
+func (r *ReconcileApplicationMonitoring) InstallGrafanaOperator(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
+	log.Info("Phase: Install GrafanaOperator")
+
+	for _, resourceName := range []string{GrafanaOperatorRoleBindingName, GrafanaOperatorRoleName, GrafanaOperatorServiceAccountName, GrafanaOperatorDeploymentName} {
+		if err := r.CreateResource(cr, resourceName); err != nil {
+			log.Info(fmt.Sprintf("Error in InstallGrafanaOperator, resourceName=%s : err=%s", resourceName, err))
+			// Requeue so it can be attempted again
+			return reconcile.Result{Requeue: true}, err
+		}
+	}
+
+	log.Info("GrafanaOperator installation complete")
+	return reconcile.Result{Requeue: true}, r.UpdatePhase(cr, PhaseCreateGrafanaCR)
+}
+
+func (r *ReconcileApplicationMonitoring) CreateGrafanaCR(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
+	log.Info("Phase: Create Grafana CR")
+
+	resourceName := GrafanaCRName
+	if err := r.CreateResource(cr, resourceName); err != nil {
+		log.Info(fmt.Sprintf("Error in CreateGrafanaCR, resourceName=%s : err=%s", resourceName, err))
+		// Requeue so it can be attempted again
+		return reconcile.Result{Requeue: true}, err
+	}
+
+	log.Info("Grafana CR installation complete")
+	return reconcile.Result{Requeue: true}, r.UpdatePhase(cr, PhaseDone)
+}
+
+// CreateResource Creates a generic kubernetes resource from a templates
+func (r *ReconcileApplicationMonitoring) CreateResource(cr *applicationmonitoringv1alpha1.ApplicationMonitoring, resourceName string) error {
+	resourceHelper := newResourceHelper(cr)
+	resource, err := resourceHelper.createResource(resourceName)
+
+	if err != nil {
+		return errors.Wrap(err, "createResource failed")
+	}
+
+	// Set the CR as the owner of this resource so that when
+	// the CR is deleted this resource also gets removed
+	err = controllerutil.SetControllerReference(cr, resource.(v1.Object), r.scheme)
+	if err != nil {
+		return errors.Wrap(err, "error setting controller reference")
+	}
+
+	err = r.client.Create(context.TODO(), resource)
+	if err != nil {
+		if !strings.Contains(err.Error(), "already exists") {
+			return errors.Wrap(err, "error creating resource")
+		}
+	}
+	return nil
+}
+
+func (r *ReconcileApplicationMonitoring) UpdatePhase(cr *applicationmonitoringv1alpha1.ApplicationMonitoring, phase int) error {
+	cr.Status.Phase = phase
+	return r.client.Update(context.TODO(), cr)
 }

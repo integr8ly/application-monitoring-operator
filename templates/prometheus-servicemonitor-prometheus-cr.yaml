@@ -1,0 +1,13 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    monitoring-key: 'middleware'
+  name: prometheus
+  namespace: {{ .Namespace }}
+spec:
+  endpoints:
+    - port: web
+  selector:
+    matchLabels:
+      application-monitoring: 'true'
