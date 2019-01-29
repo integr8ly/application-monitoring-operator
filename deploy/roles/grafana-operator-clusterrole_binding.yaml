@@ -1,0 +1,12 @@
+apiVersion: authorization.openshift.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: grafana-operator
+roleRef:
+  name: grafana-operator-cluster-role
+subjects:
+  - kind: ServiceAccount
+    name: grafana-serviceaccount
+    namespace: middleware-monitoring
+userNames:
+  - system:serviceaccount:application-monitoring:grafana-operator

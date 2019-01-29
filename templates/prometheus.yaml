@@ -1,0 +1,30 @@
+apiVersion: monitoring.coreos.com/v1
+kind: Prometheus
+metadata:
+  name: {{ .ApplicationMonitoringName }}
+  namespace: {{ .Namespace }}
+  labels:
+    prometheus: {{ .ApplicationMonitoringName }}
+spec:
+  alerting:
+    alertmanagers:
+      - name: alertmanager-application-monitoring
+        namespace: {{ .Namespace }}
+        port: web
+  resources:
+    requests:
+      memory: 400Mi
+  serviceAccountName: prometheus-application-monitoring
+  serviceMonitorNamespaceSelector:
+    matchLabels:
+      application-monitoring: 'true'
+  serviceMonitorSelector:
+    matchLabels:
+      application-monitoring: 'true'
+  ruleSelector:
+    matchLabels:
+      prometheus: {{ .ApplicationMonitoringName }}
+      role: alert-rules
+  ruleNamespaceSelector:
+    matchLabels:
+      application-monitoring: 'true'

@@ -1,0 +1,21 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    prometheus: {{ .ApplicationMonitoringName}}
+    role: alert-rules
+  name: prometheus-application-monitoring-rules
+  namespace: {{ .Namespace }}
+spec:
+  groups:
+    - name: general.rules
+      rules:
+        - alert: DeadMansSwitch
+          annotations:
+            description: >-
+              This is a DeadMansSwitch meant to ensure that the entire Alerting
+              pipeline is functional.
+            summary: Alerting DeadMansSwitch
+          expr: vector(1)
+          labels:
+            severity: none

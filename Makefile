@@ -1,9 +1,9 @@
-ORG=integreatly
-NAMESPACE=application-monitoring
-PROJECT=application-monitoring-operator
+ORG ?= integreatly
+NAMESPACE ?= middleware-monitoring
+PROJECT ?= application-monitoring-operator
 REG=quay.io
 SHELL=/bin/bash
-TAG=0.0.1
+TAG ?= 0.0.1
 PKG=github.com/integr8ly/application-monitoring-operator
 TEST_DIRS?=$(shell sh -c "find $(TOP_SRC_DIRS) -name \\*_test.go -exec dirname {} \\; | sort | uniq")
 TEST_POD_NAME=application-monitoring-operator-test
