@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
@@ -121,6 +122,8 @@ func (r *ReconcileApplicationMonitoring) Reconcile(request reconcile.Request) (r
 		return r.InstallGrafanaOperator(instanceCopy)
 	case PhaseCreateGrafanaCR:
 		return r.CreateGrafanaCR(instanceCopy)
+	case PhaseDone:
+		log.Info("Finished installing application monitoring")
 	}
 
 	return reconcile.Result{}, nil
@@ -129,6 +132,7 @@ func (r *ReconcileApplicationMonitoring) Reconcile(request reconcile.Request) (r
 func (r *ReconcileApplicationMonitoring) InstallPrometheusOperator(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
 	log.Info("Phase: Install PrometheusOperator")
 
+	/*
 	for _, resourceName := range []string{PrometheusOperatorServiceAccountName, PrometheusServiceAccountName, PrometheusServiceName, AlertManagerSecretName, AlertManagerServiceAccountName, AlertManagerServiceName, PrometheusOperatorDeploymentName} {
 		if err := r.CreateResource(cr, resourceName); err != nil {
 			log.Info(fmt.Sprintf("Error in InstallPrometheusOperator, resourceName=%s : err=%s", resourceName, err))
@@ -136,7 +140,7 @@ func (r *ReconcileApplicationMonitoring) InstallPrometheusOperator(cr *applicati
 			return reconcile.Result{Requeue: true}, err
 		}
 	}
-
+	*/
 	log.Info("PrometheusOperator installation complete")
 	return reconcile.Result{Requeue: true}, r.UpdatePhase(cr, PhaseCreatePrometheusCRs)
 }
@@ -144,6 +148,7 @@ func (r *ReconcileApplicationMonitoring) InstallPrometheusOperator(cr *applicati
 func (r *ReconcileApplicationMonitoring) CreatePrometheusCRs(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
 	log.Info("Phase: Create Prometheus CRs")
 
+	/*
 	for _, resourceName := range []string{AlertManagerCRName, PrometheusCRName, PrometheusRuleCRName, ServiceMonitorGrafanaCRName, ServiceMonitorPrometheusCRName} {
 		if err := r.CreateResource(cr, resourceName); err != nil {
 			log.Info(fmt.Sprintf("Error in CreatePrometheusCRs, resourceName=%s : err=%s", resourceName, err))
@@ -151,7 +156,7 @@ func (r *ReconcileApplicationMonitoring) CreatePrometheusCRs(cr *applicationmoni
 			return reconcile.Result{Requeue: true}, err
 		}
 	}
-
+	*/
 	log.Info("Prometheus CRs installation complete")
 	return reconcile.Result{Requeue: true}, r.UpdatePhase(cr, PhaseInstallGrafanaOperator)
 }
@@ -159,7 +164,7 @@ func (r *ReconcileApplicationMonitoring) CreatePrometheusCRs(cr *applicationmoni
 func (r *ReconcileApplicationMonitoring) InstallGrafanaOperator(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
 	log.Info("Phase: Install GrafanaOperator")
 
-	for _, resourceName := range []string{GrafanaOperatorRoleBindingName, GrafanaOperatorRoleName, GrafanaOperatorServiceAccountName, GrafanaOperatorDeploymentName} {
+	for _, resourceName := range []string{GrafanaOperatorServiceAccountName, GrafanaOperatorRoleName, GrafanaOperatorRoleBindingName, GrafanaOperatorName} {
 		if err := r.CreateResource(cr, resourceName); err != nil {
 			log.Info(fmt.Sprintf("Error in InstallGrafanaOperator, resourceName=%s : err=%s", resourceName, err))
 			// Requeue so it can be attempted again
@@ -168,21 +173,24 @@ func (r *ReconcileApplicationMonitoring) InstallGrafanaOperator(cr *applicationm
 	}
 
 	log.Info("GrafanaOperator installation complete")
-	return reconcile.Result{Requeue: true}, r.UpdatePhase(cr, PhaseCreateGrafanaCR)
+
+	// Give the operator some time to start
+	return reconcile.Result{RequeueAfter: time.Second * 10}, r.UpdatePhase(cr, PhaseCreateGrafanaCR)
 }
 
 func (r *ReconcileApplicationMonitoring) CreateGrafanaCR(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
 	log.Info("Phase: Create Grafana CR")
 
-	resourceName := GrafanaCRName
-	if err := r.CreateResource(cr, resourceName); err != nil {
-		log.Info(fmt.Sprintf("Error in CreateGrafanaCR, resourceName=%s : err=%s", resourceName, err))
-		// Requeue so it can be attempted again
-		return reconcile.Result{Requeue: true}, err
+	for _, resourceName := range []string{GrafanaCrName} {
+		if err := r.CreateResource(cr, resourceName); err != nil {
+			log.Info(fmt.Sprintf("Error in CreateGrafanaCR, resourceName=%s : err=%s", resourceName, err))
+			// Requeue so it can be attempted again
+			return reconcile.Result{Requeue: true}, err
+		}
 	}
 
 	log.Info("Grafana CR installation complete")
-	return reconcile.Result{Requeue: true}, r.UpdatePhase(cr, PhaseDone)
+	return reconcile.Result{RequeueAfter: time.Second * 10}, r.UpdatePhase(cr, PhaseDone)
 }
 
 // CreateResource Creates a generic kubernetes resource from a templates
