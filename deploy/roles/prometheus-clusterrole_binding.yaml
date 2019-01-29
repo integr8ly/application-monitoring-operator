@@ -9,6 +9,6 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: prometheus
-  namespace: application-monitoring
+  namespace: middleware-monitoring
 userNames:
 - system:serviceaccount:application-monitoring:prometheus
