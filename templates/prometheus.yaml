@@ -1,10 +1,10 @@
 apiVersion: monitoring.coreos.com/v1
 kind: Prometheus
 metadata:
-  name: application-monitoring
+  name: {{ .ApplicationMonitoringName }}
   namespace: {{ .Namespace }}
   labels:
-    prometheus: application-monitoring
+    prometheus: {{ .ApplicationMonitoringName }}
 spec:
   alerting:
     alertmanagers:
@@ -14,16 +14,17 @@ spec:
   resources:
     requests:
       memory: 400Mi
-  serviceAccountName: prometheus
+  serviceAccountName: prometheus-application-monitoring
   serviceMonitorNamespaceSelector:
     matchLabels:
-      monitoring-key: 'middleware'
+      application-monitoring: 'true'
   serviceMonitorSelector:
     matchLabels:
-      monitoring-key: 'middleware'
+      application-monitoring: 'true'
   ruleSelector:
     matchLabels:
-      monitoring-key: 'middleware'
+      prometheus: {{ .ApplicationMonitoringName }}
+      role: alert-rules
   ruleNamespaceSelector:
     matchLabels:
-      monitoring-key: 'middleware'
+      application-monitoring: 'true'

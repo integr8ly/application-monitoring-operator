@@ -1,0 +1,14 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ .AlertManagerRouteName }}
+  namespace: {{ .Namespace }}
+spec:
+  port:
+    targetPort: web
+  tls:
+    termination: edge
+  to:
+    kind: Service
+    name: {{ .AlertManagerServiceName }}
+  wildcardPolicy: None

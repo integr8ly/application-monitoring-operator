@@ -3,10 +3,10 @@ kind: ClusterRoleBinding
 metadata:
   name: grafana-operator
 roleRef:
-  name: grafana-operator
+  name: grafana-operator-cluster-role
 subjects:
   - kind: ServiceAccount
-    name: grafana-operator
-    namespace: {{ .Namespace }}
+    name: grafana-serviceaccount
+    namespace: application-monitoring
 userNames:
-  - system:serviceaccount:{{ .Namespace }}:grafana-operator
+  - system:serviceaccount:application-monitoring:grafana-operator

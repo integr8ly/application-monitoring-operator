@@ -28,6 +28,8 @@ var log = logf.Log.WithName("controller_applicationmonitoring")
 const (
 	PhaseInstallPrometheusOperator = iota
 	PhaseCreatePrometheusCRs
+	PhaseCreateAlertManagerCrs
+	PhaseCreateAux
 	PhaseInstallGrafanaOperator
 	PhaseCreateGrafanaCR
 	PhaseDone
@@ -118,6 +120,10 @@ func (r *ReconcileApplicationMonitoring) Reconcile(request reconcile.Request) (r
 		return r.InstallPrometheusOperator(instanceCopy)
 	case PhaseCreatePrometheusCRs:
 		return r.CreatePrometheusCRs(instanceCopy)
+	case PhaseCreateAlertManagerCrs:
+		return r.CreateAlertManagerCRs(instanceCopy)
+	case PhaseCreateAux:
+		return r.CreateAux(instanceCopy)
 	case PhaseInstallGrafanaOperator:
 		return r.InstallGrafanaOperator(instanceCopy)
 	case PhaseCreateGrafanaCR:
@@ -132,34 +138,66 @@ func (r *ReconcileApplicationMonitoring) Reconcile(request reconcile.Request) (r
 func (r *ReconcileApplicationMonitoring) InstallPrometheusOperator(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
 	log.Info("Phase: Install PrometheusOperator")
 
-	/*
-	for _, resourceName := range []string{PrometheusOperatorServiceAccountName, PrometheusServiceAccountName, PrometheusServiceName, AlertManagerSecretName, AlertManagerServiceAccountName, AlertManagerServiceName, PrometheusOperatorDeploymentName} {
+	for _, resourceName := range []string{PrometheusOperatorServiceAccountName, PrometheusOperatorName} {
 		if err := r.CreateResource(cr, resourceName); err != nil {
 			log.Info(fmt.Sprintf("Error in InstallPrometheusOperator, resourceName=%s : err=%s", resourceName, err))
 			// Requeue so it can be attempted again
 			return reconcile.Result{Requeue: true}, err
 		}
 	}
-	*/
+
 	log.Info("PrometheusOperator installation complete")
-	return reconcile.Result{Requeue: true}, r.UpdatePhase(cr, PhaseCreatePrometheusCRs)
+	return reconcile.Result{RequeueAfter: time.Second * 10}, r.UpdatePhase(cr, PhaseCreatePrometheusCRs)
 }
 
 func (r *ReconcileApplicationMonitoring) CreatePrometheusCRs(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
 	log.Info("Phase: Create Prometheus CRs")
 
-	/*
-	for _, resourceName := range []string{AlertManagerCRName, PrometheusCRName, PrometheusRuleCRName, ServiceMonitorGrafanaCRName, ServiceMonitorPrometheusCRName} {
+
+	for _, resourceName := range []string{PrometheusServiceAccountName, PrometheusServiceName, PrometheusCrName} {
 		if err := r.CreateResource(cr, resourceName); err != nil {
 			log.Info(fmt.Sprintf("Error in CreatePrometheusCRs, resourceName=%s : err=%s", resourceName, err))
 			// Requeue so it can be attempted again
 			return reconcile.Result{Requeue: true}, err
 		}
 	}
-	*/
+
 	log.Info("Prometheus CRs installation complete")
-	return reconcile.Result{Requeue: true}, r.UpdatePhase(cr, PhaseInstallGrafanaOperator)
+	return reconcile.Result{RequeueAfter: time.Second * 10}, r.UpdatePhase(cr, PhaseCreateAlertManagerCrs)
 }
+
+func (r *ReconcileApplicationMonitoring) CreateAlertManagerCRs(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
+	log.Info("Phase: Create AlertManager CRs")
+
+
+	for _, resourceName := range []string{AlertManagerServiceAccountName, AlertManagerServiceName, AlertManagerRouteName, AlertManagerSecretName, AlertManagerCrName} {
+		if err := r.CreateResource(cr, resourceName); err != nil {
+			log.Info(fmt.Sprintf("Error in CreateAlertManagerCRs, resourceName=%s : err=%s", resourceName, err))
+			// Requeue so it can be attempted again
+			return reconcile.Result{Requeue: true}, err
+		}
+	}
+
+	log.Info("AlertManager CRs installation complete")
+	return reconcile.Result{RequeueAfter: time.Second * 10}, r.UpdatePhase(cr, PhaseCreateAux)
+}
+
+func (r *ReconcileApplicationMonitoring) CreateAux(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
+	log.Info("Phase: Create auxiliary resources")
+
+
+	for _, resourceName := range []string{ServiceMonitorName, PrometheusRuleName} {
+		if err := r.CreateResource(cr, resourceName); err != nil {
+			log.Info(fmt.Sprintf("Error in CreateAux, resourceName=%s : err=%s", resourceName, err))
+			// Requeue so it can be attempted again
+			return reconcile.Result{Requeue: true}, err
+		}
+	}
+
+	log.Info("Auxiliary resources installation complete")
+	return reconcile.Result{RequeueAfter: time.Second * 10}, r.UpdatePhase(cr, PhaseInstallGrafanaOperator)
+}
+
 
 func (r *ReconcileApplicationMonitoring) InstallGrafanaOperator(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
 	log.Info("Phase: Install GrafanaOperator")

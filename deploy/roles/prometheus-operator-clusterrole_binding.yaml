@@ -9,6 +9,6 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: prometheus-operator
-  namespace: {{ .Namespace }}
+  namespace: application-monitoring
 userNames:
-- system:serviceaccount:{{ .Namespace }}:prometheus-operator
+- system:serviceaccount:application-monitoring:prometheus-operator

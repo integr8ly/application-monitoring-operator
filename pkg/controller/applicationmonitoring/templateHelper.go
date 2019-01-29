@@ -11,28 +11,42 @@ import (
 )
 
 const (
-	GrafanaOperatorName               = "grafana-operator"
-	GrafanaRoleName                   = "grafana-role"
-	GrafanaRoleBindingName            = "grafana-role-binding"
-	GrafanaServiceAccountName         = "grafana-service-account"
-	GrafanaCrName                     = "grafana"
-	GrafanaOperatorServiceAccountName = "grafana-operator-service-account"
-	GrafanaOperatorRoleName           = "grafana-operator-role"
-	GrafanaOperatorRoleBindingName    = "grafana-operator-role-binding"
+	ApplicationMonitoringName            = "application-monitoring"
+	GrafanaCrName                        = "grafana"
+	GrafanaOperatorName                  = "grafana-operator"
+	GrafanaOperatorRoleName              = "grafana-operator-role"
+	GrafanaOperatorRoleBindingName       = "grafana-operator-role-binding"
+	GrafanaOperatorServiceAccountName    = "grafana-operator-service-account"
+	PrometheusOperatorName               = "prometheus-operator"
+	PrometheusOperatorServiceAccountName = "prometheus-operator-service-account"
+	PrometheusCrName                     = "prometheus"
+	PrometheusServiceAccountName         = "prometheus-service-account"
+	PrometheusServiceName                = "prometheus-service"
+	AlertManagerServiceAccountName       = "alertmanager-service-account"
+	AlertManagerCrName                   = "alertmanager"
+	AlertManagerServiceName              = "alertmanager-service"
+	AlertManagerSecretName               = "alertmanager-secret"
+	ServiceMonitorName                   = "servicemonitor"
+	PrometheusRuleName                   = "prometheus-rule"
+	AlertManagerRouteName                = "alertmanager-route"
 )
 
 type Parameters struct {
-	PrometheusOperatorDeploymentName  string
+	ApplicationMonitoringName         string
+	PrometheusOperatorName            string
 	Namespace                         string
 	GrafanaOperatorName               string
-	GrafanaRoleName                   string
-	GrafanaRoleBindingName            string
-	GrafanaServiceAccountName         string
 	GrafanaCrName                     string
 	GrafanaImage                      string
 	GrafanaOperatorServiceAccountName string
 	GrafanaOperatorRoleName           string
 	GrafanaOperatorRoleBindingName    string
+	PrometheusCrName                  string
+	PrometheusServiceName             string
+	AlertManagerServiceAccountName    string
+	AlertManagerCrName                string
+	AlertManagerServiceName           string
+	AlertManagerRouteName             string
 }
 
 type TemplateHelper struct {
@@ -47,14 +61,19 @@ func newTemplateHelper(cr *applicationmonitoring.ApplicationMonitoring) *Templat
 	param := Parameters{
 		Namespace:                         cr.Namespace,
 		GrafanaOperatorName:               GrafanaOperatorName,
-		GrafanaRoleName:                   GrafanaRoleName,
-		GrafanaRoleBindingName:            GrafanaRoleBindingName,
-		GrafanaServiceAccountName:         GrafanaServiceAccountName,
 		GrafanaCrName:                     GrafanaCrName,
 		GrafanaOperatorServiceAccountName: GrafanaOperatorServiceAccountName,
 		GrafanaOperatorRoleBindingName:    GrafanaOperatorRoleBindingName,
 		GrafanaOperatorRoleName:           GrafanaOperatorRoleName,
 		GrafanaImage:                      "quay.io/integreatly/grafana-operator:0.0.1",
+		PrometheusOperatorName:            PrometheusOperatorName,
+		ApplicationMonitoringName:         ApplicationMonitoringName,
+		PrometheusCrName:                  PrometheusCrName,
+		PrometheusServiceName:             PrometheusServiceName,
+		AlertManagerServiceAccountName:    AlertManagerServiceAccountName,
+		AlertManagerCrName:                AlertManagerCrName,
+		AlertManagerServiceName:           AlertManagerServiceName,
+		AlertManagerRouteName:             AlertManagerRouteName,
 	}
 
 	templatePath := os.Getenv("TEMPLATE_PATH")

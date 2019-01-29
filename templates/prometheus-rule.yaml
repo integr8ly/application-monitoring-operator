@@ -2,8 +2,9 @@ apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
   labels:
-    monitoring-key: 'middleware'
-  name: prometheus
+    prometheus: {{ .ApplicationMonitoringName}}
+    role: alert-rules
+  name: prometheus-application-monitoring-rules
   namespace: {{ .Namespace }}
 spec:
   groups:
