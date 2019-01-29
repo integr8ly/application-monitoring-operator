@@ -153,7 +153,6 @@ func (r *ReconcileApplicationMonitoring) InstallPrometheusOperator(cr *applicati
 func (r *ReconcileApplicationMonitoring) CreatePrometheusCRs(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
 	log.Info("Phase: Create Prometheus CRs")
 
-
 	for _, resourceName := range []string{PrometheusServiceAccountName, PrometheusServiceName, PrometheusCrName} {
 		if err := r.CreateResource(cr, resourceName); err != nil {
 			log.Info(fmt.Sprintf("Error in CreatePrometheusCRs, resourceName=%s : err=%s", resourceName, err))
@@ -168,7 +167,6 @@ func (r *ReconcileApplicationMonitoring) CreatePrometheusCRs(cr *applicationmoni
 
 func (r *ReconcileApplicationMonitoring) CreateAlertManagerCRs(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
 	log.Info("Phase: Create AlertManager CRs")
-
 
 	for _, resourceName := range []string{AlertManagerServiceAccountName, AlertManagerServiceName, AlertManagerRouteName, AlertManagerSecretName, AlertManagerCrName} {
 		if err := r.CreateResource(cr, resourceName); err != nil {
@@ -185,7 +183,6 @@ func (r *ReconcileApplicationMonitoring) CreateAlertManagerCRs(cr *applicationmo
 func (r *ReconcileApplicationMonitoring) CreateAux(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
 	log.Info("Phase: Create auxiliary resources")
 
-
 	for _, resourceName := range []string{ServiceMonitorName, PrometheusRuleName} {
 		if err := r.CreateResource(cr, resourceName); err != nil {
 			log.Info(fmt.Sprintf("Error in CreateAux, resourceName=%s : err=%s", resourceName, err))
@@ -197,7 +194,6 @@ func (r *ReconcileApplicationMonitoring) CreateAux(cr *applicationmonitoringv1al
 	log.Info("Auxiliary resources installation complete")
 	return reconcile.Result{RequeueAfter: time.Second * 10}, r.UpdatePhase(cr, PhaseInstallGrafanaOperator)
 }
-
 
 func (r *ReconcileApplicationMonitoring) InstallGrafanaOperator(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
 	log.Info("Phase: Install GrafanaOperator")
