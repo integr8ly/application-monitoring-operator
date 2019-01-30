@@ -17,10 +17,10 @@ spec:
         - name: application-monitoring-operator
           image: quay.io/integreatly/application-monitoring-operator:0.0.1
           ports:
-          - containerPort: 60000
-            name: metrics
+            - containerPort: 60000
+              name: metrics
           command:
-          - application-monitoring-operator
+            - application-monitoring-operator
           imagePullPolicy: Always
           readinessProbe:
             exec:
@@ -31,6 +31,8 @@ spec:
             periodSeconds: 10
             failureThreshold: 1
           env:
+            - name: TEMPLATE_PATH
+              value: /usr/local/bin/templates
             - name: WATCH_NAMESPACE
               valueFrom:
                 fieldRef:
