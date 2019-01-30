@@ -36,8 +36,8 @@ rules:
   - apiGroups:
       - integreatly.org
     resources:
-      - '*'
       - grafanadashboards
+      - grafanas
     verbs:
       - '*'
   - apiGroups:
