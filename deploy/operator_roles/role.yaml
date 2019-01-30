@@ -43,9 +43,17 @@ rules:
     verbs:
       - '*'
   - apiGroups:
+      - integreatly.org
+    resources:
+      - grafanadashboards
+      - grafanas
+    verbs:
+      - '*'
+  - apiGroups:
       - route.openshift.io
     resources:
       - routes
+      - routes/custom-host
     verbs:
       - '*'
   - apiGroups:
@@ -54,5 +62,11 @@ rules:
     resources:
       - rolebindings
       - roles
+    verbs:
+      - '*'
+  - apiGroups:
+      - extensions
+    resources:
+      - ingresses
     verbs:
       - '*'
