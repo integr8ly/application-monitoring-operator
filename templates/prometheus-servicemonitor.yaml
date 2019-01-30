@@ -2,13 +2,12 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   labels:
-    application-monitoring: 'true'
-  name: grafana
+    monitoring-key: 'middleware'
+  name: {{ .PrometheusServiceMonitorName }}
   namespace: {{ .Namespace }}
 spec:
   endpoints:
-    - port: grafana
-      scheme: http
+    - port: web
   selector:
     matchLabels:
       application-monitoring: 'true'
