@@ -26,9 +26,10 @@ const (
 	AlertManagerCrName                   = "alertmanager"
 	AlertManagerServiceName              = "alertmanager-service"
 	AlertManagerSecretName               = "alertmanager-secret"
-	ServiceMonitorName                   = "servicemonitor"
+	PrometheusServiceMonitorName         = "prometheus-servicemonitor"
 	PrometheusRuleName                   = "prometheus-rule"
 	AlertManagerRouteName                = "alertmanager-route"
+	GrafanaServiceMonitorName            = "grafana-servicemonitor"
 )
 
 type Parameters struct {
@@ -47,6 +48,8 @@ type Parameters struct {
 	AlertManagerCrName                string
 	AlertManagerServiceName           string
 	AlertManagerRouteName             string
+	GrafanaServiceMonitorName         string
+	PrometheusServiceMonitorName      string
 }
 
 type TemplateHelper struct {
@@ -74,6 +77,8 @@ func newTemplateHelper(cr *applicationmonitoring.ApplicationMonitoring) *Templat
 		AlertManagerCrName:                AlertManagerCrName,
 		AlertManagerServiceName:           AlertManagerServiceName,
 		AlertManagerRouteName:             AlertManagerRouteName,
+		GrafanaServiceMonitorName:         GrafanaServiceMonitorName,
+		PrometheusServiceMonitorName:      PrometheusServiceMonitorName,
 	}
 
 	templatePath := os.Getenv("TEMPLATE_PATH")

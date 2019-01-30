@@ -183,7 +183,7 @@ func (r *ReconcileApplicationMonitoring) CreateAlertManagerCRs(cr *applicationmo
 func (r *ReconcileApplicationMonitoring) CreateAux(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
 	log.Info("Phase: Create auxiliary resources")
 
-	for _, resourceName := range []string{ServiceMonitorName, PrometheusRuleName} {
+	for _, resourceName := range []string{PrometheusServiceMonitorName, GrafanaServiceMonitorName, PrometheusRuleName} {
 		if err := r.CreateResource(cr, resourceName); err != nil {
 			log.Info(fmt.Sprintf("Error in CreateAux, resourceName=%s : err=%s", resourceName, err))
 			// Requeue so it can be attempted again
