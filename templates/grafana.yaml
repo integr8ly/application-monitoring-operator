@@ -4,4 +4,4 @@ metadata:
   name: {{ .GrafanaCrName }}
   namespace: {{ .Namespace }}
 spec:
-  prometheusUrl: "http://prometheus-application-monitoring:9090"
+  prometheusUrl: "http://prometheus-service:9090"
