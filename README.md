@@ -16,7 +16,38 @@ The following Grafana resources are supported:
 
 Triggers the installation of the monitoring stack when created. This is achieved by deploying two other operators that install Prometheus and Grafana respectively.
 
-# Running locally
+# Installation
+
+You will need cluster admin permissions to create CRDs, ClusterRoles & ClusterRoleBindings.
+ClusterRoles are needed to allow the operators to watch multiple namespaces.
+
+```
+oc new-project application-monitoring
+```
+
+Grafana CRDs
+
+```
+oc apply -f https://raw.githubusercontent.com/integr8ly/grafana-operator/master/deploy/crds/Grafana.yaml
+oc apply -f https://raw.githubusercontent.com/integr8ly/grafana-operator/master/deploy/crds/GrafanaDashboard.yaml
+```
+
+Cluster Roles & RoleBindings
+
+```
+oc apply -f ./deploy/roles
+```
+
+Application Monitoring Operator
+
+```
+oc apply -f ./deploy/operator_roles/
+oc apply -f ./deploy/crds/ApplicationMonitoring.yaml
+oc apply -f ./deploy/operator.yaml
+oc apply -f ./deploy/examples/ApplicationMonitoring.yaml
+```
+
+# Running locally (for development)
 
 You can run the Operator locally against a remote namespace. The name of the namespace should be `application-monitoring`. To run the operator execute:
 

@@ -7,6 +7,6 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: grafana-serviceaccount
-    namespace: middleware-monitoring
+    namespace: application-monitoring
 userNames:
-  - system:serviceaccount:application-monitoring:grafana-operator
+  - system:serviceaccount:application-monitoring:grafana-serviceaccount
