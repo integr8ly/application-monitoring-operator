@@ -33,23 +33,22 @@ const (
 )
 
 type Parameters struct {
-	ApplicationMonitoringName         string
-	PrometheusOperatorName            string
-	Namespace                         string
-	GrafanaOperatorName               string
-	GrafanaCrName                     string
-	GrafanaImage                      string
-	GrafanaOperatorServiceAccountName string
-	GrafanaOperatorRoleName           string
-	GrafanaOperatorRoleBindingName    string
-	PrometheusCrName                  string
-	PrometheusServiceName             string
-	AlertManagerServiceAccountName    string
-	AlertManagerCrName                string
-	AlertManagerServiceName           string
-	AlertManagerRouteName             string
-	GrafanaServiceMonitorName         string
-	PrometheusServiceMonitorName      string
+	ApplicationMonitoringName      string
+	PrometheusOperatorName         string
+	Namespace                      string
+	GrafanaOperatorName            string
+	GrafanaCrName                  string
+	GrafanaImage                   string
+	GrafanaOperatorRoleName        string
+	GrafanaOperatorRoleBindingName string
+	PrometheusCrName               string
+	PrometheusServiceName          string
+	AlertManagerServiceAccountName string
+	AlertManagerCrName             string
+	AlertManagerServiceName        string
+	AlertManagerRouteName          string
+	GrafanaServiceMonitorName      string
+	PrometheusServiceMonitorName   string
 }
 
 type TemplateHelper struct {
@@ -62,23 +61,22 @@ type TemplateHelper struct {
 // by the user in the custom resource
 func newTemplateHelper(cr *applicationmonitoring.ApplicationMonitoring) *TemplateHelper {
 	param := Parameters{
-		Namespace:                         cr.Namespace,
-		GrafanaOperatorName:               GrafanaOperatorName,
-		GrafanaCrName:                     GrafanaCrName,
-		GrafanaOperatorServiceAccountName: GrafanaOperatorServiceAccountName,
-		GrafanaOperatorRoleBindingName:    GrafanaOperatorRoleBindingName,
-		GrafanaOperatorRoleName:           GrafanaOperatorRoleName,
-		GrafanaImage:                      "quay.io/integreatly/grafana-operator:0.0.1",
-		PrometheusOperatorName:            PrometheusOperatorName,
-		ApplicationMonitoringName:         ApplicationMonitoringName,
-		PrometheusCrName:                  PrometheusCrName,
-		PrometheusServiceName:             PrometheusServiceName,
-		AlertManagerServiceAccountName:    AlertManagerServiceAccountName,
-		AlertManagerCrName:                AlertManagerCrName,
-		AlertManagerServiceName:           AlertManagerServiceName,
-		AlertManagerRouteName:             AlertManagerRouteName,
-		GrafanaServiceMonitorName:         GrafanaServiceMonitorName,
-		PrometheusServiceMonitorName:      PrometheusServiceMonitorName,
+		Namespace:                      cr.Namespace,
+		GrafanaOperatorName:            GrafanaOperatorName,
+		GrafanaCrName:                  GrafanaCrName,
+		GrafanaOperatorRoleBindingName: GrafanaOperatorRoleBindingName,
+		GrafanaOperatorRoleName:        GrafanaOperatorRoleName,
+		GrafanaImage:                   "quay.io/integreatly/grafana-operator:0.0.1",
+		PrometheusOperatorName:         PrometheusOperatorName,
+		ApplicationMonitoringName:      ApplicationMonitoringName,
+		PrometheusCrName:               PrometheusCrName,
+		PrometheusServiceName:          PrometheusServiceName,
+		AlertManagerServiceAccountName: AlertManagerServiceAccountName,
+		AlertManagerCrName:             AlertManagerCrName,
+		AlertManagerServiceName:        AlertManagerServiceName,
+		AlertManagerRouteName:          AlertManagerRouteName,
+		GrafanaServiceMonitorName:      GrafanaServiceMonitorName,
+		PrometheusServiceMonitorName:   PrometheusServiceMonitorName,
 	}
 
 	templatePath := os.Getenv("TEMPLATE_PATH")

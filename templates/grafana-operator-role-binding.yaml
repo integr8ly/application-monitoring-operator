@@ -5,7 +5,7 @@ metadata:
   namespace: {{ .Namespace }}
 subjects:
   - kind: ServiceAccount
-    name: {{ .GrafanaOperatorServiceAccountName }}
+    name: grafana-serviceaccount
 roleRef:
   kind: Role
   name: {{ .GrafanaOperatorRoleName }}

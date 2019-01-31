@@ -13,7 +13,7 @@ spec:
       labels:
         name: {{ .GrafanaOperatorName }}
     spec:
-      serviceAccountName: {{ .GrafanaOperatorServiceAccountName }}
+      serviceAccountName: grafana-serviceaccount
       containers:
         - name: {{ .GrafanaOperatorName }}
           image: {{ .GrafanaImage }}

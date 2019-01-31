@@ -38,6 +38,7 @@ rules:
     resources:
       - grafanadashboards
       - grafanas
+      - grafanas/finalizers
     verbs:
       - '*'
   - apiGroups:
