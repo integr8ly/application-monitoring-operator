@@ -1,5 +1,5 @@
 ORG ?= integreatly
-NAMESPACE ?= middleware-monitoring
+NAMESPACE ?= application-monitoring
 PROJECT ?= application-monitoring-operator
 REG=quay.io
 SHELL=/bin/bash

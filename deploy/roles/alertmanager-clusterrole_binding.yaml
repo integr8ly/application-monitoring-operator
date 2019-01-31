@@ -8,6 +8,6 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: alertmanager
-  namespace: middleware-monitoring
+  namespace: application-monitoring
 userNames:
 - system:serviceaccount:application-monitoring:alertmanager
