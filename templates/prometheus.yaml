@@ -8,7 +8,7 @@ metadata:
 spec:
   alerting:
     alertmanagers:
-      - name: alertmanager-application-monitoring
+      - name: {{ .AlertManagerServiceName }}
         namespace: {{ .Namespace }}
         port: web
   resources:
