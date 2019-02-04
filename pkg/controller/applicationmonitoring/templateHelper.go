@@ -20,6 +20,7 @@ const (
 	PrometheusOperatorName               = "prometheus-operator"
 	PrometheusOperatorServiceAccountName = "prometheus-operator-service-account"
 	PrometheusCrName                     = "prometheus"
+	PrometheusRouteName                  = "prometheus-route"
 	PrometheusServiceAccountName         = "prometheus-service-account"
 	PrometheusServiceName                = "prometheus-service"
 	AlertManagerServiceAccountName       = "alertmanager-service-account"
@@ -42,6 +43,7 @@ type Parameters struct {
 	GrafanaOperatorRoleName        string
 	GrafanaOperatorRoleBindingName string
 	PrometheusCrName               string
+	PrometheusRouteName            string
 	PrometheusServiceName          string
 	AlertManagerServiceAccountName string
 	AlertManagerCrName             string
@@ -70,6 +72,7 @@ func newTemplateHelper(cr *applicationmonitoring.ApplicationMonitoring) *Templat
 		PrometheusOperatorName:         PrometheusOperatorName,
 		ApplicationMonitoringName:      ApplicationMonitoringName,
 		PrometheusCrName:               PrometheusCrName,
+		PrometheusRouteName:            PrometheusRouteName,
 		PrometheusServiceName:          PrometheusServiceName,
 		AlertManagerServiceAccountName: AlertManagerServiceAccountName,
 		AlertManagerCrName:             AlertManagerCrName,
