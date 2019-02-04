@@ -5,3 +5,6 @@ metadata:
   namespace: {{ .Namespace }}
 spec:
   prometheusUrl: "http://prometheus-service:9090"
+  dashboardNamespaceSelector:
+    matchLabels:
+      monitoring-key: middleware
