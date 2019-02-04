@@ -21,7 +21,7 @@ spec:
             - --logtostderr=true
             - --config-reloader-image=quay.io/coreos/configmap-reload:v0.0.1
             - --prometheus-config-reloader=quay.io/coreos/prometheus-config-reloader:v0.26.0
-            - --namespaces={{ .Namespace }}
+            - --namespaces=
           image: quay.io/coreos/prometheus-operator:v0.26.0
           name: prometheus-application-operator
           ports:
