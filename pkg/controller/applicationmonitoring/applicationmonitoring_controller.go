@@ -153,7 +153,7 @@ func (r *ReconcileApplicationMonitoring) InstallPrometheusOperator(cr *applicati
 func (r *ReconcileApplicationMonitoring) CreatePrometheusCRs(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
 	log.Info("Phase: Create Prometheus CRs")
 
-	for _, resourceName := range []string{PrometheusServiceAccountName, PrometheusServiceName, PrometheusCrName} {
+	for _, resourceName := range []string{PrometheusServiceAccountName, PrometheusServiceName, PrometheusRouteName, PrometheusCrName} {
 		if err := r.CreateResource(cr, resourceName); err != nil {
 			log.Info(fmt.Sprintf("Error in CreatePrometheusCRs, resourceName=%s : err=%s", resourceName, err))
 			// Requeue so it can be attempted again
