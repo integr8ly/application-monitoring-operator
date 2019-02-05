@@ -23,7 +23,7 @@ ClusterRoles are needed to allow the operators to watch multiple namespaces.
 
 ```
 oc new-project application-monitoring
-oc patch ns application-monitoring --patch '{"metadata":{"labels":{"monitoring-key":"middleware"}}}'
+oc label namespace application-monitoring monitoring-key=middleware
 ```
 
 Grafana CRDs
@@ -57,7 +57,7 @@ The template also includes a simple PrometheusRule, ServiceMonitor & GrafanaDash
 
 ```
 oc new-project example-prometheus-nodejs
-oc patch ns example-prometheus-nodejs --patch '{"metadata":{"labels":{"monitoring-key":"middleware"}}}'
+oc label namespace example-prometheus-nodejs monitoring-key=middleware
 oc process -f https://raw.githubusercontent.com/david-martin/example-prometheus-nodejs/master/template.yaml | oc create -f -
 ```
 
