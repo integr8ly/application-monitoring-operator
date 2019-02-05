@@ -51,6 +51,7 @@ type Parameters struct {
 	AlertManagerRouteName          string
 	GrafanaServiceMonitorName      string
 	PrometheusServiceMonitorName   string
+	MonitoringKey                  string
 }
 
 type TemplateHelper struct {
@@ -80,11 +81,17 @@ func newTemplateHelper(cr *applicationmonitoring.ApplicationMonitoring) *Templat
 		AlertManagerRouteName:          AlertManagerRouteName,
 		GrafanaServiceMonitorName:      GrafanaServiceMonitorName,
 		PrometheusServiceMonitorName:   PrometheusServiceMonitorName,
+		MonitoringKey:                  "middleware",
 	}
 
-	templatePath := os.Getenv("TEMPLATE_PATH")
-	if templatePath == "" {
+	templatePath, exists := os.LookupEnv("TEMPLATE_PATH")
+	if !exists {
 		templatePath = "./templates"
+	}
+
+	monitoringKey, exists := os.LookupEnv("MONITORING_KEY")
+	if exists {
+		param.MonitoringKey = monitoringKey
 	}
 
 	return &TemplateHelper{
