@@ -67,6 +67,12 @@ You should see the following things once reconciled:
 * A new Target `example-prometheus-nodejs/example-prometheus-nodejs` in Prometheus
 * A new Alert Rule `APIHighMedianResponseTime`
 
+The example application provides three endpoints that will produce more metrics:
+
+* `/` will return Hello World after a random response time
+* `/checkout` Will create random checkout metrics
+* `/bad` Can be used to create error rate metrics
+
 # Running locally (for development)
 
 You can run the Operator locally against a remote namespace. The name of the namespace should be `application-monitoring`. To run the operator execute:
