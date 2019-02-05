@@ -8,13 +8,29 @@ This is a PoC / alpha version. Most functionality is there but it is highly like
 
 # Supported Custom Resources
 
-The following Grafana resources are supported:
-
-* ApplicationMonitoring
+The following resources are supported:
 
 ## ApplicationMonitoring
 
 Triggers the installation of the monitoring stack when created. This is achieved by deploying two other operators that install Prometheus and Grafana respectively.
+
+## PrometheusRule
+
+Represents a set of alert rules for Prometheus/Alertmanager. See the [https://github.com/coreos/prometheus-operator/blob/f9bc0aa0fd9aa936f500d9d241098863c60d873d/Documentation/user-guides/alerting.md#alerting](prometheus operator docs) for more details about this resource.
+An example PrometheusRule can be seen in the example app [template](https://github.com/david-martin/example-prometheus-nodejs/blob/d647b83116519b650e00401f04c8868280c47778/template.yaml#L92-L111)
+
+
+## ServiceMonitor
+
+Represents a Service to pull metrics from. See the [https://github.com/coreos/prometheus-operator/blob/master/Documentation/user-guides/getting-started.md#related-resources](prometheus operator docs) for more details about this resource.
+An example ServiceMonitor can be seen in the example app [template](https://github.com/david-martin/example-prometheus-nodejs/blob/d647b83116519b650e00401f04c8868280c47778/template.yaml#L79-L91)
+
+## GrafanaDashboard
+
+Represents a Grafana dashboard. You typically create this in the namespace of the service the dashboard is associated with.
+The Grafana operator reconciles this resource into a dashboard.
+An example GrafanaDashboard can be seen in the example app [template](https://github.com/david-martin/example-prometheus-nodejs/blob/d647b83116519b650e00401f04c8868280c47778/template.yaml#L112-L734)
+
 
 # Installation
 
@@ -81,3 +97,4 @@ You can run the Operator locally against a remote namespace. The name of the nam
 $ make setup/dep
 $ make code/run
 ```
+
