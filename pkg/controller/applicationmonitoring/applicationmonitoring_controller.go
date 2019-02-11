@@ -3,7 +3,6 @@ package applicationmonitoring
 import (
 	"context"
 	"fmt"
-	"strings"
 	"time"
 
 	"k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -245,7 +244,7 @@ func (r *ReconcileApplicationMonitoring) CreateResource(cr *applicationmonitorin
 
 	err = r.client.Create(context.TODO(), resource)
 	if err != nil {
-		if !strings.Contains(err.Error(), "already exists") {
+		if !kerrors.IsAlreadyExists(err) {
 			return errors.Wrap(err, "error creating resource")
 		}
 	}
