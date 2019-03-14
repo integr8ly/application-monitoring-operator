@@ -6,6 +6,7 @@ metadata:
   labels:
     prometheus: {{ .ApplicationMonitoringName }}
 spec:
+  externalUrl: https://{{ index .ExtraParams "prometheusHost" }}
   alerting:
     alertmanagers:
       - name: {{ .AlertManagerServiceName }}

@@ -4,5 +4,6 @@ metadata:
   name: {{ .ApplicationMonitoringName }}
   namespace: {{ .Namespace }}
 spec:
+  externalUrl: https://{{ index .ExtraParams "alertmanagerHost" }}
   listenLocal: false
   serviceAccountName: alertmanager
