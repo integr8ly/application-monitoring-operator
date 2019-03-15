@@ -52,6 +52,7 @@ type Parameters struct {
 	GrafanaServiceMonitorName      string
 	PrometheusServiceMonitorName   string
 	MonitoringKey                  string
+	ExtraParams                    map[string]string
 }
 
 type TemplateHelper struct {
@@ -62,7 +63,7 @@ type TemplateHelper struct {
 // Creates a new templates helper and populates the values for all
 // templates properties. Some of them (like the hostname) are set
 // by the user in the custom resource
-func newTemplateHelper(cr *applicationmonitoring.ApplicationMonitoring) *TemplateHelper {
+func newTemplateHelper(cr *applicationmonitoring.ApplicationMonitoring, extraParams map[string]string) *TemplateHelper {
 	param := Parameters{
 		Namespace:                      cr.Namespace,
 		GrafanaOperatorName:            GrafanaOperatorName,
@@ -82,6 +83,7 @@ func newTemplateHelper(cr *applicationmonitoring.ApplicationMonitoring) *Templat
 		GrafanaServiceMonitorName:      GrafanaServiceMonitorName,
 		PrometheusServiceMonitorName:   PrometheusServiceMonitorName,
 		MonitoringKey:                  "middleware",
+		ExtraParams:                    extraParams,
 	}
 
 	templatePath, exists := os.LookupEnv("TEMPLATE_PATH")

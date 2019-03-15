@@ -12,9 +12,9 @@ type ResourceHelper struct {
 	cr             *applicationmonitoring.ApplicationMonitoring
 }
 
-func newResourceHelper(cr *applicationmonitoring.ApplicationMonitoring) *ResourceHelper {
+func newResourceHelper(cr *applicationmonitoring.ApplicationMonitoring, th *TemplateHelper) *ResourceHelper {
 	return &ResourceHelper{
-		templateHelper: newTemplateHelper(cr),
+		templateHelper: th,
 		cr:             cr,
 	}
 }

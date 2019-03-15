@@ -47,7 +47,11 @@ func Add(mgr manager.Manager) error {
 
 // newReconciler returns a new reconcile.Reconciler
 func newReconciler(mgr manager.Manager) reconcile.Reconciler {
-	return &ReconcileApplicationMonitoring{client: mgr.GetClient(), scheme: mgr.GetScheme()}
+	return &ReconcileApplicationMonitoring{
+		client:      mgr.GetClient(),
+		scheme:      mgr.GetScheme(),
+		extraParams: make(map[string]string),
+	}
 }
 
 // add adds a new Controller to mgr with r as the reconcile.Reconciler
@@ -83,8 +87,9 @@ var _ reconcile.Reconciler = &ReconcileApplicationMonitoring{}
 type ReconcileApplicationMonitoring struct {
 	// This client, initialized using mgr.Client() above, is a split client
 	// that reads objects from the cache and writes to the apiserver
-	client client.Client
-	scheme *runtime.Scheme
+	client      client.Client
+	scheme      *runtime.Scheme
+	extraParams map[string]string
 }
 
 // Reconcile reads that state of the cluster for a ApplicationMonitoring object and makes changes based on the state read
@@ -138,7 +143,7 @@ func (r *ReconcileApplicationMonitoring) InstallPrometheusOperator(cr *applicati
 	log.Info("Phase: Install PrometheusOperator")
 
 	for _, resourceName := range []string{PrometheusOperatorServiceAccountName, PrometheusOperatorName} {
-		if err := r.CreateResource(cr, resourceName); err != nil {
+		if _, err := r.CreateResource(cr, resourceName); err != nil {
 			log.Info(fmt.Sprintf("Error in InstallPrometheusOperator, resourceName=%s : err=%s", resourceName, err))
 			// Requeue so it can be attempted again
 			return reconcile.Result{Requeue: true}, err
@@ -152,8 +157,19 @@ func (r *ReconcileApplicationMonitoring) InstallPrometheusOperator(cr *applicati
 func (r *ReconcileApplicationMonitoring) CreatePrometheusCRs(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
 	log.Info("Phase: Create Prometheus CRs")
 
+	// Create the route first and retrieve the host so that we can assign
+	// it as the external url for the prometheus instance
+	prometheusRoute, err := r.CreateResource(cr, PrometheusRouteName)
+	if err != nil {
+		return reconcile.Result{Requeue: true}, err
+	}
+	r.extraParams["prometheusHost"], err = r.GetHostFromRoute(prometheusRoute)
+	if err != nil {
+		return reconcile.Result{Requeue: true}, err
+	}
+
 	for _, resourceName := range []string{PrometheusServiceAccountName, PrometheusServiceName, PrometheusRouteName, PrometheusCrName} {
-		if err := r.CreateResource(cr, resourceName); err != nil {
+		if _, err := r.CreateResource(cr, resourceName); err != nil {
 			log.Info(fmt.Sprintf("Error in CreatePrometheusCRs, resourceName=%s : err=%s", resourceName, err))
 			// Requeue so it can be attempted again
 			return reconcile.Result{Requeue: true}, err
@@ -167,8 +183,19 @@ func (r *ReconcileApplicationMonitoring) CreatePrometheusCRs(cr *applicationmoni
 func (r *ReconcileApplicationMonitoring) CreateAlertManagerCRs(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
 	log.Info("Phase: Create AlertManager CRs")
 
-	for _, resourceName := range []string{AlertManagerServiceAccountName, AlertManagerServiceName, AlertManagerRouteName, AlertManagerSecretName, AlertManagerCrName} {
-		if err := r.CreateResource(cr, resourceName); err != nil {
+	// Create the route first and retrieve the host so that we can assign
+	// it as the external url for the alertmanager instance
+	alertmanagerRoute, err := r.CreateResource(cr, AlertManagerRouteName)
+	if err != nil {
+		return reconcile.Result{Requeue: true}, err
+	}
+	r.extraParams["alertmanagerHost"], err = r.GetHostFromRoute(alertmanagerRoute)
+	if err != nil {
+		return reconcile.Result{Requeue: true}, err
+	}
+
+	for _, resourceName := range []string{AlertManagerServiceAccountName, AlertManagerServiceName, AlertManagerSecretName, AlertManagerCrName} {
+		if _, err := r.CreateResource(cr, resourceName); err != nil {
 			log.Info(fmt.Sprintf("Error in CreateAlertManagerCRs, resourceName=%s : err=%s", resourceName, err))
 			// Requeue so it can be attempted again
 			return reconcile.Result{Requeue: true}, err
@@ -183,7 +210,7 @@ func (r *ReconcileApplicationMonitoring) CreateAux(cr *applicationmonitoringv1al
 	log.Info("Phase: Create auxiliary resources")
 
 	for _, resourceName := range []string{PrometheusServiceMonitorName, GrafanaServiceMonitorName, PrometheusRuleName} {
-		if err := r.CreateResource(cr, resourceName); err != nil {
+		if _, err := r.CreateResource(cr, resourceName); err != nil {
 			log.Info(fmt.Sprintf("Error in CreateAux, resourceName=%s : err=%s", resourceName, err))
 			// Requeue so it can be attempted again
 			return reconcile.Result{Requeue: true}, err
@@ -198,7 +225,7 @@ func (r *ReconcileApplicationMonitoring) InstallGrafanaOperator(cr *applicationm
 	log.Info("Phase: Install GrafanaOperator")
 
 	for _, resourceName := range []string{GrafanaOperatorServiceAccountName, GrafanaOperatorRoleName, GrafanaOperatorRoleBindingName, GrafanaOperatorName} {
-		if err := r.CreateResource(cr, resourceName); err != nil {
+		if _, err := r.CreateResource(cr, resourceName); err != nil {
 			log.Info(fmt.Sprintf("Error in InstallGrafanaOperator, resourceName=%s : err=%s", resourceName, err))
 			// Requeue so it can be attempted again
 			return reconcile.Result{Requeue: true}, err
@@ -215,7 +242,7 @@ func (r *ReconcileApplicationMonitoring) CreateGrafanaCR(cr *applicationmonitori
 	log.Info("Phase: Create Grafana CR")
 
 	for _, resourceName := range []string{GrafanaCrName} {
-		if err := r.CreateResource(cr, resourceName); err != nil {
+		if _, err := r.CreateResource(cr, resourceName); err != nil {
 			log.Info(fmt.Sprintf("Error in CreateGrafanaCR, resourceName=%s : err=%s", resourceName, err))
 			// Requeue so it can be attempted again
 			return reconcile.Result{Requeue: true}, err
@@ -227,28 +254,45 @@ func (r *ReconcileApplicationMonitoring) CreateGrafanaCR(cr *applicationmonitori
 }
 
 // CreateResource Creates a generic kubernetes resource from a templates
-func (r *ReconcileApplicationMonitoring) CreateResource(cr *applicationmonitoringv1alpha1.ApplicationMonitoring, resourceName string) error {
-	resourceHelper := newResourceHelper(cr)
+func (r *ReconcileApplicationMonitoring) CreateResource(cr *applicationmonitoringv1alpha1.ApplicationMonitoring, resourceName string) (runtime.Object, error) {
+	templateHelper := newTemplateHelper(cr, r.extraParams)
+	resourceHelper := newResourceHelper(cr, templateHelper)
 	resource, err := resourceHelper.createResource(resourceName)
 
 	if err != nil {
-		return errors.Wrap(err, "createResource failed")
+		return nil, errors.Wrap(err, "createResource failed")
 	}
 
 	// Set the CR as the owner of this resource so that when
 	// the CR is deleted this resource also gets removed
 	err = controllerutil.SetControllerReference(cr, resource.(v1.Object), r.scheme)
 	if err != nil {
-		return errors.Wrap(err, "error setting controller reference")
+		return nil, errors.Wrap(err, "error setting controller reference")
 	}
 
 	err = r.client.Create(context.TODO(), resource)
 	if err != nil {
 		if !kerrors.IsAlreadyExists(err) {
-			return errors.Wrap(err, "error creating resource")
+			return nil, errors.Wrap(err, "error creating resource")
 		}
 	}
-	return nil
+
+	return resource, nil
+}
+
+func (r *ReconcileApplicationMonitoring) GetHostFromRoute(object runtime.Object) (string, error) {
+	if object == nil {
+		return "", errors.New("Error getting host from route: runtime object was nil")
+	}
+
+	route := object.(runtime.Unstructured)
+	spec := route.UnstructuredContent()["spec"].(map[string]interface{})
+	host := spec["host"]
+
+	if host == nil {
+		return "", errors.New("Error getting host from route: host value empty")
+	}
+	return host.(string), nil
 }
 
 func (r *ReconcileApplicationMonitoring) UpdatePhase(cr *applicationmonitoringv1alpha1.ApplicationMonitoring, phase int) error {
