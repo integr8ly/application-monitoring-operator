@@ -163,7 +163,10 @@ func (r *ReconcileApplicationMonitoring) CreatePrometheusCRs(cr *applicationmoni
 	if err != nil {
 		return reconcile.Result{Requeue: true}, err
 	}
-	r.extraParams["prometheusHost"] = r.GetHostFromRoute(prometheusRoute)
+	r.extraParams["prometheusHost"], err = r.GetHostFromRoute(prometheusRoute)
+	if err != nil {
+		return reconcile.Result{Requeue: true}, err
+	}
 
 	for _, resourceName := range []string{PrometheusServiceAccountName, PrometheusServiceName, PrometheusRouteName, PrometheusCrName} {
 		if _, err := r.CreateResource(cr, resourceName); err != nil {
@@ -186,7 +189,10 @@ func (r *ReconcileApplicationMonitoring) CreateAlertManagerCRs(cr *applicationmo
 	if err != nil {
 		return reconcile.Result{Requeue: true}, err
 	}
-	r.extraParams["alertmanagerHost"] = r.GetHostFromRoute(alertmanagerRoute)
+	r.extraParams["alertmanagerHost"], err = r.GetHostFromRoute(alertmanagerRoute)
+	if err != nil {
+		return reconcile.Result{Requeue: true}, err
+	}
 
 	for _, resourceName := range []string{AlertManagerServiceAccountName, AlertManagerServiceName, AlertManagerSecretName, AlertManagerCrName} {
 		if _, err := r.CreateResource(cr, resourceName); err != nil {
@@ -274,10 +280,19 @@ func (r *ReconcileApplicationMonitoring) CreateResource(cr *applicationmonitorin
 	return resource, nil
 }
 
-func (r *ReconcileApplicationMonitoring) GetHostFromRoute(object runtime.Object) string {
+func (r *ReconcileApplicationMonitoring) GetHostFromRoute(object runtime.Object) (string, error) {
+	if object == nil {
+		return "", errors.New("Error getting host from route: runtime object was nil")
+	}
+
 	route := object.(runtime.Unstructured)
 	spec := route.UnstructuredContent()["spec"].(map[string]interface{})
-	return spec["host"].(string)
+	host := spec["host"]
+
+	if host == nil {
+		return "", errors.New("Error getting host from route: host value empty")
+	}
+	return host.(string), nil
 }
 
 func (r *ReconcileApplicationMonitoring) UpdatePhase(cr *applicationmonitoringv1alpha1.ApplicationMonitoring, phase int) error {
