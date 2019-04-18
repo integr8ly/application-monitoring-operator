@@ -11,3 +11,14 @@ spec:
     singular: applicationmonitoring
   scope: Namespaced
   version: v1alpha1
+  validation:
+    openAPIV3Schema:
+      required: ["spec"]
+      properties:
+        spec:
+          required: ["namespaceSelector"]
+          properties:
+            namespaceSelector:
+              type: string
+              minimum: 1
+              description: The namespaces that the grafana and prometheus operators will watch

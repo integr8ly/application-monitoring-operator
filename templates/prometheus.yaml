@@ -18,13 +18,13 @@ spec:
   serviceAccountName: prometheus-application-monitoring
   serviceMonitorNamespaceSelector:
     matchLabels:
-      monitoring-key: 'middleware'
+      monitoring-key: {{ .MonitoringKey }}
   serviceMonitorSelector:
     matchLabels:
-      monitoring-key: 'middleware'
+      monitoring-key: {{ .MonitoringKey }}
   ruleSelector:
     matchLabels:
-      monitoring-key: 'middleware'
+      monitoring-key: {{ .MonitoringKey }}
   ruleNamespaceSelector:
     matchLabels:
-      monitoring-key: 'middleware'
+      monitoring-key: {{ .MonitoringKey }}
