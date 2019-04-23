@@ -11,7 +11,7 @@ import (
 type ApplicationMonitoringSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
-	NamespaceSelector string `json:"namespaceSelector"`
+	LabelSelector string `json:"labelSelector"`
 }
 
 // ApplicationMonitoringStatus defines the observed state of ApplicationMonitoring

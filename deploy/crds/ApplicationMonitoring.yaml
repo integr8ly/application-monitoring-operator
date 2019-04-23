@@ -16,9 +16,9 @@ spec:
       required: ["spec"]
       properties:
         spec:
-          required: ["namespaceSelector"]
+          required: ["labelSelector"]
           properties:
-            namespaceSelector:
+            labelSelector:
               type: string
               minimum: 1
-              description: The namespaces that the grafana and prometheus operators will watch
+              description: The selector used by the Prometheus and Grafana Operators to discover resources

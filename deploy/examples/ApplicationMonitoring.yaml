@@ -3,4 +3,4 @@ kind: ApplicationMonitoring
 metadata:
   name: example-applicationmonitoring
 spec:
-  namespaceSelector: "middleware"
+  labelSelector: "middleware"

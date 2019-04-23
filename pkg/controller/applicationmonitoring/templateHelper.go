@@ -82,7 +82,7 @@ func newTemplateHelper(cr *applicationmonitoring.ApplicationMonitoring, extraPar
 		AlertManagerRouteName:          AlertManagerRouteName,
 		GrafanaServiceMonitorName:      GrafanaServiceMonitorName,
 		PrometheusServiceMonitorName:   PrometheusServiceMonitorName,
-		MonitoringKey:                  cr.Spec.NamespaceSelector,
+		MonitoringKey:                  cr.Spec.LabelSelector,
 		ExtraParams:                    extraParams,
 	}
 
