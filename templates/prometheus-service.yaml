@@ -3,15 +3,17 @@ kind: Service
 metadata:
   name: {{ .PrometheusServiceName }}
   namespace: {{ .Namespace }}
+  annotations:
+    service.alpha.openshift.io/serving-cert-secret-name: prometheus-k8s-tls
   labels:
     application-monitoring: "true"
 spec:
   type: ClusterIP
   ports:
     - name: web
-      port: 9090
+      port: 9091
       protocol: TCP
-      targetPort: web
+      targetPort: oproxy
   selector:
     app: prometheus
   sessionAffinity: None
