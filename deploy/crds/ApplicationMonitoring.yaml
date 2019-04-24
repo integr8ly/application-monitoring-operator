@@ -11,3 +11,14 @@ spec:
     singular: applicationmonitoring
   scope: Namespaced
   version: v1alpha1
+  validation:
+    openAPIV3Schema:
+      required: ["spec"]
+      properties:
+        spec:
+          required: ["labelSelector"]
+          properties:
+            labelSelector:
+              type: string
+              minimum: 1
+              description: The selector used by the Prometheus and Grafana Operators to discover resources
