@@ -70,7 +70,7 @@ func newTemplateHelper(cr *applicationmonitoring.ApplicationMonitoring, extraPar
 		GrafanaCrName:                  GrafanaCrName,
 		GrafanaOperatorRoleBindingName: GrafanaOperatorRoleBindingName,
 		GrafanaOperatorRoleName:        GrafanaOperatorRoleName,
-		GrafanaImage:                   "quay.io/integreatly/grafana-operator:0.0.1",
+		GrafanaImage:                   "quay.io/integreatly/grafana-operator:0.0.2",
 		PrometheusOperatorName:         PrometheusOperatorName,
 		ApplicationMonitoringName:      ApplicationMonitoringName,
 		PrometheusCrName:               PrometheusCrName,

@@ -17,6 +17,9 @@ spec:
       containers:
         - name: {{ .GrafanaOperatorName }}
           image: {{ .GrafanaImage }}
+          args:
+            - '--grafana-image=registry.redhat.io/openshift3/grafana'
+            - '--grafana-image-tag=v3.11'
           ports:
           - containerPort: 60000
             name: metrics
