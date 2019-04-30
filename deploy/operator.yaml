@@ -33,8 +33,6 @@ spec:
           env:
             - name: TEMPLATE_PATH
               value: /usr/local/bin/templates
-            - name: MONITORING_KEY
-              value: middleware
             - name: WATCH_NAMESPACE
               valueFrom:
                 fieldRef:
