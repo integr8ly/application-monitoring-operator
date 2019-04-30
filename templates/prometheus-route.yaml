@@ -7,7 +7,7 @@ spec:
   port:
     targetPort: web
   tls:
-    termination: edge
+    termination: Reencrypt
   to:
     kind: Service
     name: {{ .PrometheusServiceName }}

@@ -2,6 +2,8 @@ package applicationmonitoring
 
 import (
 	"bytes"
+	"crypto/rand"
+	"encoding/base64"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -21,6 +23,7 @@ const (
 	PrometheusOperatorServiceAccountName = "prometheus-operator-service-account"
 	PrometheusCrName                     = "prometheus"
 	PrometheusRouteName                  = "prometheus-route"
+	PrometheusProxySecretsName           = "prometheus-proxy-secret"
 	PrometheusServiceAccountName         = "prometheus-service-account"
 	PrometheusServiceName                = "prometheus-service"
 	AlertManagerServiceAccountName       = "alertmanager-service-account"
@@ -45,6 +48,7 @@ type Parameters struct {
 	PrometheusCrName               string
 	PrometheusRouteName            string
 	PrometheusServiceName          string
+	PrometheusSessionSecret        string
 	AlertManagerServiceAccountName string
 	AlertManagerCrName             string
 	AlertManagerServiceName        string
@@ -76,6 +80,7 @@ func newTemplateHelper(cr *applicationmonitoring.ApplicationMonitoring, extraPar
 		PrometheusCrName:               PrometheusCrName,
 		PrometheusRouteName:            PrometheusRouteName,
 		PrometheusServiceName:          PrometheusServiceName,
+		PrometheusSessionSecret:        PopulatePrometheusProxySecret(),
 		AlertManagerServiceAccountName: AlertManagerServiceAccountName,
 		AlertManagerCrName:             AlertManagerCrName,
 		AlertManagerServiceName:        AlertManagerServiceName,
@@ -102,6 +107,15 @@ func newTemplateHelper(cr *applicationmonitoring.ApplicationMonitoring, extraPar
 	}
 }
 
+// Populate the PrometheusServiceName values
+func PopulatePrometheusProxySecret() string {
+	p, err := GeneratePassword(43)
+	if err != nil {
+		log.Info("Error creating PopulatePrometheusProxySecret")
+	}
+	return p
+}
+
 // load a templates from a given resource name. The templates must be located
 // under ./templates and the filename must be <resource-name>.yaml
 func (h *TemplateHelper) loadTemplate(name string) ([]byte, error) {
@@ -123,4 +137,15 @@ func (h *TemplateHelper) loadTemplate(name string) ([]byte, error) {
 	}
 
 	return buffer.Bytes(), nil
+}
+
+// GeneratePassword returns a base64 encoded securely random bytes.
+func GeneratePassword(n int) (string, error) {
+	b := make([]byte, n)
+	_, err := rand.Read(b)
+	if err != nil {
+		return "", err
+	}
+
+	return base64.StdEncoding.EncodeToString(b), err
 }
