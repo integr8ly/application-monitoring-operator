@@ -26,6 +26,7 @@ const (
 	PrometheusProxySecretsName           = "prometheus-proxy-secret"
 	PrometheusServiceAccountName         = "prometheus-service-account"
 	PrometheusServiceName                = "prometheus-service"
+	AlertManagerProxySecretsName         = "alertmanager-proxy-secret"
 	AlertManagerServiceAccountName       = "alertmanager-service-account"
 	AlertManagerCrName                   = "alertmanager"
 	AlertManagerServiceName              = "alertmanager-service"
@@ -49,6 +50,7 @@ type Parameters struct {
 	PrometheusRouteName            string
 	PrometheusServiceName          string
 	PrometheusSessionSecret        string
+	AlertManagerSessionSecret      string
 	AlertManagerServiceAccountName string
 	AlertManagerCrName             string
 	AlertManagerServiceName        string
@@ -80,7 +82,8 @@ func newTemplateHelper(cr *applicationmonitoring.ApplicationMonitoring, extraPar
 		PrometheusCrName:               PrometheusCrName,
 		PrometheusRouteName:            PrometheusRouteName,
 		PrometheusServiceName:          PrometheusServiceName,
-		PrometheusSessionSecret:        PopulatePrometheusProxySecret(),
+		PrometheusSessionSecret:        PopulateSessionProxySecret(),
+		AlertManagerSessionSecret:      PopulateSessionProxySecret(),
 		AlertManagerServiceAccountName: AlertManagerServiceAccountName,
 		AlertManagerCrName:             AlertManagerCrName,
 		AlertManagerServiceName:        AlertManagerServiceName,
@@ -108,10 +111,10 @@ func newTemplateHelper(cr *applicationmonitoring.ApplicationMonitoring, extraPar
 }
 
 // Populate the PrometheusServiceName values
-func PopulatePrometheusProxySecret() string {
+func PopulateSessionProxySecret() string {
 	p, err := GeneratePassword(43)
 	if err != nil {
-		log.Info("Error creating PopulatePrometheusProxySecret")
+		log.Info("Error executing PopulateSessionProxySecret")
 	}
 	return p
 }

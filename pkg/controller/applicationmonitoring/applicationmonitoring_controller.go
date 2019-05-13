@@ -194,7 +194,7 @@ func (r *ReconcileApplicationMonitoring) CreateAlertManagerCRs(cr *applicationmo
 		return reconcile.Result{Requeue: true}, err
 	}
 
-	for _, resourceName := range []string{AlertManagerServiceAccountName, AlertManagerServiceName, AlertManagerSecretName, AlertManagerCrName} {
+	for _, resourceName := range []string{AlertManagerServiceAccountName, AlertManagerServiceName, AlertManagerSecretName, AlertManagerProxySecretsName, AlertManagerCrName} {
 		if _, err := r.CreateResource(cr, resourceName); err != nil {
 			log.Info(fmt.Sprintf("Error in CreateAlertManagerCRs, resourceName=%s : err=%s", resourceName, err))
 			// Requeue so it can be attempted again
