@@ -37,34 +37,28 @@ An example GrafanaDashboard can be seen in the example app [template](https://gi
 You will need cluster admin permissions to create CRDs, ClusterRoles & ClusterRoleBindings.
 ClusterRoles are needed to allow the operators to watch multiple namespaces.
 
+```bash
+make cluster/install
 ```
-oc new-project application-monitoring
-oc label namespace application-monitoring monitoring-key=middleware
-```
-
-Grafana CRDs
-
-```
-oc apply -f https://raw.githubusercontent.com/integr8ly/grafana-operator/master/deploy/crds/Grafana.yaml
-oc apply -f https://raw.githubusercontent.com/integr8ly/grafana-operator/master/deploy/crds/GrafanaDashboard.yaml
-```
-
-Cluster Roles & RoleBindings
-
-```
-oc apply -f ./deploy/roles
-```
-
-Application Monitoring Operator
-
-```
-oc apply -f ./deploy/operator_roles/
-oc apply -f ./deploy/crds/ApplicationMonitoring.yaml
-oc apply -f ./deploy/operator.yaml
-oc apply -f ./deploy/examples/ApplicationMonitoring.yaml
-```
-
 You can access Grafana, Prometheus & AlertManager web consoles using the Routes in the project.
+
+## Verify installation
+Run the following commands
+```bash
+# Check the project exists
+$ oc project
+Using project "application-monitoring" on server "https://your-cluster-ip:8443"
+
+# Check the pods exist e.g.
+$ oc get pods
+NAME                                              READY     STATUS    RESTARTS   AGE
+alertmanager-application-monitoring-0             2/2       Running   0          1h
+application-monitoring-operator-77cdbcbff-fbrnr   1/1       Running   0          1h
+grafana-deployment-6dc8df6bb4-rxdjs               1/1       Running   0          49m
+grafana-operator-7c4869cfdc-6sdv9                 1/1       Running   0          1h
+prometheus-application-monitoring-0               4/4       Running   1          36m
+prometheus-operator-7547bb757b-46lwh              1/1       Running   0          1h
+``` 
 
 # Example Monitored Project
 
