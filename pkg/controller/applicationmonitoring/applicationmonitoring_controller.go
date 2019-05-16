@@ -6,9 +6,11 @@ import (
 	"time"
 
 	"k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	applicationmonitoringv1alpha1 "github.com/integr8ly/application-monitoring-operator/pkg/apis/applicationmonitoring/v1alpha1"
+	routev1 "github.com/openshift/api/route/v1"
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
@@ -159,11 +161,11 @@ func (r *ReconcileApplicationMonitoring) CreatePrometheusCRs(cr *applicationmoni
 
 	// Create the route first and retrieve the host so that we can assign
 	// it as the external url for the prometheus instance
-	prometheusRoute, err := r.CreateResource(cr, PrometheusRouteName)
+	_, err := r.CreateResource(cr, PrometheusRouteName)
 	if err != nil {
 		return reconcile.Result{Requeue: true}, err
 	}
-	r.extraParams["prometheusHost"], err = r.GetHostFromRoute(prometheusRoute)
+	r.extraParams["prometheusHost"], err = r.getHostFromRoute(types.NamespacedName{Namespace: cr.Namespace, Name: PrometheusRouteName})
 	if err != nil {
 		return reconcile.Result{Requeue: true}, err
 	}
@@ -185,11 +187,11 @@ func (r *ReconcileApplicationMonitoring) CreateAlertManagerCRs(cr *applicationmo
 
 	// Create the route first and retrieve the host so that we can assign
 	// it as the external url for the alertmanager instance
-	alertmanagerRoute, err := r.CreateResource(cr, AlertManagerRouteName)
+	_, err := r.CreateResource(cr, AlertManagerRouteName)
 	if err != nil {
 		return reconcile.Result{Requeue: true}, err
 	}
-	r.extraParams["alertmanagerHost"], err = r.GetHostFromRoute(alertmanagerRoute)
+	r.extraParams["alertmanagerHost"], err = r.getHostFromRoute(types.NamespacedName{Namespace: cr.Namespace, Name: AlertManagerRouteName})
 	if err != nil {
 		return reconcile.Result{Requeue: true}, err
 	}
@@ -280,19 +282,21 @@ func (r *ReconcileApplicationMonitoring) CreateResource(cr *applicationmonitorin
 	return resource, nil
 }
 
-func (r *ReconcileApplicationMonitoring) GetHostFromRoute(object runtime.Object) (string, error) {
-	if object == nil {
-		return "", errors.New("Error getting host from route: runtime object was nil")
+func (r *ReconcileApplicationMonitoring) getHostFromRoute(namespacedName types.NamespacedName) (string, error) {
+
+	route := &routev1.Route{}
+
+	err := r.client.Get(context.TODO(), namespacedName, route)
+	if err != nil {
+		return "", err
 	}
 
-	route := object.(runtime.Unstructured)
-	spec := route.UnstructuredContent()["spec"].(map[string]interface{})
-	host := spec["host"]
+	host := route.Spec.Host
 
-	if host == nil {
+	if host == "" {
 		return "", errors.New("Error getting host from route: host value empty")
 	}
-	return host.(string), nil
+	return host, nil
 }
 
 func (r *ReconcileApplicationMonitoring) UpdatePhase(cr *applicationmonitoringv1alpha1.ApplicationMonitoring, phase int) error {
