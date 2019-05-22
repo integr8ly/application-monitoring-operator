@@ -81,3 +81,7 @@ cluster/clean:
 .PHONY: cluster/create/examples
 cluster/create/examples:
 		-kubectl create -f deploy/examples/ApplicationMonitoring.yaml -n $(NAMESPACE)
+
+.PHONY: cluster/install
+cluster/install:
+		./scripts/install.sh
