@@ -3,6 +3,7 @@ package applicationmonitoring
 import (
 	"context"
 	"fmt"
+	"k8s.io/api/apps/v1beta1"
 	"time"
 
 	"k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -27,7 +28,8 @@ import (
 var log = logf.Log.WithName("controller_applicationmonitoring")
 
 const (
-	PhaseInstallPrometheusOperator = iota
+	PhaseInstallPrometheusOperator int = iota
+	PhaseWaitForOperator
 	PhaseCreatePrometheusCRs
 	PhaseCreateAlertManagerCrs
 	PhaseCreateAux
@@ -124,6 +126,8 @@ func (r *ReconcileApplicationMonitoring) Reconcile(request reconcile.Request) (r
 	switch instanceCopy.Status.Phase {
 	case PhaseInstallPrometheusOperator:
 		return r.InstallPrometheusOperator(instanceCopy)
+	case PhaseWaitForOperator:
+		return r.WaitForPrometheusOperator(instanceCopy)
 	case PhaseCreatePrometheusCRs:
 		return r.CreatePrometheusCRs(instanceCopy)
 	case PhaseCreateAlertManagerCrs:
@@ -152,8 +156,23 @@ func (r *ReconcileApplicationMonitoring) InstallPrometheusOperator(cr *applicati
 		}
 	}
 
+	return reconcile.Result{RequeueAfter: time.Second * 10}, r.UpdatePhase(cr, PhaseWaitForOperator)
+}
+
+func (r *ReconcileApplicationMonitoring) WaitForPrometheusOperator(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
+	log.Info("Phase: Wait for Prometheus Operator")
+
+	ready, err := r.GetPrometheusOperatorReady(cr)
+	if err != nil {
+		return reconcile.Result{}, err
+	}
+
+	if !ready {
+		return reconcile.Result{RequeueAfter: time.Second * 10}, nil
+	}
+
 	log.Info("PrometheusOperator installation complete")
-	return reconcile.Result{RequeueAfter: time.Second * 10}, r.UpdatePhase(cr, PhaseCreatePrometheusCRs)
+	return reconcile.Result{Requeue: true}, r.UpdatePhase(cr, PhaseCreatePrometheusCRs)
 }
 
 func (r *ReconcileApplicationMonitoring) CreatePrometheusCRs(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
@@ -297,6 +316,22 @@ func (r *ReconcileApplicationMonitoring) getHostFromRoute(namespacedName types.N
 		return "", errors.New("Error getting host from route: host value empty")
 	}
 	return host, nil
+}
+
+func (r *ReconcileApplicationMonitoring) GetPrometheusOperatorReady(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (bool, error) {
+	resource := v1beta1.Deployment{}
+
+	selector := types.NamespacedName{
+		Namespace: cr.Namespace,
+		Name:      PrometheusOperatorName,
+	}
+
+	err := r.client.Get(context.TODO(), selector, &resource)
+	if err != nil {
+		return false, err
+	}
+
+	return resource.Status.ReadyReplicas == 1, nil
 }
 
 func (r *ReconcileApplicationMonitoring) UpdatePhase(cr *applicationmonitoringv1alpha1.ApplicationMonitoring, phase int) error {
