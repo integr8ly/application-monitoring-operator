@@ -19,6 +19,7 @@ const (
 	GrafanaOperatorRoleName              = "grafana-operator-role"
 	GrafanaOperatorRoleBindingName       = "grafana-operator-role-binding"
 	GrafanaOperatorServiceAccountName    = "grafana-operator-service-account"
+	GrafanaProxySecretName               = "grafana-proxy-secret"
 	PrometheusOperatorName               = "prometheus-operator"
 	PrometheusOperatorServiceAccountName = "prometheus-operator-service-account"
 	PrometheusCrName                     = "prometheus"
@@ -46,6 +47,7 @@ type Parameters struct {
 	GrafanaImage                   string
 	GrafanaOperatorRoleName        string
 	GrafanaOperatorRoleBindingName string
+	GrafanaSessionSecret           string
 	PrometheusCrName               string
 	PrometheusRouteName            string
 	PrometheusServiceName          string
@@ -76,7 +78,9 @@ func newTemplateHelper(cr *applicationmonitoring.ApplicationMonitoring, extraPar
 		GrafanaCrName:                  GrafanaCrName,
 		GrafanaOperatorRoleBindingName: GrafanaOperatorRoleBindingName,
 		GrafanaOperatorRoleName:        GrafanaOperatorRoleName,
-		GrafanaImage:                   "quay.io/integreatly/grafana-operator:0.0.2",
+		GrafanaImage:                   "quay.io/dkirwan_redhat/grafana-operator:0.0.3",
+		//		GrafanaImage:                   "quay.io/integreatly/grafana-operator:0.0.2",
+		GrafanaSessionSecret:           PopulateSessionProxySecret(),
 		PrometheusOperatorName:         PrometheusOperatorName,
 		ApplicationMonitoringName:      ApplicationMonitoringName,
 		PrometheusCrName:               PrometheusCrName,

@@ -3,10 +3,11 @@ package applicationmonitoring
 import (
 	"context"
 	"fmt"
-	"k8s.io/api/apps/v1beta1"
 	"time"
 
-	"k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/api/apps/v1beta1"
+
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
@@ -245,7 +246,7 @@ func (r *ReconcileApplicationMonitoring) CreateAux(cr *applicationmonitoringv1al
 func (r *ReconcileApplicationMonitoring) InstallGrafanaOperator(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
 	log.Info("Phase: Install GrafanaOperator")
 
-	for _, resourceName := range []string{GrafanaOperatorServiceAccountName, GrafanaOperatorRoleName, GrafanaOperatorRoleBindingName, GrafanaOperatorName} {
+	for _, resourceName := range []string{GrafanaProxySecretName, GrafanaOperatorServiceAccountName, GrafanaOperatorRoleName, GrafanaOperatorRoleBindingName, GrafanaOperatorName} {
 		if _, err := r.CreateResource(cr, resourceName); err != nil {
 			log.Info(fmt.Sprintf("Error in InstallGrafanaOperator, resourceName=%s : err=%s", resourceName, err))
 			// Requeue so it can be attempted again
