@@ -31,6 +31,9 @@ Represents a Grafana dashboard. You typically create this in the namespace of th
 The Grafana operator reconciles this resource into a dashboard.
 An example GrafanaDashboard can be seen in the example app [template](https://github.com/david-martin/example-prometheus-nodejs/blob/d647b83116519b650e00401f04c8868280c47778/template.yaml#L112-L734)
 
+# Prerequisites
+
+The Prometheus and Grafana Images are pulled from the new `registry.redhat.io` which requires authentication. Make sure to follow the official [documentation](https://docs.openshift.com/container-platform/3.11/install_config/configuring_red_hat_registry.html) to create a service account and download the credentials secret.
 
 # Installation
 
@@ -41,6 +44,22 @@ ClusterRoles are needed to allow the operators to watch multiple namespaces.
 make cluster/install
 ```
 You can access Grafana, Prometheus & AlertManager web consoles using the Routes in the project.
+
+## Set up pull secrets
+
+Create the secret account secret downloaded from the Red Hat registry:
+
+```sh
+$ kubectl create -f <path to downloaded secret>/<secret name>.yaml  --namespace=application-monitoring
+```
+
+And link the secret to the following serviceaccounts:
+
+```sh
+oc secrets link grafana-serviceaccount <secret name> --for=pull
+oc secrets link alertmanager <secret name> --for=pull
+oc secrets link prometheus-application-monitoring <secret name> --for=pull
+```
 
 ## Verify installation
 Run the following commands
