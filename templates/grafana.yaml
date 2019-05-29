@@ -4,7 +4,44 @@ metadata:
   name: {{ .GrafanaCrName }}
   namespace: {{ .Namespace }}
 spec:
-  prometheusUrl: "http://prometheus-service:9090"
-  dashboardNamespaceSelector:
-    matchLabels:
-      monitoring-key: {{ .MonitoringKey }}
+  logLevel: "error"
+  basicAuth: False
+  disableLoginForm: False
+  disableSignoutMenu: True
+  anonymous: True
+  containers:
+    - args:
+        - '-provider=openshift'
+        - '-https-address=:9091'
+        - '-http-address='
+        - '-email-domain=*'
+        - '-upstream=http://localhost:3000'
+        - '-openshift-sar={"resource": "namespaces", "verb": "get"}'
+        - '-openshift-delegate-urls={"/": {"resource": "namespaces", "verb": "get"}}'
+        - '-tls-cert=/etc/tls/private/tls.crt'
+        - '-tls-key=/etc/tls/private/tls.key'
+        - '-client-secret-file=/var/run/secrets/kubernetes.io/serviceaccount/token'
+        - '-cookie-secret-file=/etc/proxy/secrets/session_secret'
+        - '-openshift-service-account=grafana-serviceaccount'
+        - '-openshift-ca=/etc/pki/tls/cert.pem'
+        - '-openshift-ca=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'
+        - '-skip-auth-regex=^/metrics'
+      image: 'registry.redhat.io/openshift3/oauth-proxy:v3.11.43'
+      name: grafana-proxy
+      ports:
+        - containerPort: 9091
+          name: grafana-proxy
+      resources: {}
+      volumeMounts:
+        - mountPath: /etc/tls/private
+          name: secret-grafana-k8s-tls
+          readOnly: false
+        - mountPath: /etc/proxy/secrets
+          name: secret-grafana-k8s-proxy
+          readOnly: false
+  secrets:
+    - grafana-k8s-tls
+    - grafana-k8s-proxy
+  dashboardLabelSelector:
+    - matchLabels:
+        monitoring-key: {{ .MonitoringKey }}

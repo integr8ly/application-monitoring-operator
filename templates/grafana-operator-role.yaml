@@ -36,6 +36,7 @@ rules:
   - apiGroups:
       - integreatly.org
     resources:
+      - grafanadatasources
       - grafanadashboards
       - grafanas
       - grafanas/finalizers
@@ -54,3 +55,15 @@ rules:
       - ingresses
     verbs:
       - '*'
+  - apiGroups:
+    - authentication.k8s.io
+    resources:
+      - tokenreviews
+    verbs:
+    - create
+  - apiGroups:
+    - authorization.k8s.io
+    resources:
+      - subjectaccessreviews
+    verbs:
+      - create

@@ -45,9 +45,12 @@ rules:
   - apiGroups:
       - integreatly.org
     resources:
+      - grafanadatasources
       - grafanadashboards
       - grafanas
       - grafanas/finalizers
+      - grafanadatasources/finalizers
+      - grafanadashboards/finalizers
     verbs:
       - '*'
   - apiGroups:

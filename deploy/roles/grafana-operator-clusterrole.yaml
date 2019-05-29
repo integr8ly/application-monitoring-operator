@@ -1,22 +1,22 @@
-apiVersion: authorization.openshift.io/v1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: grafana-operator-cluster-role
+  name: grafana-operator
 rules:
   - apiGroups:
-      - ""
-    attributeRestrictions: null
-    resources:
-      - namespaces
-    verbs:
-      - get
-      - list
-      - watch
-  - apiGroups:
       - integreatly.org
-    attributeRestrictions: null
     resources:
       - grafanadashboards
-      - grafanas
+    verbs: ['get', 'list', 'update', 'watch']
+  - apiGroups:
+      - authentication.k8s.io
+    resources:
+      - tokenreviews
     verbs:
-      - '*'
+      - create
+  - apiGroups:
+      - authorization.k8s.io
+    resources:
+      - subjectaccessreviews
+    verbs:
+      - create

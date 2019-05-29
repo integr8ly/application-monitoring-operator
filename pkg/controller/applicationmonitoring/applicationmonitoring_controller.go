@@ -25,6 +25,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/source"
 )
 
+const MonitoringFinalizerName = "monitoring.cleanup"
+
 var log = logf.Log.WithName("controller_applicationmonitoring")
 
 const (
@@ -35,13 +37,9 @@ const (
 	PhaseCreateAux
 	PhaseInstallGrafanaOperator
 	PhaseCreateGrafanaCR
+	PhaseFinalizer
 	PhaseDone
 )
-
-/**
-* USER ACTION REQUIRED: This is a scaffold file intended for the user to modify with their own Controller
-* business logic.  Delete these comments after modifying this file.*
- */
 
 // Add creates a new ApplicationMonitoring Controller and adds it to the Manager. The Manager will set fields on the Controller
 // and Start it when the Manager is Started.
@@ -123,21 +121,27 @@ func (r *ReconcileApplicationMonitoring) Reconcile(request reconcile.Request) (r
 
 	instanceCopy := instance.DeepCopy()
 
+	if instanceCopy.DeletionTimestamp != nil {
+		return r.cleanup(instanceCopy)
+	}
+
 	switch instanceCopy.Status.Phase {
 	case PhaseInstallPrometheusOperator:
-		return r.InstallPrometheusOperator(instanceCopy)
+		return r.installPrometheusOperator(instanceCopy)
 	case PhaseWaitForOperator:
-		return r.WaitForPrometheusOperator(instanceCopy)
+		return r.waitForPrometheusOperator(instanceCopy)
 	case PhaseCreatePrometheusCRs:
-		return r.CreatePrometheusCRs(instanceCopy)
+		return r.createPrometheusCRs(instanceCopy)
 	case PhaseCreateAlertManagerCrs:
-		return r.CreateAlertManagerCRs(instanceCopy)
+		return r.createAlertManagerCRs(instanceCopy)
 	case PhaseCreateAux:
-		return r.CreateAux(instanceCopy)
+		return r.createAux(instanceCopy)
 	case PhaseInstallGrafanaOperator:
-		return r.InstallGrafanaOperator(instanceCopy)
+		return r.installGrafanaOperator(instanceCopy)
 	case PhaseCreateGrafanaCR:
-		return r.CreateGrafanaCR(instanceCopy)
+		return r.createGrafanaCR(instanceCopy)
+	case PhaseFinalizer:
+		return r.setFinalizer(instanceCopy)
 	case PhaseDone:
 		log.Info("Finished installing application monitoring")
 	}
@@ -145,24 +149,24 @@ func (r *ReconcileApplicationMonitoring) Reconcile(request reconcile.Request) (r
 	return reconcile.Result{}, nil
 }
 
-func (r *ReconcileApplicationMonitoring) InstallPrometheusOperator(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
+func (r *ReconcileApplicationMonitoring) installPrometheusOperator(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
 	log.Info("Phase: Install PrometheusOperator")
 
 	for _, resourceName := range []string{PrometheusOperatorServiceAccountName, PrometheusOperatorName, PrometheusProxySecretsName} {
-		if _, err := r.CreateResource(cr, resourceName); err != nil {
+		if _, err := r.createResource(cr, resourceName); err != nil {
 			log.Info(fmt.Sprintf("Error in InstallPrometheusOperator, resourceName=%s : err=%s", resourceName, err))
 			// Requeue so it can be attempted again
-			return reconcile.Result{Requeue: true}, err
+			return reconcile.Result{}, err
 		}
 	}
 
-	return reconcile.Result{RequeueAfter: time.Second * 10}, r.UpdatePhase(cr, PhaseWaitForOperator)
+	return r.updatePhase(cr, PhaseWaitForOperator)
 }
 
-func (r *ReconcileApplicationMonitoring) WaitForPrometheusOperator(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
+func (r *ReconcileApplicationMonitoring) waitForPrometheusOperator(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
 	log.Info("Phase: Wait for Prometheus Operator")
 
-	ready, err := r.GetPrometheusOperatorReady(cr)
+	ready, err := r.getPrometheusOperatorReady(cr)
 	if err != nil {
 		return reconcile.Result{}, err
 	}
@@ -172,110 +176,110 @@ func (r *ReconcileApplicationMonitoring) WaitForPrometheusOperator(cr *applicati
 	}
 
 	log.Info("PrometheusOperator installation complete")
-	return reconcile.Result{Requeue: true}, r.UpdatePhase(cr, PhaseCreatePrometheusCRs)
+	return r.updatePhase(cr, PhaseCreatePrometheusCRs)
 }
 
-func (r *ReconcileApplicationMonitoring) CreatePrometheusCRs(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
+func (r *ReconcileApplicationMonitoring) createPrometheusCRs(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
 	log.Info("Phase: Create Prometheus CRs")
 
 	// Create the route first and retrieve the host so that we can assign
 	// it as the external url for the prometheus instance
-	_, err := r.CreateResource(cr, PrometheusRouteName)
+	_, err := r.createResource(cr, PrometheusRouteName)
 	if err != nil {
-		return reconcile.Result{Requeue: true}, err
+		return reconcile.Result{}, err
 	}
 	r.extraParams["prometheusHost"], err = r.getHostFromRoute(types.NamespacedName{Namespace: cr.Namespace, Name: PrometheusRouteName})
 	if err != nil {
-		return reconcile.Result{Requeue: true}, err
+		return reconcile.Result{}, err
 	}
 
 	for _, resourceName := range []string{PrometheusServiceAccountName, PrometheusServiceName, PrometheusCrName} {
-		if _, err := r.CreateResource(cr, resourceName); err != nil {
+		if _, err := r.createResource(cr, resourceName); err != nil {
 			log.Info(fmt.Sprintf("Error in CreatePrometheusCRs, resourceName=%s : err=%s", resourceName, err))
 			// Requeue so it can be attempted again
-			return reconcile.Result{Requeue: true}, err
+			return reconcile.Result{}, err
 		}
 	}
 
 	log.Info("Prometheus CRs installation complete")
-	return reconcile.Result{RequeueAfter: time.Second * 10}, r.UpdatePhase(cr, PhaseCreateAlertManagerCrs)
+	return r.updatePhase(cr, PhaseCreateAlertManagerCrs)
 }
 
-func (r *ReconcileApplicationMonitoring) CreateAlertManagerCRs(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
+func (r *ReconcileApplicationMonitoring) createAlertManagerCRs(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
 	log.Info("Phase: Create AlertManager CRs")
 
 	// Create the route first and retrieve the host so that we can assign
 	// it as the external url for the alertmanager instance
-	_, err := r.CreateResource(cr, AlertManagerRouteName)
+	_, err := r.createResource(cr, AlertManagerRouteName)
 	if err != nil {
-		return reconcile.Result{Requeue: true}, err
+		return reconcile.Result{}, err
 	}
 	r.extraParams["alertmanagerHost"], err = r.getHostFromRoute(types.NamespacedName{Namespace: cr.Namespace, Name: AlertManagerRouteName})
 	if err != nil {
-		return reconcile.Result{Requeue: true}, err
+		return reconcile.Result{Requeue: true}, nil
 	}
 
 	for _, resourceName := range []string{AlertManagerServiceAccountName, AlertManagerServiceName, AlertManagerSecretName, AlertManagerProxySecretsName, AlertManagerCrName} {
-		if _, err := r.CreateResource(cr, resourceName); err != nil {
+		if _, err := r.createResource(cr, resourceName); err != nil {
 			log.Info(fmt.Sprintf("Error in CreateAlertManagerCRs, resourceName=%s : err=%s", resourceName, err))
 			// Requeue so it can be attempted again
-			return reconcile.Result{Requeue: true}, err
+			return reconcile.Result{}, err
 		}
 	}
 
 	log.Info("AlertManager CRs installation complete")
-	return reconcile.Result{RequeueAfter: time.Second * 10}, r.UpdatePhase(cr, PhaseCreateAux)
+	return r.updatePhase(cr, PhaseCreateAux)
 }
 
-func (r *ReconcileApplicationMonitoring) CreateAux(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
+func (r *ReconcileApplicationMonitoring) createAux(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
 	log.Info("Phase: Create auxiliary resources")
 
 	for _, resourceName := range []string{PrometheusServiceMonitorName, GrafanaServiceMonitorName, PrometheusRuleName} {
-		if _, err := r.CreateResource(cr, resourceName); err != nil {
+		if _, err := r.createResource(cr, resourceName); err != nil {
 			log.Info(fmt.Sprintf("Error in CreateAux, resourceName=%s : err=%s", resourceName, err))
 			// Requeue so it can be attempted again
-			return reconcile.Result{Requeue: true}, err
+			return reconcile.Result{}, err
 		}
 	}
 
 	log.Info("Auxiliary resources installation complete")
-	return reconcile.Result{RequeueAfter: time.Second * 10}, r.UpdatePhase(cr, PhaseInstallGrafanaOperator)
+	return r.updatePhase(cr, PhaseInstallGrafanaOperator)
 }
 
-func (r *ReconcileApplicationMonitoring) InstallGrafanaOperator(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
+func (r *ReconcileApplicationMonitoring) installGrafanaOperator(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
 	log.Info("Phase: Install GrafanaOperator")
 
-	for _, resourceName := range []string{GrafanaOperatorServiceAccountName, GrafanaOperatorRoleName, GrafanaOperatorRoleBindingName, GrafanaOperatorName} {
-		if _, err := r.CreateResource(cr, resourceName); err != nil {
+	for _, resourceName := range []string{GrafanaProxySecretName, GrafanaServiceName, GrafanaRouteName, GrafanaOperatorServiceAccountName, GrafanaOperatorRoleName, GrafanaOperatorRoleBindingName, GrafanaOperatorName} {
+		if _, err := r.createResource(cr, resourceName); err != nil {
 			log.Info(fmt.Sprintf("Error in InstallGrafanaOperator, resourceName=%s : err=%s", resourceName, err))
 			// Requeue so it can be attempted again
-			return reconcile.Result{Requeue: true}, err
+			return reconcile.Result{}, err
 		}
 	}
 
 	log.Info("GrafanaOperator installation complete")
 
 	// Give the operator some time to start
-	return reconcile.Result{RequeueAfter: time.Second * 10}, r.UpdatePhase(cr, PhaseCreateGrafanaCR)
+	return r.updatePhase(cr, PhaseCreateGrafanaCR)
 }
 
-func (r *ReconcileApplicationMonitoring) CreateGrafanaCR(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
+func (r *ReconcileApplicationMonitoring) createGrafanaCR(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
 	log.Info("Phase: Create Grafana CR")
 
-	for _, resourceName := range []string{GrafanaCrName} {
-		if _, err := r.CreateResource(cr, resourceName); err != nil {
+	for _, resourceName := range []string{GrafanaDataSourceName, GrafanaCrName} {
+		if _, err := r.createResource(cr, resourceName); err != nil {
 			log.Info(fmt.Sprintf("Error in CreateGrafanaCR, resourceName=%s : err=%s", resourceName, err))
 			// Requeue so it can be attempted again
-			return reconcile.Result{Requeue: true}, err
+			return reconcile.Result{}, err
 		}
 	}
 
 	log.Info("Grafana CR installation complete")
-	return reconcile.Result{RequeueAfter: time.Second * 10}, r.UpdatePhase(cr, PhaseDone)
+	return r.updatePhase(cr, PhaseFinalizer)
 }
 
 // CreateResource Creates a generic kubernetes resource from a templates
-func (r *ReconcileApplicationMonitoring) CreateResource(cr *applicationmonitoringv1alpha1.ApplicationMonitoring, resourceName string) (runtime.Object, error) {
+func (r *ReconcileApplicationMonitoring) createResource(cr *applicationmonitoringv1alpha1.ApplicationMonitoring, resourceName string) (runtime.Object, error) {
 	templateHelper := newTemplateHelper(cr, r.extraParams)
 	resourceHelper := newResourceHelper(cr, templateHelper)
 	resource, err := resourceHelper.createResource(resourceName)
@@ -301,8 +305,26 @@ func (r *ReconcileApplicationMonitoring) CreateResource(cr *applicationmonitorin
 	return resource, nil
 }
 
-func (r *ReconcileApplicationMonitoring) getHostFromRoute(namespacedName types.NamespacedName) (string, error) {
+// CreateResource Creates a generic kubernetes resource from a templates
+func (r *ReconcileApplicationMonitoring) deleteResource(cr *applicationmonitoringv1alpha1.ApplicationMonitoring, resourceName string) error {
+	templateHelper := newTemplateHelper(cr, r.extraParams)
+	resourceHelper := newResourceHelper(cr, templateHelper)
+	resource, err := resourceHelper.createResource(resourceName)
+	if err != nil {
+		return errors.Wrap(err, "createResource failed")
+	}
 
+	err = r.client.Delete(context.TODO(), resource)
+	if err != nil {
+		if !kerrors.IsNotFound(err) {
+			return errors.Wrap(err, "error deleting resource")
+		}
+	}
+
+	return nil
+}
+
+func (r *ReconcileApplicationMonitoring) getHostFromRoute(namespacedName types.NamespacedName) (string, error) {
 	route := &routev1.Route{}
 
 	err := r.client.Get(context.TODO(), namespacedName, route)
@@ -318,7 +340,7 @@ func (r *ReconcileApplicationMonitoring) getHostFromRoute(namespacedName types.N
 	return host, nil
 }
 
-func (r *ReconcileApplicationMonitoring) GetPrometheusOperatorReady(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (bool, error) {
+func (r *ReconcileApplicationMonitoring) getPrometheusOperatorReady(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (bool, error) {
 	resource := v1beta1.Deployment{}
 
 	selector := types.NamespacedName{
@@ -334,7 +356,39 @@ func (r *ReconcileApplicationMonitoring) GetPrometheusOperatorReady(cr *applicat
 	return resource.Status.ReadyReplicas == 1, nil
 }
 
-func (r *ReconcileApplicationMonitoring) UpdatePhase(cr *applicationmonitoringv1alpha1.ApplicationMonitoring, phase int) error {
+func (r *ReconcileApplicationMonitoring) setFinalizer(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
+	log.Info("Phase: Set Finalizer")
+
+	if len(cr.Finalizers) == 0 {
+		cr.Finalizers = append(cr.Finalizers, MonitoringFinalizerName)
+	}
+
+	return r.updatePhase(cr, PhaseDone)
+}
+
+func (r *ReconcileApplicationMonitoring) cleanup(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
+	log.Info("Phase: Cleanup")
+
+	// Let the child operators finish their cleanup first
+	for _, resourceName := range []string{GrafanaDataSourceName} {
+		if err := r.deleteResource(cr, resourceName); err != nil {
+			log.Info(fmt.Sprintf("Error in Cleanup, resourceName=%s : err=%s", resourceName, err))
+			// Requeue so it can be attempted again
+			return reconcile.Result{}, err
+		}
+	}
+
+	// Wait to let the grafana operator remove the data source
+	time.Sleep(time.Second * 5)
+
+	// And finally remove the finalizer from the monitoring cr
+	cr.Finalizers = nil
+	err := r.client.Update(context.TODO(), cr)
+	return reconcile.Result{}, err
+}
+
+func (r *ReconcileApplicationMonitoring) updatePhase(cr *applicationmonitoringv1alpha1.ApplicationMonitoring, phase int) (reconcile.Result, error) {
 	cr.Status.Phase = phase
-	return r.client.Update(context.TODO(), cr)
+	err := r.client.Update(context.TODO(), cr)
+	return reconcile.Result{}, err
 }

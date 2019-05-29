@@ -6,7 +6,7 @@ roleRef:
   name: grafana-operator-cluster-role
 subjects:
   - kind: ServiceAccount
-    name: grafana-serviceaccount
+    name: grafana-operator
     namespace: application-monitoring
 userNames:
-  - system:serviceaccount:application-monitoring:grafana-serviceaccount
+  - system:serviceaccount:application-monitoring:grafana-operator
