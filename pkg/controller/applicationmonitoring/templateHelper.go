@@ -84,7 +84,7 @@ func newTemplateHelper(cr *applicationmonitoring.ApplicationMonitoring, extraPar
 		GrafanaCrName:                  GrafanaCrName,
 		GrafanaOperatorRoleBindingName: GrafanaOperatorRoleBindingName,
 		GrafanaOperatorRoleName:        GrafanaOperatorRoleName,
-		GrafanaImage:                   "quay.io/integreatly/grafana-operator:latest",
+		GrafanaImage:                   "quay.io/integreatly/grafana-operator:v1.0.0",
 		GrafanaProxySecretName:         GrafanaProxySecretName,
 		GrafanaServiceName:             GrafanaServiceName,
 		GrafanaRouteName:               GrafanaRouteName,
