@@ -19,6 +19,9 @@ const (
 	GrafanaOperatorRoleName              = "grafana-operator-role"
 	GrafanaOperatorRoleBindingName       = "grafana-operator-role-binding"
 	GrafanaOperatorServiceAccountName    = "grafana-operator-service-account"
+	GrafanaDataSourceName                = "grafana-datasource"
+	GrafanaRouteName                     = "grafana-route"
+	GrafanaProxySecretName               = "grafana-proxy-secret"
 	PrometheusOperatorName               = "prometheus-operator"
 	PrometheusOperatorServiceAccountName = "prometheus-operator-service-account"
 	PrometheusCrName                     = "prometheus"
@@ -35,6 +38,7 @@ const (
 	PrometheusRuleName                   = "prometheus-rule"
 	AlertManagerRouteName                = "alertmanager-route"
 	GrafanaServiceMonitorName            = "grafana-servicemonitor"
+	GrafanaServiceName                   = "grafana-service"
 )
 
 type Parameters struct {
@@ -46,6 +50,9 @@ type Parameters struct {
 	GrafanaImage                   string
 	GrafanaOperatorRoleName        string
 	GrafanaOperatorRoleBindingName string
+	GrafanaSessionSecret           string
+	GrafanaProxySecretName         string
+	GrafanaRouteName               string
 	PrometheusCrName               string
 	PrometheusRouteName            string
 	PrometheusServiceName          string
@@ -58,6 +65,7 @@ type Parameters struct {
 	GrafanaServiceMonitorName      string
 	PrometheusServiceMonitorName   string
 	MonitoringKey                  string
+	GrafanaServiceName             string
 	ExtraParams                    map[string]string
 }
 
@@ -76,7 +84,10 @@ func newTemplateHelper(cr *applicationmonitoring.ApplicationMonitoring, extraPar
 		GrafanaCrName:                  GrafanaCrName,
 		GrafanaOperatorRoleBindingName: GrafanaOperatorRoleBindingName,
 		GrafanaOperatorRoleName:        GrafanaOperatorRoleName,
-		GrafanaImage:                   "quay.io/integreatly/grafana-operator:0.0.2",
+		GrafanaImage:                   "quay.io/integreatly/grafana-operator:v1.0.0",
+		GrafanaProxySecretName:         GrafanaProxySecretName,
+		GrafanaServiceName:             GrafanaServiceName,
+		GrafanaRouteName:               GrafanaRouteName,
 		PrometheusOperatorName:         PrometheusOperatorName,
 		ApplicationMonitoringName:      ApplicationMonitoringName,
 		PrometheusCrName:               PrometheusCrName,
@@ -84,6 +95,7 @@ func newTemplateHelper(cr *applicationmonitoring.ApplicationMonitoring, extraPar
 		PrometheusServiceName:          PrometheusServiceName,
 		PrometheusSessionSecret:        PopulateSessionProxySecret(),
 		AlertManagerSessionSecret:      PopulateSessionProxySecret(),
+		GrafanaSessionSecret:           PopulateSessionProxySecret(),
 		AlertManagerServiceAccountName: AlertManagerServiceAccountName,
 		AlertManagerCrName:             AlertManagerCrName,
 		AlertManagerServiceName:        AlertManagerServiceName,
