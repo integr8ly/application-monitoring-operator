@@ -152,7 +152,13 @@ func (r *ReconcileApplicationMonitoring) Reconcile(request reconcile.Request) (r
 func (r *ReconcileApplicationMonitoring) installPrometheusOperator(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
 	log.Info("Phase: Install PrometheusOperator")
 
-	for _, resourceName := range []string{PrometheusOperatorServiceAccountName, PrometheusOperatorName, PrometheusProxySecretsName} {
+	err := r.createAdditionalScrapeConfig(cr)
+	if err != nil {
+		log.Error(err, "Failed to create additional scrape config")
+		return reconcile.Result{}, err
+	}
+
+	for _, resourceName := range []string{PrometheusOperatorServiceAccountName, PrometheusOperatorName, PrometheusProxySecretsName, BlackboxExporterConfigmapName} {
 		if _, err := r.createResource(cr, resourceName); err != nil {
 			log.Info(fmt.Sprintf("Error in InstallPrometheusOperator, resourceName=%s : err=%s", resourceName, err))
 			// Requeue so it can be attempted again
@@ -338,6 +344,34 @@ func (r *ReconcileApplicationMonitoring) getHostFromRoute(namespacedName types.N
 		return "", errors.New("Error getting host from route: host value empty")
 	}
 	return host, nil
+}
+
+// Create a secret that contains additional prometheus scrape configurations
+// Used to configure the blackbox exporter
+func (r *ReconcileApplicationMonitoring) createAdditionalScrapeConfig(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) error {
+	t := newTemplateHelper(cr, nil)
+	job, err := t.loadTemplate(BlackboxExporterJobName)
+
+	if err != nil {
+		return errors.Wrap(err, "error loading blackbox exporter template")
+	}
+
+	scrapeConfigSecret := &corev1.Secret{
+		ObjectMeta: v1.ObjectMeta{
+			Name:      ScrapeConfigSecretName,
+			Namespace: cr.Namespace,
+		},
+		Data: map[string][]byte{
+			"blackbox-exporter.yaml": []byte(job),
+		},
+	}
+
+	err = controllerutil.SetControllerReference(cr, scrapeConfigSecret, r.scheme)
+	if err != nil {
+		return errors.Wrap(err, "error setting controller reference")
+	}
+
+	return r.client.Create(context.TODO(), scrapeConfigSecret)
 }
 
 func (r *ReconcileApplicationMonitoring) getPrometheusOperatorReady(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (bool, error) {

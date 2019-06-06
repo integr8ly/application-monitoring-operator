@@ -9,6 +9,16 @@ spec:
   baseImage: registry.redhat.io/openshift3/prometheus
   tag: v3.11
   containers:
+    - name: blackbox-exporter
+      volumeMounts:
+        - name: configmap-{{ .BlackboxExporterConfigmapName }}
+          mountPath: /etc/blackbox-config
+      image: registry.connect.redhat.com/bitnami/prometheus-blackbox-exporter:0.14.0-rhel-7-r33-2
+      args:
+        - '--config.file=/etc/blackbox-config/blackbox.yml'
+      ports:
+        - containerPort: 9115
+          name: blackbox
     - args:
         - '-provider=openshift'
         - '-https-address=:9091'
@@ -48,6 +58,8 @@ spec:
   secrets:
     - prometheus-k8s-tls
     - prometheus-k8s-proxy
+  configMaps:
+    - {{ .BlackboxExporterConfigmapName }}
   serviceAccountName: prometheus-application-monitoring
   serviceMonitorNamespaceSelector:
     matchLabels:
@@ -61,3 +73,6 @@ spec:
   ruleNamespaceSelector:
     matchLabels:
       monitoring-key: {{ .MonitoringKey }}
+  additionalScrapeConfigs:
+    name: {{ .ScrapeConfigSecretName }}
+    key: blackbox-exporter.yaml

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 	"text/template"
 
 	applicationmonitoring "github.com/integr8ly/application-monitoring-operator/pkg/apis/applicationmonitoring/v1alpha1"
@@ -39,6 +40,9 @@ const (
 	AlertManagerRouteName                = "alertmanager-route"
 	GrafanaServiceMonitorName            = "grafana-servicemonitor"
 	GrafanaServiceName                   = "grafana-service"
+	BlackboxExporterConfigmapName        = "blackbox-exporter-config"
+	BlackboxExporterJobName              = "blackbox-exporter-job"
+	ScrapeConfigSecretName               = "additional-scrape-configs"
 )
 
 type Parameters struct {
@@ -66,6 +70,9 @@ type Parameters struct {
 	PrometheusServiceMonitorName   string
 	MonitoringKey                  string
 	GrafanaServiceName             string
+	BlackboxExporterConfigmapName  string
+	ScrapeConfigSecretName         string
+	BlackboxTargets                []string
 	ExtraParams                    map[string]string
 }
 
@@ -103,6 +110,9 @@ func newTemplateHelper(cr *applicationmonitoring.ApplicationMonitoring, extraPar
 		GrafanaServiceMonitorName:      GrafanaServiceMonitorName,
 		PrometheusServiceMonitorName:   PrometheusServiceMonitorName,
 		MonitoringKey:                  cr.Spec.LabelSelector,
+		BlackboxExporterConfigmapName:  BlackboxExporterConfigmapName,
+		BlackboxTargets:                cr.Spec.BlackboxTargets,
+		ScrapeConfigSecretName:         ScrapeConfigSecretName,
 		ExtraParams:                    extraParams,
 	}
 
@@ -131,6 +141,16 @@ func PopulateSessionProxySecret() string {
 	return p
 }
 
+// Takes a list of strings, wraps each string in double quotes and joins them
+// Used for building yaml arrays
+func joinQuote(values []string) string {
+	var result []string
+	for _, s := range values {
+		result = append(result, fmt.Sprintf("\"%s\"", s))
+	}
+	return strings.Join(result, ", ")
+}
+
 // load a templates from a given resource name. The templates must be located
 // under ./templates and the filename must be <resource-name>.yaml
 func (h *TemplateHelper) loadTemplate(name string) ([]byte, error) {
@@ -140,7 +160,12 @@ func (h *TemplateHelper) loadTemplate(name string) ([]byte, error) {
 		return nil, err
 	}
 
-	parsed, err := template.New("application-monitoring").Parse(string(tpl))
+	parser := template.New("application-monitoring")
+	parser.Funcs(template.FuncMap{
+		"JoinQuote": joinQuote,
+	})
+
+	parsed, err := parser.Parse(string(tpl))
 	if err != nil {
 		return nil, err
 	}
