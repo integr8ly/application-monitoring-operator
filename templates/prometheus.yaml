@@ -6,6 +6,8 @@ metadata:
   labels:
     prometheus: {{ .ApplicationMonitoringName }}
 spec:
+  baseImage: registry.redhat.io/openshift3/prometheus
+  tag: v3.11
   containers:
     - args:
         - '-provider=openshift'

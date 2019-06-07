@@ -4,6 +4,8 @@ metadata:
   name: {{ .ApplicationMonitoringName }}
   namespace: {{ .Namespace }}
 spec:
+  baseImage: registry.redhat.io/openshift3/prometheus-alertmanager
+  tag: v3.11
   externalUrl: https://{{ index .ExtraParams "alertmanagerHost" }}
   listenLocal: false
   serviceAccountName: alertmanager
