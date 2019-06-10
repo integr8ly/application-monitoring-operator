@@ -7,6 +7,7 @@ oc label namespace application-monitoring monitoring-key=middleware
 # Grafana CRDs
 oc apply -f https://raw.githubusercontent.com/integr8ly/grafana-operator/master/deploy/crds/Grafana.yaml
 oc apply -f https://raw.githubusercontent.com/integr8ly/grafana-operator/master/deploy/crds/GrafanaDashboard.yaml
+oc apply -f https://raw.githubusercontent.com/integr8ly/grafana-operator/master/deploy/crds/GrafanaDataSource.yaml
 
 # Cluster Roles & RoleBindings
 oc apply -f ./deploy/roles
