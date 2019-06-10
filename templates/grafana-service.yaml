@@ -13,5 +13,9 @@ spec:
       port: 9091
       protocol: TCP
       targetPort: grafana-proxy
+    - name: asdf
+      port: 9090
+      protocol: TCP
+      targetPort: web
   selector:
     app: grafana
