@@ -56,7 +56,7 @@ $ kubectl create -f <path to downloaded secret>/<secret name>.yaml  --namespace=
 And link the secret to the following serviceaccounts:
 
 ```sh
-oc secrets link grafana-serviceaccount <secret name> --for=pull
+oc secrets link grafana-operator <secret name> --for=pull
 oc secrets link alertmanager <secret name> --for=pull
 oc secrets link prometheus-application-monitoring <secret name> --for=pull
 ```
