@@ -45,3 +45,5 @@ spec:
   dashboardLabelSelector:
     - matchLabels:
         monitoring-key: {{ .MonitoringKey }}
+    - matchLabels:
+        app: syndesis
