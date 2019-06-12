@@ -72,7 +72,7 @@ type Parameters struct {
 	GrafanaServiceName             string
 	BlackboxExporterConfigmapName  string
 	ScrapeConfigSecretName         string
-	BlackboxTargets                []string
+	BlackboxTargets                []applicationmonitoring.BlackboxTarget
 	ExtraParams                    map[string]string
 }
 
@@ -143,10 +143,10 @@ func PopulateSessionProxySecret() string {
 
 // Takes a list of strings, wraps each string in double quotes and joins them
 // Used for building yaml arrays
-func joinQuote(values []string) string {
+func joinQuote(values []applicationmonitoring.BlackboxTarget) string {
 	var result []string
 	for _, s := range values {
-		result = append(result, fmt.Sprintf("\"%s\"", s))
+		result = append(result, fmt.Sprintf("\"%v@%v@%v\"", s.Module, s.Service, s.Url))
 	}
 	return strings.Join(result, ", ")
 }

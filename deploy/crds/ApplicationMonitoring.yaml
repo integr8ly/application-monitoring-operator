@@ -18,6 +18,11 @@ spec:
         spec:
           required: ["labelSelector"]
           properties:
+            blackboxTargets:
+              type: array
+              items:
+                type: object
+                description: A target to be probed by the blackbox exporter
             labelSelector:
               type: string
               minimum: 1

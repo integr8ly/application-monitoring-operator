@@ -7,12 +7,20 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
+// A target (url, module and service name) to be probed by the
+// blackbox exporter
+type BlackboxTarget struct {
+	Url     string `json:"url"`
+	Service string `json:"service"`
+	Module  string `json:"module"`
+}
+
 // ApplicationMonitoringSpec defines the desired state of ApplicationMonitoring
 type ApplicationMonitoringSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
-	LabelSelector   string   `json:"labelSelector"`
-	BlackboxTargets []string `json:"blackboxTargets"`
+	LabelSelector   string           `json:"labelSelector"`
+	BlackboxTargets []BlackboxTarget `json:"blackboxTargets,omitempty"`
 }
 
 // ApplicationMonitoringStatus defines the observed state of ApplicationMonitoring
