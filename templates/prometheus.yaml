@@ -13,6 +13,8 @@ spec:
       volumeMounts:
         - name: configmap-{{ .BlackboxExporterConfigmapName }}
           mountPath: /etc/blackbox-config
+        - mountPath: /etc/tls/private
+          name: secret-prometheus-k8s-tls
       image: registry.connect.redhat.com/bitnami/prometheus-blackbox-exporter:0.14.0-rhel-7-r33-2
       args:
         - '--config.file=/etc/blackbox-config/blackbox.yml'

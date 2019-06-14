@@ -39,6 +39,7 @@ const (
 	PhaseCreateGrafanaCR
 	PhaseFinalizer
 	PhaseDone
+	PhaseReconcileConfig
 )
 
 // Add creates a new ApplicationMonitoring Controller and adds it to the Manager. The Manager will set fields on the Controller
@@ -144,15 +145,23 @@ func (r *ReconcileApplicationMonitoring) Reconcile(request reconcile.Request) (r
 		return r.setFinalizer(instanceCopy)
 	case PhaseDone:
 		log.Info("Finished installing application monitoring")
+		return r.updatePhase(instanceCopy, PhaseReconcileConfig)
+	case PhaseReconcileConfig:
+		return r.reconcileConfig(instanceCopy)
 	}
 
 	return reconcile.Result{}, nil
 }
 
+func (r *ReconcileApplicationMonitoring) reconcileConfig(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
+	log.Info("Phase: Reconciling Config")
+	return reconcile.Result{}, r.createOrUpdateAdditionalScrapeConfig(cr)
+}
+
 func (r *ReconcileApplicationMonitoring) installPrometheusOperator(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
 	log.Info("Phase: Install PrometheusOperator")
 
-	err := r.createAdditionalScrapeConfig(cr)
+	err := r.createOrUpdateAdditionalScrapeConfig(cr)
 	if err != nil {
 		log.Error(err, "Failed to create additional scrape config")
 		return reconcile.Result{}, err
@@ -348,7 +357,7 @@ func (r *ReconcileApplicationMonitoring) getHostFromRoute(namespacedName types.N
 
 // Create a secret that contains additional prometheus scrape configurations
 // Used to configure the blackbox exporter
-func (r *ReconcileApplicationMonitoring) createAdditionalScrapeConfig(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) error {
+func (r *ReconcileApplicationMonitoring) createOrUpdateAdditionalScrapeConfig(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) error {
 	t := newTemplateHelper(cr, nil)
 	job, err := t.loadTemplate(BlackboxExporterJobName)
 
@@ -356,22 +365,42 @@ func (r *ReconcileApplicationMonitoring) createAdditionalScrapeConfig(cr *applic
 		return errors.Wrap(err, "error loading blackbox exporter template")
 	}
 
-	scrapeConfigSecret := &corev1.Secret{
-		ObjectMeta: v1.ObjectMeta{
-			Name:      ScrapeConfigSecretName,
-			Namespace: cr.Namespace,
-		},
-		Data: map[string][]byte{
-			"blackbox-exporter.yaml": []byte(job),
-		},
+	selector := types.NamespacedName{
+		Namespace: cr.Namespace,
+		Name:      ScrapeConfigSecretName,
 	}
 
-	err = controllerutil.SetControllerReference(cr, scrapeConfigSecret, r.scheme)
+	update := true
+	scrapeConfigSecret := corev1.Secret{}
+
+	// Check if the secret already exists
+	err = r.client.Get(context.TODO(), selector, &scrapeConfigSecret)
 	if err != nil {
-		return errors.Wrap(err, "error setting controller reference")
+		if !kerrors.IsNotFound(err) {
+			return err
+		}
+		update = false
 	}
 
-	return r.client.Create(context.TODO(), scrapeConfigSecret)
+	scrapeConfigSecret.ObjectMeta = v1.ObjectMeta{
+		Name:      ScrapeConfigSecretName,
+		Namespace: cr.Namespace,
+	}
+
+	scrapeConfigSecret.Data = map[string][]byte{
+		"blackbox-exporter.yaml": []byte(job),
+	}
+
+	if update {
+		return r.client.Update(context.TODO(), &scrapeConfigSecret)
+	} else {
+		err = controllerutil.SetControllerReference(cr, &scrapeConfigSecret, r.scheme)
+		if err != nil {
+			return errors.Wrap(err, "error setting controller reference")
+		}
+
+		return r.client.Create(context.TODO(), &scrapeConfigSecret)
+	}
 }
 
 func (r *ReconcileApplicationMonitoring) getPrometheusOperatorReady(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (bool, error) {
