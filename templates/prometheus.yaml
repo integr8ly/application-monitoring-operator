@@ -54,6 +54,11 @@ spec:
       - name: {{ .AlertManagerServiceName }}
         namespace: {{ .Namespace }}
         port: web
+        scheme: https
+        bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+        tlsConfig:
+          caFile: /var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt
+          serverName: "{{ .AlertManagerServiceName }}.{{ .Namespace }}.svc"
   resources:
     requests:
       memory: 400Mi
