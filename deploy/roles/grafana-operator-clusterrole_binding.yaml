@@ -3,7 +3,7 @@ kind: ClusterRoleBinding
 metadata:
   name: grafana-operator
 roleRef:
-  name: grafana-operator-cluster-role
+  name: grafana-operator
 subjects:
   - kind: ServiceAccount
     name: grafana-operator
