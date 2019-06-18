@@ -7,7 +7,7 @@ spec:
   baseImage: registry.redhat.io/openshift3/prometheus-alertmanager
   tag: v3.11
   externalUrl: https://{{ index .ExtraParams "alertmanagerHost" }}
-  listenLocal: false
+  listenLocal: true
   serviceAccountName: alertmanager
   containers:
     - args:

@@ -4,3 +4,7 @@ metadata:
   name: example-applicationmonitoring
 spec:
   labelSelector: "middleware"
+  blackboxTargets:
+    - service: example
+      url: https://example.com
+      module: http_extern_2xx
