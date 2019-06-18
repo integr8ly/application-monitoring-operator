@@ -14,6 +14,26 @@ The following resources are supported:
 
 Triggers the installation of the monitoring stack when created. This is achieved by deploying two other operators that install Prometheus and Grafana respectively.
 
+The Application Monitoring CR accepts the following properties in the spec:
+
+* *labelSelector*: The value of the `middleware-monitoring` label that has to be present on all imported resources (prometheus rules, service monitors, grafana dashboards).
+* *blackboxTargets*: A list of targets for the blackbox exporter to probe.
+
+The `blackboxTargets` should be provided as an array in the form of:
+
+```yaml
+  blackboxTargets:
+    - service: example
+      url: https://example.com
+      module: http_extern_2xx
+```
+
+where `service` will be added as a label to the metric, `url` is the URL of the route to probe and `module` can be one of:
+
+* *http_2xx*: Probe http or https targets via GET using the cluster certificates
+* *http_post_2xx*: Probe http or https targets via POST using the cluster certificates
+* *http_extern_2xx*: Probe http or https targets via GET relying on a valid external certificate
+
 ## PrometheusRule
 
 Represents a set of alert rules for Prometheus/Alertmanager. See the [https://github.com/coreos/prometheus-operator/blob/f9bc0aa0fd9aa936f500d9d241098863c60d873d/Documentation/user-guides/alerting.md#alerting](prometheus operator docs) for more details about this resource.
