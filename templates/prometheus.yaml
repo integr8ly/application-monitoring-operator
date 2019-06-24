@@ -82,4 +82,4 @@ spec:
       monitoring-key: {{ .MonitoringKey }}
   additionalScrapeConfigs:
     name: {{ .ScrapeConfigSecretName }}
-    key: blackbox-exporter.yaml
+    key: integreatly.yaml

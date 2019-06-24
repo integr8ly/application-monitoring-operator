@@ -21,8 +21,8 @@ type ApplicationMonitoringSpec struct {
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
 	LabelSelector                    string           `json:"labelSelector"`
 	BlackboxTargets                  []BlackboxTarget `json:"blackboxTargets,omitempty"`
-	AdditionalScrapeConfigSecretName string           `json:"additionalScrapeConfigSecretName"`
-	AdditionalScrapeConfigSecretKey  string           `json:"additionalScrapeConfigSecretkey"`
+	AdditionalScrapeConfigSecretName string           `json:"additionalScrapeConfigSecretName,omitempty"`
+	AdditionalScrapeConfigSecretKey  string           `json:"additionalScrapeConfigSecretKey,omitempty"`
 }
 
 // ApplicationMonitoringStatus defines the observed state of ApplicationMonitoring
