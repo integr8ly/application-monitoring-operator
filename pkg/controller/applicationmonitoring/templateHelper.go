@@ -42,7 +42,7 @@ const (
 	GrafanaServiceName                   = "grafana-service"
 	BlackboxExporterConfigmapName        = "blackbox-exporter-config"
 	BlackboxExporterJobName              = "blackbox-exporter-job"
-	ScrapeConfigSecretName               = "additional-scrape-configs"
+	ScrapeConfigSecretName               = "integreatly-additional-scrape-configs"
 )
 
 type Parameters struct {
