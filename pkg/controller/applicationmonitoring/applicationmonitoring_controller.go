@@ -357,12 +357,45 @@ func (r *ReconcileApplicationMonitoring) getHostFromRoute(namespacedName types.N
 
 // Create a secret that contains additional prometheus scrape configurations
 // Used to configure the blackbox exporter
+func (r *ReconcileApplicationMonitoring) readAdditionalScrapeConfigSecret(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) ([]byte, bool) {
+	if cr.Spec.AdditionalScrapeConfigSecretName == "" || cr.Spec.AdditionalScrapeConfigSecretKey == "" {
+		log.Info("no additional scrape config specified")
+		return nil, false
+	}
+
+	selector := types.NamespacedName{
+		Namespace: cr.Namespace,
+		Name:      cr.Spec.AdditionalScrapeConfigSecretName,
+	}
+
+	additionalScrapeConfig := corev1.Secret{}
+	err := r.client.Get(context.TODO(), selector, &additionalScrapeConfig)
+	if err != nil {
+		log.Error(err, fmt.Sprintf("error reading secret '%v'", cr.Spec.AdditionalScrapeConfigSecretName))
+		return nil, false
+	}
+
+	if val, ok := additionalScrapeConfig.Data[cr.Spec.AdditionalScrapeConfigSecretKey]; ok {
+		return val, true
+	}
+
+	return nil, false
+}
+
+// Create a secret that contains additional prometheus scrape configurations
+// Used to configure the blackbox exporter
 func (r *ReconcileApplicationMonitoring) createOrUpdateAdditionalScrapeConfig(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) error {
 	t := newTemplateHelper(cr, nil)
 	job, err := t.loadTemplate(BlackboxExporterJobName)
 
 	if err != nil {
 		return errors.Wrap(err, "error loading blackbox exporter template")
+	}
+
+	additionalConfig, found := r.readAdditionalScrapeConfigSecret(cr)
+	if found {
+		job = append(job, []byte("\n")...)
+		job = append(job, additionalConfig...)
 	}
 
 	selector := types.NamespacedName{

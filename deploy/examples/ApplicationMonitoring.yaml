@@ -4,6 +4,8 @@ metadata:
   name: example-applicationmonitoring
 spec:
   labelSelector: "middleware"
+  additionalScrapeConfigSecretName: "integreatly-additional-scrape-configs"
+  additionalScrapeConfigSecretKey: "integreatly-additional.yaml"
   blackboxTargets:
     - service: example
       url: https://example.com

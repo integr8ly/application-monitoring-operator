@@ -27,3 +27,9 @@ spec:
               type: string
               minimum: 1
               description: The selector used by the Prometheus and Grafana Operators to discover resources
+            additionalScrapeConfigSecretName:
+              type: string
+              description: The name of the secret from which additional scrape configs will be passed to the prometheus operator
+            additionalScrapeConfigSecretKey:
+              type: string
+              description: The key under which additional scrape configs are stored within the secret
