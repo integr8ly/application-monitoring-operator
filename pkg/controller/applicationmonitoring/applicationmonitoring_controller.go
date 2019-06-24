@@ -388,7 +388,7 @@ func (r *ReconcileApplicationMonitoring) createOrUpdateAdditionalScrapeConfig(cr
 	}
 
 	scrapeConfigSecret.Data = map[string][]byte{
-		"blackbox-exporter.yaml": []byte(job),
+		"integreatly-additional.yaml": []byte(job),
 	}
 
 	if update {
