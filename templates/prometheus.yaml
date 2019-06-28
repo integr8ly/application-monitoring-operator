@@ -75,6 +75,12 @@ spec:
   serviceMonitorSelector:
     matchLabels:
       monitoring-key: {{ .MonitoringKey }}
+  storage:
+    volumeClaimTemplate:
+      spec:
+        resources:
+          requests:
+            storage: 50Gi
   ruleSelector:
     matchLabels:
       monitoring-key: {{ .MonitoringKey }}
