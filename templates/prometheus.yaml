@@ -62,6 +62,7 @@ spec:
   resources:
     requests:
       memory: 400Mi
+  retention: 45d
   secrets:
     - prometheus-k8s-tls
     - prometheus-k8s-proxy
