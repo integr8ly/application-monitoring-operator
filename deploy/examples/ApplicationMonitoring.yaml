@@ -11,3 +11,4 @@ spec:
       url: https://example.com
       module: http_extern_2xx
   prometheusRetention: 15d
+  prometheusStorageRequest: 10Gi

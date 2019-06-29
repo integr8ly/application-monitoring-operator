@@ -1,7 +1,6 @@
 package v1alpha1
 
 import (
-	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -20,12 +19,12 @@ type BlackboxTarget struct {
 type ApplicationMonitoringSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
-	LabelSelector                    string            `json:"labelSelector"`
-	BlackboxTargets                  []BlackboxTarget  `json:"blackboxTargets,omitempty"`
-	AdditionalScrapeConfigSecretName string            `json:"additionalScrapeConfigSecretName,omitempty"`
-	AdditionalScrapeConfigSecretKey  string            `json:"additionalScrapeConfigSecretKey,omitempty"`
-	PrometheusRetention              string            `json:"prometheusRetention"`
-	PrometheusStorage                PrometheusStorage `json:"prometheusStorage,omitempty"`
+	LabelSelector                    string           `json:"labelSelector"`
+	BlackboxTargets                  []BlackboxTarget `json:"blackboxTargets,omitempty"`
+	AdditionalScrapeConfigSecretName string           `json:"additionalScrapeConfigSecretName,omitempty"`
+	AdditionalScrapeConfigSecretKey  string           `json:"additionalScrapeConfigSecretKey,omitempty"`
+	PrometheusRetention              string           `json:"prometheusRetention"`
+	PrometheusStorageRequest         string           `json:"prometheusStorageRequest,omitempty"`
 }
 
 // ApplicationMonitoringStatus defines the observed state of ApplicationMonitoring
@@ -54,12 +53,6 @@ type ApplicationMonitoringList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
 	Items           []ApplicationMonitoring `json:"items"`
-}
-
-// PrometheusStorage is StorageSpec from https://github.com/coreos/prometheus-operator/blob/cf974475f699386b1fc0bb6eff6808913adcfa61/pkg/apis/monitoring/v1/types.go#L302-L308
-type PrometheusStorage struct {
-	EmptyDir            *v1.EmptyDirVolumeSource `json:"emptyDir,omitempty"`
-	VolumeClaimTemplate v1.PersistentVolumeClaim `json:"volumeClaimTemplate,omitempty"`
 }
 
 func init() {

@@ -84,3 +84,11 @@ spec:
   additionalScrapeConfigs:
     name: {{ .ScrapeConfigSecretName }}
     key: integreatly.yaml
+{{- if .PrometheusStorageRequest}}
+  storage:
+    volumeClaimTemplate:
+      spec:
+        resources:
+          requests:
+            storage: {{.PrometheusStorageRequest}}
+{{- end}}

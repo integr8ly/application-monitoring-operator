@@ -204,9 +204,6 @@ func (r *ReconcileApplicationMonitoring) createPrometheusCRs(cr *applicationmoni
 	if err != nil {
 		return reconcile.Result{}, err
 	}
-	// if () {
-	// 	r.extraParams["storage"] = PrometheusStorage;
-	// }
 	r.extraParams["prometheusHost"], err = r.getHostFromRoute(types.NamespacedName{Namespace: cr.Namespace, Name: PrometheusRouteName})
 	if err != nil {
 		return reconcile.Result{}, err
