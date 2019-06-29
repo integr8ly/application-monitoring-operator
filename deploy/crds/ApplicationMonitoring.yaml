@@ -33,3 +33,6 @@ spec:
             additionalScrapeConfigSecretKey:
               type: string
               description: The key under which additional scrape configs are stored within the secret
+            prometheusRetention:
+              type: string
+              description: Retention time for prometheus data. See https://prometheus.io/docs/prometheus/latest/storage/

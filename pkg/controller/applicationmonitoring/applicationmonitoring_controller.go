@@ -3,10 +3,11 @@ package applicationmonitoring
 import (
 	"context"
 	"fmt"
-	"k8s.io/api/apps/v1beta1"
 	"time"
 
-	"k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/api/apps/v1beta1"
+
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
@@ -203,6 +204,9 @@ func (r *ReconcileApplicationMonitoring) createPrometheusCRs(cr *applicationmoni
 	if err != nil {
 		return reconcile.Result{}, err
 	}
+	// if () {
+	// 	r.extraParams["storage"] = PrometheusStorage;
+	// }
 	r.extraParams["prometheusHost"], err = r.getHostFromRoute(types.NamespacedName{Namespace: cr.Namespace, Name: PrometheusRouteName})
 	if err != nil {
 		return reconcile.Result{}, err

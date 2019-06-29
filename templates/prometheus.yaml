@@ -62,7 +62,7 @@ spec:
   resources:
     requests:
       memory: 400Mi
-  retention: 45d
+  retention: {{ .PrometheusRetention }}
   secrets:
     - prometheus-k8s-tls
     - prometheus-k8s-proxy
@@ -75,12 +75,6 @@ spec:
   serviceMonitorSelector:
     matchLabels:
       monitoring-key: {{ .MonitoringKey }}
-  storage:
-    volumeClaimTemplate:
-      spec:
-        resources:
-          requests:
-            storage: 50Gi
   ruleSelector:
     matchLabels:
       monitoring-key: {{ .MonitoringKey }}

@@ -73,6 +73,7 @@ type Parameters struct {
 	BlackboxExporterConfigmapName  string
 	ScrapeConfigSecretName         string
 	BlackboxTargets                []applicationmonitoring.BlackboxTarget
+	PrometheusRetention            string
 	ExtraParams                    map[string]string
 }
 
@@ -113,6 +114,7 @@ func newTemplateHelper(cr *applicationmonitoring.ApplicationMonitoring, extraPar
 		BlackboxExporterConfigmapName:  BlackboxExporterConfigmapName,
 		BlackboxTargets:                cr.Spec.BlackboxTargets,
 		ScrapeConfigSecretName:         ScrapeConfigSecretName,
+		PrometheusRetention:            cr.Spec.PrometheusRetention,
 		ExtraParams:                    extraParams,
 	}
 
