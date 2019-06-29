@@ -127,6 +127,10 @@ func (r *ReconcileApplicationMonitoring) Reconcile(request reconcile.Request) (r
 		return r.cleanup(instanceCopy)
 	}
 
+	if instanceCopy.Spec.PrometheusRetention == "" {
+		instanceCopy.Spec.PrometheusRetention = "15d"
+	}
+
 	switch instanceCopy.Status.Phase {
 	case PhaseInstallPrometheusOperator:
 		return r.installPrometheusOperator(instanceCopy)
