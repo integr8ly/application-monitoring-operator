@@ -62,6 +62,7 @@ spec:
   resources:
     requests:
       memory: 400Mi
+  retention: {{ .PrometheusRetention }}
   secrets:
     - prometheus-k8s-tls
     - prometheus-k8s-proxy
@@ -83,3 +84,11 @@ spec:
   additionalScrapeConfigs:
     name: {{ .ScrapeConfigSecretName }}
     key: integreatly.yaml
+{{- if .PrometheusStorageRequest}}
+  storage:
+    volumeClaimTemplate:
+      spec:
+        resources:
+          requests:
+            storage: {{.PrometheusStorageRequest}}
+{{- end}}

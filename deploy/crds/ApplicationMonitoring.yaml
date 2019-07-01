@@ -33,3 +33,9 @@ spec:
             additionalScrapeConfigSecretKey:
               type: string
               description: The key under which additional scrape configs are stored within the secret
+            prometheusRetention:
+              type: string
+              description: Retention time for prometheus data. See https://prometheus.io/docs/prometheus/latest/storage/
+            prometheusStorageRequest:
+              type: string
+              description: How much storage to assign to a volume claim for persisting Prometheus data. See https://github.com/coreos/prometheus-operator/blob/ca400fdc3edd0af0df896a338eca270e115b74d7/Documentation/api.md#storagespec

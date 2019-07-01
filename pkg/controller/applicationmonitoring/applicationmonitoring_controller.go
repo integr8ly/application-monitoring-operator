@@ -3,10 +3,11 @@ package applicationmonitoring
 import (
 	"context"
 	"fmt"
-	"k8s.io/api/apps/v1beta1"
 	"time"
 
-	"k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/api/apps/v1beta1"
+
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
@@ -124,6 +125,10 @@ func (r *ReconcileApplicationMonitoring) Reconcile(request reconcile.Request) (r
 
 	if instanceCopy.DeletionTimestamp != nil {
 		return r.cleanup(instanceCopy)
+	}
+
+	if instanceCopy.Spec.PrometheusRetention == "" {
+		instanceCopy.Spec.PrometheusRetention = "15d"
 	}
 
 	switch instanceCopy.Status.Phase {
