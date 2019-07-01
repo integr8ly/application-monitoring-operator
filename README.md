@@ -18,6 +18,8 @@ The Application Monitoring CR accepts the following properties in the spec:
 
 * *labelSelector*: The value of the `middleware-monitoring` label that has to be present on all imported resources (prometheus rules, service monitors, grafana dashboards).
 * *blackboxTargets*: A list of targets for the blackbox exporter to probe.
+* *prometheusRetention*: Retention time for prometheus data. See https://prometheus.io/docs/prometheus/latest/storage/
+* *prometheusStorageRequest*: How much storage to assign to a volume claim for persisting Prometheus data. See https://github.com/coreos/prometheus-operator/blob/ca400fdc3edd0af0df896a338eca270e115b74d7/Documentation/api.md#storagespec
 
 The `blackboxTargets` should be provided as an array in the form of:
 
