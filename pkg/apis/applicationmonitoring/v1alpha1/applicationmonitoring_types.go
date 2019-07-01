@@ -23,7 +23,7 @@ type ApplicationMonitoringSpec struct {
 	BlackboxTargets                  []BlackboxTarget `json:"blackboxTargets,omitempty"`
 	AdditionalScrapeConfigSecretName string           `json:"additionalScrapeConfigSecretName,omitempty"`
 	AdditionalScrapeConfigSecretKey  string           `json:"additionalScrapeConfigSecretKey,omitempty"`
-	PrometheusRetention              string           `json:"prometheusRetention"`
+	PrometheusRetention              string           `json:"prometheusRetention,omitempty"`
 	PrometheusStorageRequest         string           `json:"prometheusStorageRequest,omitempty"`
 }
 
