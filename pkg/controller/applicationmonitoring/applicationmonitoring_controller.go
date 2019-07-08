@@ -2,6 +2,7 @@ package applicationmonitoring
 
 import (
 	"context"
+	"crypto/md5"
 	"fmt"
 	"time"
 
@@ -12,6 +13,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	applicationmonitoringv1alpha1 "github.com/integr8ly/application-monitoring-operator/pkg/apis/applicationmonitoring/v1alpha1"
+	"github.com/integr8ly/application-monitoring-operator/pkg/controller/common"
 	routev1 "github.com/openshift/api/route/v1"
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
@@ -26,10 +28,15 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/source"
 )
 
+// MonitoringFinalizerName the name of the finalizer
 const MonitoringFinalizerName = "monitoring.cleanup"
+
+// ReconcilePauseSeconds the number of seconds to wait before running the reconcile loop
+const ReconcilePauseSeconds = 10
 
 var log = logf.Log.WithName("controller_applicationmonitoring")
 
+// Constants used for the operator phases
 const (
 	PhaseInstallPrometheusOperator int = iota
 	PhaseWaitForOperator
@@ -68,16 +75,6 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 
 	// Watch for changes to primary resource ApplicationMonitoring
 	err = c.Watch(&source.Kind{Type: &applicationmonitoringv1alpha1.ApplicationMonitoring{}}, &handler.EnqueueRequestForObject{})
-	if err != nil {
-		return err
-	}
-
-	// TODO(user): Modify this to be the types you create that are owned by the primary resource
-	// Watch for changes to secondary resource Pods and requeue the owner ApplicationMonitoring
-	err = c.Watch(&source.Kind{Type: &corev1.Pod{}}, &handler.EnqueueRequestForOwner{
-		IsController: true,
-		OwnerType:    &applicationmonitoringv1alpha1.ApplicationMonitoring{},
-	})
 	if err != nil {
 		return err
 	}
@@ -160,7 +157,27 @@ func (r *ReconcileApplicationMonitoring) Reconcile(request reconcile.Request) (r
 
 func (r *ReconcileApplicationMonitoring) reconcileConfig(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
 	log.Info("Phase: Reconciling Config")
-	return reconcile.Result{}, r.createOrUpdateAdditionalScrapeConfig(cr)
+	err := r.syncBlackboxTargets(cr)
+	return reconcile.Result{RequeueAfter: time.Second * ReconcilePauseSeconds}, err
+}
+
+func (r *ReconcileApplicationMonitoring) syncBlackboxTargets(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) error {
+	log.Info("Phase: Reconciling Config syncBlackboxTargets")
+
+	previous := cr.Status.LastBlackboxConfig
+
+	flatList := common.Flatten()
+	current := joinQuote(flatList)
+
+	check, hash := r.hasBlackboxTargetsListChanged(previous, current)
+
+	if check {
+		log.Info(fmt.Sprintf("Phase: Reconciling Config syncBlackboxTargets hasBlackboxTargetsListChanged: %v hash: %v", check, hash))
+		err := r.createOrUpdateAdditionalScrapeConfig(cr)
+
+		return err
+	}
+	return nil
 }
 
 func (r *ReconcileApplicationMonitoring) installPrometheusOperator(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
@@ -429,6 +446,14 @@ func (r *ReconcileApplicationMonitoring) createOrUpdateAdditionalScrapeConfig(cr
 		"integreatly.yaml": []byte(job),
 	}
 
+	flatList := common.Flatten()
+	cr.Status.LastBlackboxConfig = fmt.Sprintf("%x", md5.Sum([]byte(joinQuote(flatList))))
+
+	err = r.client.Update(context.TODO(), cr)
+	if err != nil {
+		return err
+	}
+
 	if update {
 		return r.client.Update(context.TODO(), &scrapeConfigSecret)
 	} else {
@@ -462,6 +487,7 @@ func (r *ReconcileApplicationMonitoring) setFinalizer(cr *applicationmonitoringv
 
 	if len(cr.Finalizers) == 0 {
 		cr.Finalizers = append(cr.Finalizers, MonitoringFinalizerName)
+		r.client.Update(context.TODO(), cr)
 	}
 
 	return r.updatePhase(cr, PhaseDone)
@@ -492,4 +518,9 @@ func (r *ReconcileApplicationMonitoring) updatePhase(cr *applicationmonitoringv1
 	cr.Status.Phase = phase
 	err := r.client.Update(context.TODO(), cr)
 	return reconcile.Result{}, err
+}
+
+func (r *ReconcileApplicationMonitoring) hasBlackboxTargetsListChanged(previous string, current string) (bool, string) {
+	hash := fmt.Sprintf("%x", md5.Sum([]byte(current)))
+	return hash != previous, hash
 }

@@ -7,31 +7,23 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
-// A target (url, module and service name) to be probed by the
-// blackbox exporter
-type BlackboxTarget struct {
-	Url     string `json:"url"`
-	Service string `json:"service"`
-	Module  string `json:"module"`
-}
-
 // ApplicationMonitoringSpec defines the desired state of ApplicationMonitoring
 type ApplicationMonitoringSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
-	LabelSelector                    string           `json:"labelSelector"`
-	BlackboxTargets                  []BlackboxTarget `json:"blackboxTargets,omitempty"`
-	AdditionalScrapeConfigSecretName string           `json:"additionalScrapeConfigSecretName,omitempty"`
-	AdditionalScrapeConfigSecretKey  string           `json:"additionalScrapeConfigSecretKey,omitempty"`
-	PrometheusRetention              string           `json:"prometheusRetention,omitempty"`
-	PrometheusStorageRequest         string           `json:"prometheusStorageRequest,omitempty"`
+	LabelSelector                    string `json:"labelSelector"`
+	AdditionalScrapeConfigSecretName string `json:"additionalScrapeConfigSecretName,omitempty"`
+	AdditionalScrapeConfigSecretKey  string `json:"additionalScrapeConfigSecretKey,omitempty"`
+	PrometheusRetention              string `json:"prometheusRetention,omitempty"`
+	PrometheusStorageRequest         string `json:"prometheusStorageRequest,omitempty"`
 }
 
 // ApplicationMonitoringStatus defines the observed state of ApplicationMonitoring
 type ApplicationMonitoringStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
-	Phase int `json:"phase"`
+	Phase              int    `json:"phase"`
+	LastBlackboxConfig string `json:"lastblackboxconfig"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

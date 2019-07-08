@@ -11,6 +11,7 @@ import (
 	"text/template"
 
 	applicationmonitoring "github.com/integr8ly/application-monitoring-operator/pkg/apis/applicationmonitoring/v1alpha1"
+	"github.com/integr8ly/application-monitoring-operator/pkg/controller/common"
 )
 
 const (
@@ -72,7 +73,7 @@ type Parameters struct {
 	GrafanaServiceName             string
 	BlackboxExporterConfigmapName  string
 	ScrapeConfigSecretName         string
-	BlackboxTargets                []applicationmonitoring.BlackboxTarget
+	BlackboxTargets                []applicationmonitoring.BlackboxtargetData
 	PrometheusRetention            string
 	PrometheusStorageRequest       string
 	ExtraParams                    map[string]string
@@ -113,7 +114,7 @@ func newTemplateHelper(cr *applicationmonitoring.ApplicationMonitoring, extraPar
 		PrometheusServiceMonitorName:   PrometheusServiceMonitorName,
 		MonitoringKey:                  cr.Spec.LabelSelector,
 		BlackboxExporterConfigmapName:  BlackboxExporterConfigmapName,
-		BlackboxTargets:                cr.Spec.BlackboxTargets,
+		BlackboxTargets:                common.Flatten(),
 		ScrapeConfigSecretName:         ScrapeConfigSecretName,
 		PrometheusRetention:            cr.Spec.PrometheusRetention,
 		PrometheusStorageRequest:       cr.Spec.PrometheusStorageRequest,
@@ -136,7 +137,7 @@ func newTemplateHelper(cr *applicationmonitoring.ApplicationMonitoring, extraPar
 	}
 }
 
-// Populate the PrometheusServiceName values
+// PopulateSessionProxySecret generates a session secret
 func PopulateSessionProxySecret() string {
 	p, err := GeneratePassword(43)
 	if err != nil {
@@ -147,7 +148,7 @@ func PopulateSessionProxySecret() string {
 
 // Takes a list of strings, wraps each string in double quotes and joins them
 // Used for building yaml arrays
-func joinQuote(values []applicationmonitoring.BlackboxTarget) string {
+func joinQuote(values []applicationmonitoring.BlackboxtargetData) string {
 	var result []string
 	for _, s := range values {
 		result = append(result, fmt.Sprintf("\"%v@%v@%v\"", s.Module, s.Service, s.Url))
