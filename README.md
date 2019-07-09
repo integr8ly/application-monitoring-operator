@@ -1,10 +1,6 @@
 # Application Monitoring Operator
 
-A Kubernetes Operator based on the Operator SDK that installs the Integr8ly Application Monitoring Stack.
-
-# Current status
-
-This is a PoC / alpha version. Most functionality is there but it is highly likely there are bugs and improvements needed.
+An OpenShift Operator using the Operator SDK that installs an Application Monitoring Stack consisting of Grafana, Prometheus & Alertmanager.
 
 # Supported Custom Resources
 
