@@ -18,8 +18,8 @@ spec:
         - name: {{ .GrafanaOperatorName }}
           image: {{ .GrafanaImage }}
           args:
-            - '--grafana-image=registry.redhat.io/openshift3/grafana'
-            - '--grafana-image-tag=v3.11'
+            - '--grafana-image=quay.io/openshift/origin-grafana'
+            - '--grafana-image-tag=4.2'
             - '--openshift'
             - '--scan-all'
           ports:
