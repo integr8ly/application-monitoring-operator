@@ -1,0 +1,12 @@
+apiVersion: applicationmonitoring.integreatly.org/v1alpha1
+kind: BlackboxTarget
+metadata:
+  name: example-blackboxtarget
+spec:
+  blackboxTargets:
+    - service: example
+      url: https://example.com
+      module: http_extern_2xx
+    - service: example2
+      url: https://google.com
+      module: http_extern_2xx

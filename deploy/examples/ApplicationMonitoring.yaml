@@ -6,9 +6,5 @@ spec:
   labelSelector: "middleware"
   additionalScrapeConfigSecretName: "integreatly-additional-scrape-configs"
   additionalScrapeConfigSecretKey: "integreatly-additional.yaml"
-  blackboxTargets:
-    - service: example
-      url: https://example.com
-      module: http_extern_2xx
   prometheusRetention: 15d
   prometheusStorageRequest: 10Gi
