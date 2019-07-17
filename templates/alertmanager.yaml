@@ -4,8 +4,8 @@ metadata:
   name: {{ .ApplicationMonitoringName }}
   namespace: {{ .Namespace }}
 spec:
-  baseImage: quay.io/openshift/origin-prometheus-alertmanager
-  tag: "4.2"
+  baseImage: {{ .ImageAlertManager }}
+  tag: "{{ .ImageTagAlertManager }}"
   externalUrl: https://{{ index .ExtraParams "alertmanagerHost" }}
   listenLocal: true
   serviceAccountName: alertmanager
@@ -30,7 +30,7 @@ spec:
         - name: HTTP_PROXY
         - name: HTTPS_PROXY
         - name: NO_PROXY
-      image: 'quay.io/openshift/origin-oauth-proxy:4.2'
+      image: '{{ .ImageOAuthProxy }}:{{ .ImageTagOAuthProxy }}'
       name: alertmanager-proxy
       ports:
         - containerPort: 9091

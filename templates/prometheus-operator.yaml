@@ -19,10 +19,10 @@ spec:
         - args:
             - --kubelet-service=kube-system/kubelet
             - --logtostderr=true
-            - --config-reloader-image=quay.io/openshift/origin-configmap-reloader:4.2
-            - --prometheus-config-reloader=quay.io/openshift/origin-prometheus-config-reloader:4.2
+            - --config-reloader-image={{ .ImageConfigMapReloader }}:{{ .ImageTagConfigMapReloader }}
+            - --prometheus-config-reloader={{ .ImagePrometheusConfigReloader }}:{{ .ImageTagPrometheusConfigReloader }}
             - --namespaces=
-          image: quay.io/openshift/origin-prometheus-operator:4.2
+          image: {{ .ImagePrometheusOperator }}:{{ .ImageTagPrometheusOperator }}
           name: prometheus-application-operator
           ports:
             - containerPort: 8080
