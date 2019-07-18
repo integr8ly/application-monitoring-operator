@@ -37,10 +37,17 @@ rules:
   - get
   - create
 - apiGroups:
-  - integreatly.org
+  - applicationmonitoring.integreatly.org
   resources:
+  - applicationmonitorings
+  - applicationmonitorings/finalizers
   - blackboxtargets
   - blackboxtargets/finalizers
+  verbs:
+  - '*'
+- apiGroups:
+  - integreatly.org
+  resources:
   - grafanadatasources
   - grafanadashboards
   - grafanas
