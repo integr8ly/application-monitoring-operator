@@ -4,11 +4,17 @@ metadata:
   name: {{ .GrafanaCrName }}
   namespace: {{ .Namespace }}
 spec:
-  logLevel: "error"
-  basicAuth: False
-  disableLoginForm: False
-  disableSignoutMenu: True
-  anonymous: True
+  config:
+    log:
+      mode: "console"
+      level: "warn"
+    auth:
+      disable_login_form: False
+      disable_signout_menu: True
+    auth.basic:
+      enabled: False
+    auth.anonymous:
+      enabled: True
   containers:
     - args:
         - '-provider=openshift'
