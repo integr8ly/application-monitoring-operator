@@ -19,10 +19,10 @@ spec:
         - args:
             - --kubelet-service=kube-system/kubelet
             - --logtostderr=true
-            - --config-reloader-image=registry.redhat.io/openshift3/ose-configmap-reloader:v3.11
-            - --prometheus-config-reloader=registry.redhat.io/openshift3/ose-prometheus-config-reloader:v3.11
+            - --config-reloader-image={{ .ImageConfigMapReloader }}:{{ .ImageTagConfigMapReloader }}
+            - --prometheus-config-reloader={{ .ImagePrometheusConfigReloader }}:{{ .ImageTagPrometheusConfigReloader }}
             - --namespaces=
-          image: quay.io/coreos/prometheus-operator:v0.26.0
+          image: {{ .ImagePrometheusOperator }}:{{ .ImageTagPrometheusOperator }}
           name: prometheus-application-operator
           ports:
             - containerPort: 8080

@@ -16,10 +16,10 @@ spec:
       serviceAccountName: grafana-operator
       containers:
         - name: {{ .GrafanaOperatorName }}
-          image: {{ .GrafanaImage }}
+          image: {{ .ImageGrafanaOperator }}:{{ .ImageTagGrafanaOperator }}
           args:
-            - '--grafana-image=registry.redhat.io/openshift3/grafana'
-            - '--grafana-image-tag=v3.11'
+            - '--grafana-image={{ .ImageGrafana }}'
+            - '--grafana-image-tag={{ .ImageTagGrafana }}'
             - '--openshift'
             - '--scan-all'
           ports:

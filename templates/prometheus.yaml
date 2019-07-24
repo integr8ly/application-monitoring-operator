@@ -6,8 +6,8 @@ metadata:
   labels:
     prometheus: {{ .ApplicationMonitoringName }}
 spec:
-  baseImage: registry.redhat.io/openshift3/prometheus
-  tag: v3.11
+  baseImage: {{ .ImagePrometheus }}
+  tag: "{{ .ImageTagPrometheus }}"
   containers:
     - name: blackbox-exporter
       volumeMounts:
@@ -15,7 +15,7 @@ spec:
           mountPath: /etc/blackbox-config
         - mountPath: /etc/tls/private
           name: secret-prometheus-k8s-tls
-      image: registry.connect.redhat.com/bitnami/prometheus-blackbox-exporter:0.14.0-rhel-7-r33-2
+      image: {{ .ImageBlackboxExporter }}:{{ .ImageTagBlackboxExporter }}
       args:
         - '--config.file=/etc/blackbox-config/blackbox.yml'
       ports:
@@ -37,7 +37,7 @@ spec:
         - '-openshift-ca=/etc/pki/tls/cert.pem'
         - '-openshift-ca=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'
         - '-skip-auth-regex=^/metrics'
-      image: 'registry.redhat.io/openshift3/oauth-proxy:v3.11.43'
+      image: '{{ .ImageOAuthProxy }}:{{ .ImageTagOAuthProxy }}'
       name: prometheus-proxy
       ports:
         - containerPort: 9091
