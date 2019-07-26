@@ -70,17 +70,17 @@ spec:
     - {{ .BlackboxExporterConfigmapName }}
   serviceAccountName: prometheus-application-monitoring
   serviceMonitorNamespaceSelector:
-    matchLabels:
-      monitoring-key: {{ .MonitoringKey }}
+    matchExpressions:
+      - { key: "monitoring-key", operator: In, values: [{{ .MonitoringKey }}] }
   serviceMonitorSelector:
-    matchLabels:
-      monitoring-key: {{ .MonitoringKey }}
+    matchExpressions:
+      - { key: "monitoring-key", operator: In, values: [{{ .MonitoringKey }}] }
   ruleSelector:
-    matchLabels:
-      monitoring-key: {{ .MonitoringKey }}
+    matchExpressions:
+      - { key: "monitoring-key", operator: In, values: [{{ .MonitoringKey }}] }
   ruleNamespaceSelector:
-    matchLabels:
-      monitoring-key: {{ .MonitoringKey }}
+    matchExpressions:
+      - { key: "monitoring-key", operator: In, values: [{{ .MonitoringKey }}] }
   additionalScrapeConfigs:
     name: {{ .ScrapeConfigSecretName }}
     key: integreatly.yaml
