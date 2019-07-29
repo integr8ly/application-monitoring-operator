@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/md5"
 	"fmt"
+	"k8s.io/apimachinery/pkg/watch"
 	"time"
 
 	"k8s.io/api/apps/v1beta1"
@@ -32,7 +33,7 @@ import (
 const MonitoringFinalizerName = "monitoring.cleanup"
 
 // ReconcilePauseSeconds the number of seconds to wait before running the reconcile loop
-const ReconcilePauseSeconds = 10
+const ReconcilePauseSeconds = 30
 
 var log = logf.Log.WithName("controller_applicationmonitoring")
 
@@ -61,6 +62,7 @@ func newReconciler(mgr manager.Manager) reconcile.Reconciler {
 	return &ReconcileApplicationMonitoring{
 		client:      mgr.GetClient(),
 		scheme:      mgr.GetScheme(),
+		helper:      NewKubeHelper(),
 		extraParams: make(map[string]string),
 	}
 }
@@ -90,6 +92,8 @@ type ReconcileApplicationMonitoring struct {
 	// that reads objects from the cache and writes to the apiserver
 	client      client.Client
 	scheme      *runtime.Scheme
+	helper      *KubeHelperImpl
+	watch       watch.Interface
 	extraParams map[string]string
 }
 
@@ -121,6 +125,11 @@ func (r *ReconcileApplicationMonitoring) Reconcile(request reconcile.Request) (r
 	instanceCopy := instance.DeepCopy()
 
 	if instanceCopy.DeletionTimestamp != nil {
+		if r.watch != nil {
+			r.watch.Stop()
+			r.watch = nil
+		}
+
 		return r.cleanup(instanceCopy)
 	}
 
@@ -149,6 +158,7 @@ func (r *ReconcileApplicationMonitoring) Reconcile(request reconcile.Request) (r
 		log.Info("Finished installing application monitoring")
 		return r.updatePhase(instanceCopy, PhaseReconcileConfig)
 	case PhaseReconcileConfig:
+		r.tryWatchAdditionalScrapeConfigs(instanceCopy)
 		return r.reconcileConfig(instanceCopy)
 	}
 
@@ -178,6 +188,50 @@ func (r *ReconcileApplicationMonitoring) syncBlackboxTargets(cr *applicationmoni
 		return err
 	}
 	return nil
+}
+
+func (r *ReconcileApplicationMonitoring) tryWatchAdditionalScrapeConfigs(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) {
+	// Watch already set
+	if r.watch != nil {
+		return
+	}
+
+	watch, err := r.watchAdditionalScrapeConfigs(cr)
+	if err != nil {
+		log.Error(err, "error setting up watch for additional scrape config")
+		return
+	}
+
+	r.watch = watch
+	log.Info("watching additional scrape configs")
+}
+
+// Watches the additional scrape config secret for modifications and reconciles them into the prometheus
+// configuration
+func (r *ReconcileApplicationMonitoring) watchAdditionalScrapeConfigs(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (watch.Interface, error) {
+	if cr.Spec.AdditionalScrapeConfigSecretName == "" {
+		return nil, nil
+	}
+
+	events, err := r.helper.startSecretWatch(cr)
+	if err != nil {
+		return nil, err
+	}
+
+	go func() {
+		for update := range events.ResultChan() {
+			if update.Type != watch.Error {
+				log.Info(fmt.Sprintf("watch event of type '%v' received for additional scrape config", update.Type))
+				err = r.createOrUpdateAdditionalScrapeConfig(cr)
+				if err != nil {
+					log.Error(err, "error updating additional scrape config")
+				}
+			}
+		}
+		log.Info("stop watching for additional scrape config")
+	}()
+
+	return events, nil
 }
 
 func (r *ReconcileApplicationMonitoring) installPrometheusOperator(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
@@ -393,7 +447,7 @@ func (r *ReconcileApplicationMonitoring) readAdditionalScrapeConfigSecret(cr *ap
 	additionalScrapeConfig := corev1.Secret{}
 	err := r.client.Get(context.TODO(), selector, &additionalScrapeConfig)
 	if err != nil {
-		log.Error(err, fmt.Sprintf("error reading secret '%v'", cr.Spec.AdditionalScrapeConfigSecretName))
+		log.Info(fmt.Sprintf("can't find secret '%v'", cr.Spec.AdditionalScrapeConfigSecretName))
 		return nil, false
 	}
 
