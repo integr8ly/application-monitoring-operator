@@ -220,7 +220,8 @@ func (r *ReconcileApplicationMonitoring) watchAdditionalScrapeConfigs(cr *applic
 
 	go func() {
 		for update := range events.ResultChan() {
-			if update.Type != watch.Error {
+			secret := update.Object.(*corev1.Secret)
+			if update.Type != watch.Error && secret.Name == cr.Spec.AdditionalScrapeConfigSecretName {
 				log.Info(fmt.Sprintf("watch event of type '%v' received for additional scrape config", update.Type))
 				err = r.createOrUpdateAdditionalScrapeConfig(cr)
 				if err != nil {
