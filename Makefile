@@ -69,13 +69,24 @@ test/e2e:
 cluster/prepare:
 	-kubectl apply -f deploy/crds/
 	-oc new-project $(NAMESPACE)
-	-kubectl create --insecure-skip-tls-verify -f deploy/rbac.yaml -n $(NAMESPACE)
 
 .PHONY: cluster/clean
 cluster/clean:
-	-kubectl delete role application-monitoring-operator -n $(NAMESPACE)
-	-kubectl delete rolebinding application-monitoring-operator -n $(NAMESPACE)
-	-kubectl delete crd application-monitorings.integreatly.org
+	-kubectl delete -n $(NAMESPACE) --all blackboxtargets
+	-kubectl delete -n $(NAMESPACE) --all grafanadashboards
+	-kubectl delete -n $(NAMESPACE) --all grafanadatasources
+	-kubectl delete -n $(NAMESPACE) --all applicationmonitorings
+	-kubectl delete -f ./deploy/roles
+	-kubectl delete crd grafanas.integreatly.org
+	-kubectl delete crd grafanadashboards.integreatly.org
+	-kubectl delete crd grafanadatasources.integreatly.org
+	-kubectl delete crd podmonitors.monitoring.coreos.com
+	-kubectl delete crd prometheuses.monitoring.coreos.com
+	-kubectl delete crd alertmanagers.monitoring.coreos.com
+	-kubectl delete crd prometheusrules.monitoring.coreos.com
+	-kubectl delete crd servicemonitors.monitoring.coreos.com
+	-kubectl delete crd blackboxtargets.applicationmonitoring.integreatly.org
+	-kubectl delete crd applicationmonitorings.applicationmonitoring.integreatly.org
 	-kubectl delete namespace $(NAMESPACE)
 
 .PHONY: cluster/create/examples
