@@ -8,6 +8,9 @@ metadata:
 spec:
   endpoints:
     - port: web
+      scheme: https
+      tlsConfig:
+        insecureSkipVerify: true
   selector:
     matchLabels:
       application-monitoring: 'true'
