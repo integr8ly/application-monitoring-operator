@@ -114,3 +114,22 @@ $ make setup/dep
 $ make code/run
 ```
 
+# Releasing
+
+1. Bump the version number (e.g. `0.0.29`) (in more files [Makefile](https://github.com/integr8ly/application-monitoring-operator/blob/master/Makefile#L6), [deploy/operator.yaml](https://github.com/integr8ly/application-monitoring-operator/blob/master/deploy/operator.yaml), [version/version.go](https://github.com/integr8ly/application-monitoring-operator/blob/master/version/version.go#L4]))
+2. Create pull request with the bump, let it be approved and merge it to `master`
+3. Pull the master locally and tag it with a tag named as the version number 
+```sh
+$ git pull origin master
+$ git tag 0.0.29
+$ git push origin --tags
+```
+4. Create *Release* through github release page, name it as the version number - `0.0.29` and state what's new in the release
+5. Login to [quay.io](https://quay.io) with `docker login quay.io`
+6. Build docker image for the new version and push it to the `quay.io`
+```sh
+$ make image/build
+$ make image/push
+```
+6. In [Integr8ly installer](https://github.com/integr8ly/installation/pulls) `fh-automatron` automatically creates pull request named `middleware-monitoring update` with the necessary modifications of the version for the new release 
+7. Approve and merge the PR
