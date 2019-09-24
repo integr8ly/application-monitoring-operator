@@ -1,0 +1,5 @@
+channels:
+- currentCSV: application-monitoring-operator.v0.0.25
+  name: alpha
+defaultChannel: alpha
+packageName: application-monitoring-operator
