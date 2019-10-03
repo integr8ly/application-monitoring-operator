@@ -1,5 +1,4 @@
+packageName: integreatly-monitoring
 channels:
 - currentCSV: application-monitoring-operator.v0.0.25
-  name: alpha
-defaultChannel: alpha
-packageName: integreatly-monitoring
+  name: integreatly
