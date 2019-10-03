@@ -145,7 +145,7 @@ func newTemplateHelper(cr *applicationmonitoring.ApplicationMonitoring, extraPar
 		ImagePrometheusConfigReloader:    "quay.io/openshift/origin-prometheus-config-reloader",
 		ImageTagPrometheusConfigReloader: "4.2",
 		ImagePrometheusOperator:          "quay.io/coreos/prometheus-operator",
-		ImageTagPrometheusOperator:       "v0.26.0",
+		ImageTagPrometheusOperator:       "v0.33.0",
 		ImagePrometheus:                  "quay.io/openshift/origin-prometheus",
 		ImageTagPrometheus:               "4.2",
 		ImageBlackboxExporter:            "quay.io/prometheus/blackbox-exporter",
