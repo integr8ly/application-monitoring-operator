@@ -22,7 +22,7 @@ spec:
             - -log-level=warn 
             - --config-reloader-image={{ .ImageConfigMapReloader }}:{{ .ImageTagConfigMapReloader }}
             - --prometheus-config-reloader={{ .ImagePrometheusConfigReloader }}:{{ .ImageTagPrometheusConfigReloader }}
-            - --namespaces=
+            - --deny-namespaces=openshift-monitoring
           image: {{ .ImagePrometheusOperator }}:{{ .ImageTagPrometheusOperator }}
           name: prometheus-application-operator
           ports:
