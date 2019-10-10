@@ -94,7 +94,7 @@ spec:
                   periodSeconds: 10
                 resources: {}
               serviceAccountName: application-monitoring-operator
-      permissions:
+      clusterPermissions:
       - serviceAccountName: application-monitoring-operator
         rules:
         - apiGroups:
