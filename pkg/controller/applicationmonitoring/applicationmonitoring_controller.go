@@ -168,6 +168,15 @@ func (r *ReconcileApplicationMonitoring) Reconcile(request reconcile.Request) (r
 func (r *ReconcileApplicationMonitoring) reconcileConfig(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
 	log.Info("Phase: Reconciling Config")
 	err := r.syncBlackboxTargets(cr)
+	if err != nil {
+		return reconcile.Result{}, err
+	}
+
+	err = r.syncServiceAccounts(cr)
+	if err != nil {
+		return reconcile.Result{}, err
+	}
+
 	return reconcile.Result{RequeueAfter: time.Second * ReconcilePauseSeconds}, err
 }
 
@@ -187,6 +196,20 @@ func (r *ReconcileApplicationMonitoring) syncBlackboxTargets(cr *applicationmoni
 
 		return err
 	}
+	return nil
+}
+
+func (r *ReconcileApplicationMonitoring) syncServiceAccounts(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) error {
+	log.Info("Phase: Reconciling Config syncServiceAccounts")
+
+	for _, resourceName := range []string{PrometheusServiceAccountName, AlertManagerServiceAccountName} {
+		if _, err := r.createOrUpdateResource(cr, resourceName); err != nil {
+			log.Info(fmt.Sprintf("Error in syncServiceAccounts, resourceName=%s : err=%s", resourceName, err))
+			// Requeue so it can be attempted again
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -245,7 +268,7 @@ func (r *ReconcileApplicationMonitoring) installPrometheusOperator(cr *applicati
 	}
 
 	for _, resourceName := range []string{PrometheusOperatorServiceAccountName, PrometheusOperatorName, PrometheusProxySecretsName, BlackboxExporterConfigmapName} {
-		if _, err := r.createResource(cr, resourceName); err != nil {
+		if _, err := r.createOrUpdateResource(cr, resourceName); err != nil {
 			log.Info(fmt.Sprintf("Error in InstallPrometheusOperator, resourceName=%s : err=%s", resourceName, err))
 			// Requeue so it can be attempted again
 			return reconcile.Result{}, err
@@ -276,7 +299,7 @@ func (r *ReconcileApplicationMonitoring) createPrometheusCRs(cr *applicationmoni
 
 	// Create the route first and retrieve the host so that we can assign
 	// it as the external url for the prometheus instance
-	_, err := r.createResource(cr, PrometheusRouteName)
+	_, err := r.createOrUpdateResource(cr, PrometheusRouteName)
 	if err != nil {
 		return reconcile.Result{}, err
 	}
@@ -286,7 +309,7 @@ func (r *ReconcileApplicationMonitoring) createPrometheusCRs(cr *applicationmoni
 	}
 
 	for _, resourceName := range []string{PrometheusServiceAccountName, PrometheusServiceName, PrometheusCrName} {
-		if _, err := r.createResource(cr, resourceName); err != nil {
+		if _, err := r.createOrUpdateResource(cr, resourceName); err != nil {
 			log.Info(fmt.Sprintf("Error in CreatePrometheusCRs, resourceName=%s : err=%s", resourceName, err))
 			// Requeue so it can be attempted again
 			return reconcile.Result{}, err
@@ -302,7 +325,7 @@ func (r *ReconcileApplicationMonitoring) createAlertManagerCRs(cr *applicationmo
 
 	// Create the route first and retrieve the host so that we can assign
 	// it as the external url for the alertmanager instance
-	_, err := r.createResource(cr, AlertManagerRouteName)
+	_, err := r.createOrUpdateResource(cr, AlertManagerRouteName)
 	if err != nil {
 		return reconcile.Result{}, err
 	}
@@ -312,7 +335,7 @@ func (r *ReconcileApplicationMonitoring) createAlertManagerCRs(cr *applicationmo
 	}
 
 	for _, resourceName := range []string{AlertManagerServiceAccountName, AlertManagerServiceName, AlertManagerSecretName, AlertManagerProxySecretsName, AlertManagerCrName} {
-		if _, err := r.createResource(cr, resourceName); err != nil {
+		if _, err := r.createOrUpdateResource(cr, resourceName); err != nil {
 			log.Info(fmt.Sprintf("Error in CreateAlertManagerCRs, resourceName=%s : err=%s", resourceName, err))
 			// Requeue so it can be attempted again
 			return reconcile.Result{}, err
@@ -327,7 +350,7 @@ func (r *ReconcileApplicationMonitoring) createAux(cr *applicationmonitoringv1al
 	log.Info("Phase: Create auxiliary resources")
 
 	for _, resourceName := range []string{PrometheusServiceMonitorName, GrafanaServiceMonitorName, PrometheusRuleName} {
-		if _, err := r.createResource(cr, resourceName); err != nil {
+		if _, err := r.createOrUpdateResource(cr, resourceName); err != nil {
 			log.Info(fmt.Sprintf("Error in CreateAux, resourceName=%s : err=%s", resourceName, err))
 			// Requeue so it can be attempted again
 			return reconcile.Result{}, err
@@ -342,7 +365,7 @@ func (r *ReconcileApplicationMonitoring) installGrafanaOperator(cr *applicationm
 	log.Info("Phase: Install GrafanaOperator")
 
 	for _, resourceName := range []string{GrafanaProxySecretName, GrafanaServiceName, GrafanaRouteName, GrafanaOperatorServiceAccountName, GrafanaOperatorRoleName, GrafanaOperatorRoleBindingName, GrafanaOperatorName} {
-		if _, err := r.createResource(cr, resourceName); err != nil {
+		if _, err := r.createOrUpdateResource(cr, resourceName); err != nil {
 			log.Info(fmt.Sprintf("Error in InstallGrafanaOperator, resourceName=%s : err=%s", resourceName, err))
 			// Requeue so it can be attempted again
 			return reconcile.Result{}, err
@@ -359,7 +382,7 @@ func (r *ReconcileApplicationMonitoring) createGrafanaCR(cr *applicationmonitori
 	log.Info("Phase: Create Grafana CR")
 
 	for _, resourceName := range []string{GrafanaDataSourceName, GrafanaCrName} {
-		if _, err := r.createResource(cr, resourceName); err != nil {
+		if _, err := r.createOrUpdateResource(cr, resourceName); err != nil {
 			log.Info(fmt.Sprintf("Error in CreateGrafanaCR, resourceName=%s : err=%s", resourceName, err))
 			// Requeue so it can be attempted again
 			return reconcile.Result{}, err
@@ -371,7 +394,7 @@ func (r *ReconcileApplicationMonitoring) createGrafanaCR(cr *applicationmonitori
 }
 
 // CreateResource Creates a generic kubernetes resource from a templates
-func (r *ReconcileApplicationMonitoring) createResource(cr *applicationmonitoringv1alpha1.ApplicationMonitoring, resourceName string) (runtime.Object, error) {
+func (r *ReconcileApplicationMonitoring) createOrUpdateResource(cr *applicationmonitoringv1alpha1.ApplicationMonitoring, resourceName string) (runtime.Object, error) {
 	templateHelper := newTemplateHelper(cr, r.extraParams)
 	resourceHelper := newResourceHelper(cr, templateHelper)
 	resource, err := resourceHelper.createResource(resourceName)
@@ -392,9 +415,11 @@ func (r *ReconcileApplicationMonitoring) createResource(cr *applicationmonitorin
 		if !kerrors.IsAlreadyExists(err) {
 			return nil, errors.Wrap(err, "error creating resource")
 		}
+
+		err = r.client.Update(context.TODO(), resource)
 	}
 
-	return resource, nil
+	return resource, err
 }
 
 // CreateResource Creates a generic kubernetes resource from a templates
