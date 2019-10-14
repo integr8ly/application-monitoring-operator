@@ -4,13 +4,16 @@ import (
 	"context"
 	"crypto/md5"
 	"fmt"
-	"k8s.io/apimachinery/pkg/watch"
 	"time"
+
+	"k8s.io/apimachinery/pkg/watch"
 
 	"k8s.io/api/apps/v1beta1"
 
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	pkgclient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	applicationmonitoringv1alpha1 "github.com/integr8ly/application-monitoring-operator/pkg/apis/applicationmonitoring/v1alpha1"
@@ -20,7 +23,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
@@ -159,6 +161,7 @@ func (r *ReconcileApplicationMonitoring) Reconcile(request reconcile.Request) (r
 		return r.updatePhase(instanceCopy, PhaseReconcileConfig)
 	case PhaseReconcileConfig:
 		r.tryWatchAdditionalScrapeConfigs(instanceCopy)
+		r.checkServiceAccountAnnotationsExist(instance)
 		return r.reconcileConfig(instanceCopy)
 	}
 
@@ -169,6 +172,50 @@ func (r *ReconcileApplicationMonitoring) reconcileConfig(cr *applicationmonitori
 	log.Info("Phase: Reconciling Config")
 	err := r.syncBlackboxTargets(cr)
 	return reconcile.Result{RequeueAfter: time.Second * ReconcilePauseSeconds}, err
+}
+
+func (r *ReconcileApplicationMonitoring) checkServiceAccountAnnotationsExist(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
+	key := "serviceaccounts.openshift.io/oauth-redirectreference.primary"
+	namespace := cr.GetNamespace()
+
+	result, err := r.ensureServiceAccountHasOauthAnnotation(AlertManagerServiceAccountName, namespace, key, AlertManagerRouteName)
+	if err != nil {
+		return result, err
+	}
+
+	result, err = r.ensureServiceAccountHasOauthAnnotation(PrometheusServiceAccountName, namespace, key, PrometheusRouteName)
+	if err != nil {
+		return result, err
+	}
+
+	return reconcile.Result{}, nil
+}
+
+func (r *ReconcileApplicationMonitoring) ensureServiceAccountHasOauthAnnotation(sa string, ns string, key string, route string) (reconcile.Result, error) {
+	instance := &corev1.ServiceAccount{}
+	err := r.client.Get(context.TODO(), pkgclient.ObjectKey{Name: sa, Namespace: ns}, instance)
+	if err != nil {
+		log.Info(fmt.Sprintf("Error retrieving serviceaccount: %s", sa))
+		return reconcile.Result{}, err
+	}
+
+	if val, found := instance.Annotations[key]; found {
+		log.Info(fmt.Sprintf("Service account: %s exists, annotations: %v", sa, instance.Annotations))
+		log.Info(fmt.Sprintf("Key: %s exists. Val: %s Do nothing.", key, val))
+	} else {
+		log.Info(fmt.Sprintf("Service account: %s exists, annotations: %v", sa, instance.Annotations))
+		log.Info(fmt.Sprintf("Key: %s does not exists. We need to add it.", key))
+		if len(instance.Annotations) == 0 {
+			instance.Annotations = map[string]string{}
+		}
+		instance.Annotations[key] = fmt.Sprintf("'{\"kind\":\"OAuthRedirectReference\",\"apiVersion\":\"v1\",\"reference\":{\"kind\":\"Route\",\"name\":\"%s\"}}'", route)
+
+		err = r.client.Update(context.TODO(), instance)
+		if err != nil {
+			return reconcile.Result{}, err
+		}
+	}
+	return reconcile.Result{}, nil
 }
 
 func (r *ReconcileApplicationMonitoring) syncBlackboxTargets(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) error {
