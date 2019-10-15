@@ -1,32 +1,31 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .GrafanaOperatorName }}
+  name: "{{ .GrafanaOperatorName }}"
   namespace: {{ .Namespace }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      name: {{ .GrafanaOperatorName }}
+      name: "{{ .GrafanaOperatorName }}"
   template:
     metadata:
       labels:
-        name: {{ .GrafanaOperatorName }}
+        name: "{{ .GrafanaOperatorName }}"
     spec:
       serviceAccountName: grafana-operator
       containers:
-        - name: {{ .GrafanaOperatorName }}
-          image: {{ .ImageGrafanaOperator }}:{{ .ImageTagGrafanaOperator }}
+        - name: "{{ .GrafanaOperatorName }}"
+          image: "{{ .ImageGrafanaOperator }}:{{ .ImageTagGrafanaOperator }}"
           args:
             - '--grafana-image={{ .ImageGrafana }}'
             - '--grafana-image-tag={{ .ImageTagGrafana }}'
-            - '--openshift'
             - '--scan-all'
           ports:
           - containerPort: 60000
             name: metrics
           command:
-          - {{ .GrafanaOperatorName }}
+          - "{{ .GrafanaOperatorName }}"
           imagePullPolicy: Always
           readinessProbe:
             exec:

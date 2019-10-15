@@ -7,7 +7,7 @@ roleRef:
   name: alertmanager-application-monitoring
 subjects:
 - kind: ServiceAccount
-  name: alertmanager
+  name: alertmanager-service-account
   namespace: application-monitoring
 userNames:
-- system:serviceaccount:application-monitoring:alertmanager
+- system:serviceaccount:application-monitoring:alertmanager-service-account
