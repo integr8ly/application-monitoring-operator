@@ -27,7 +27,7 @@ spec:
         - '-http-address='
         - '-email-domain=*'
         - '-upstream=http://localhost:9090'
-        - '-openshift-service-account=prometheus-application-monitoring'
+        - "-openshift-service-account={{ .PrometheusServiceAccountName }}"
         - '-openshift-sar={"resource": "namespaces", "verb": "get"}'
         - '-openshift-delegate-urls={"/": {"resource": "namespaces", "verb":"get"}}'
         - '-tls-cert=/etc/tls/private/tls.crt'
@@ -68,7 +68,7 @@ spec:
     - prometheus-k8s-proxy
   configMaps:
     - {{ .BlackboxExporterConfigmapName }}
-  serviceAccountName: prometheus-application-monitoring
+  serviceAccountName: {{ .PrometheusServiceAccountName }}
   serviceMonitorNamespaceSelector:
     matchExpressions:
       - { key: "monitoring-key", operator: In, values: [{{ .MonitoringKey }}] }

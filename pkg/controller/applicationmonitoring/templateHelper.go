@@ -31,13 +31,13 @@ const (
 	PrometheusProxySecretsName           = "prometheus-proxy-secret"
 	PrometheusServiceAccountName         = "prometheus-service-account"
 	PrometheusServiceName                = "prometheus-service"
+	PrometheusServiceMonitorName         = "prometheus-servicemonitor"
+	PrometheusRuleName                   = "prometheus-rule"
 	AlertManagerProxySecretsName         = "alertmanager-proxy-secret"
 	AlertManagerServiceAccountName       = "alertmanager-service-account"
 	AlertManagerCrName                   = "alertmanager"
 	AlertManagerServiceName              = "alertmanager-service"
 	AlertManagerSecretName               = "alertmanager-secret"
-	PrometheusServiceMonitorName         = "prometheus-servicemonitor"
-	PrometheusRuleName                   = "prometheus-rule"
 	AlertManagerRouteName                = "alertmanager-route"
 	GrafanaServiceMonitorName            = "grafana-servicemonitor"
 	GrafanaServiceName                   = "grafana-service"
@@ -60,6 +60,7 @@ type Parameters struct {
 	PrometheusCrName                 string
 	PrometheusRouteName              string
 	PrometheusServiceName            string
+	PrometheusServiceAccountName     string
 	PrometheusSessionSecret          string
 	AlertManagerSessionSecret        string
 	AlertManagerServiceAccountName   string
@@ -120,6 +121,7 @@ func newTemplateHelper(cr *applicationmonitoring.ApplicationMonitoring, extraPar
 		PrometheusRouteName:              PrometheusRouteName,
 		PrometheusServiceName:            PrometheusServiceName,
 		PrometheusSessionSecret:          PopulateSessionProxySecret(),
+		PrometheusServiceAccountName:     PrometheusServiceAccountName,
 		AlertManagerSessionSecret:        PopulateSessionProxySecret(),
 		GrafanaSessionSecret:             PopulateSessionProxySecret(),
 		AlertManagerServiceAccountName:   AlertManagerServiceAccountName,
