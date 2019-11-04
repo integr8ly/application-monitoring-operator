@@ -94,6 +94,8 @@ type Parameters struct {
 	BlackboxTargets                  []applicationmonitoring.BlackboxtargetData
 	PrometheusRetention              string
 	PrometheusStorageRequest         string
+	PrometheusInstanceNamespaces	 string
+	AlertmanagerInstanceNamespaces	 string
 	ExtraParams                      map[string]string
 }
 
@@ -147,13 +149,15 @@ func newTemplateHelper(cr *applicationmonitoring.ApplicationMonitoring, extraPar
 		ImagePrometheusConfigReloader:    "quay.io/openshift/origin-prometheus-config-reloader",
 		ImageTagPrometheusConfigReloader: "4.2",
 		ImagePrometheusOperator:          "quay.io/coreos/prometheus-operator",
-		ImageTagPrometheusOperator:       "v0.33.0",
+		ImageTagPrometheusOperator:       "v0.34.0",
 		ImagePrometheus:                  "quay.io/openshift/origin-prometheus",
 		ImageTagPrometheus:               "4.2",
 		ImageBlackboxExporter:            "quay.io/prometheus/blackbox-exporter",
 		ImageTagBlackboxExporter:         "v0.14.0",
 		PrometheusRetention:              cr.Spec.PrometheusRetention,
 		PrometheusStorageRequest:         cr.Spec.PrometheusStorageRequest,
+		PrometheusInstanceNamespaces:	  cr.Spec.PrometheusInstanceNamespaces,
+		AlertmanagerInstanceNamespaces:   cr.Spec.AlertmanagerInstanceNamespaces,
 		ExtraParams:                      extraParams,
 	}
 

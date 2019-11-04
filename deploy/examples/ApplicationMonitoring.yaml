@@ -8,3 +8,5 @@ spec:
   additionalScrapeConfigSecretKey: "integreatly-additional.yaml"
   prometheusRetention: 15d
   prometheusStorageRequest: 10Gi
+  prometheusInstanceNamespaces: middleware-monitoring
+  alertmanagerInstanceNamespaces: middleware-monitoring
