@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/md5"
 	"fmt"
+	"strings"
 	"time"
 
 	"k8s.io/apimachinery/pkg/watch"
@@ -178,12 +179,12 @@ func (r *ReconcileApplicationMonitoring) checkServiceAccountAnnotationsExist(cr 
 	key := "serviceaccounts.openshift.io/oauth-redirectreference.primary"
 	namespace := cr.GetNamespace()
 
-	result, err := r.ensureServiceAccountHasOauthAnnotation(AlertManagerServiceAccountName, namespace, key, AlertManagerRouteName)
+	result, err := r.ensureServiceAccountHasOauthAnnotation(cr, AlertManagerServiceAccountName, namespace, key, AlertManagerRouteName)
 	if err != nil {
 		return result, err
 	}
 
-	result, err = r.ensureServiceAccountHasOauthAnnotation(PrometheusServiceAccountName, namespace, key, PrometheusRouteName)
+	result, err = r.ensureServiceAccountHasOauthAnnotation(cr, PrometheusServiceAccountName, namespace, key, PrometheusRouteName)
 	if err != nil {
 		return result, err
 	}
@@ -191,12 +192,21 @@ func (r *ReconcileApplicationMonitoring) checkServiceAccountAnnotationsExist(cr 
 	return reconcile.Result{}, nil
 }
 
-func (r *ReconcileApplicationMonitoring) ensureServiceAccountHasOauthAnnotation(sa string, ns string, key string, route string) (reconcile.Result, error) {
+func (r *ReconcileApplicationMonitoring) ensureServiceAccountHasOauthAnnotation(cr *applicationmonitoringv1alpha1.ApplicationMonitoring, sa string, ns string, key string, route string) (reconcile.Result, error) {
 	instance := &corev1.ServiceAccount{}
 	err := r.client.Get(context.TODO(), pkgclient.ObjectKey{Name: sa, Namespace: ns}, instance)
 	if err != nil {
-		log.Info(fmt.Sprintf("Error retrieving serviceaccount: %s", sa))
-		return reconcile.Result{}, err
+		log.Info(fmt.Sprintf("Error retrieving serviceaccount: %s : %s", sa, err))
+		if strings.Contains(err.Error(), "not found") {
+			log.Info(fmt.Sprintf("Creating serviceaccount: %s", sa))
+			if _, err := r.createResource(cr, sa); err != nil {
+				log.Info(fmt.Sprintf("Error creating serviceaccount, resourceName=%s : err=%s", sa, err))
+				// Requeue so it can be attempted again
+				return reconcile.Result{}, err
+			}
+		} else {
+			return reconcile.Result{}, err
+		}
 	}
 
 	if val, found := instance.Annotations[key]; found {
