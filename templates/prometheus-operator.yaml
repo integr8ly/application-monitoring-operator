@@ -24,7 +24,7 @@ spec:
             - --prometheus-config-reloader={{ .ImagePrometheusConfigReloader }}:{{ .ImageTagPrometheusConfigReloader }}
             - --prometheus-instance-namespaces={{ .PrometheusInstanceNamespaces }}
             - --alertmanager-instance-namespaces={{ .AlertmanagerInstanceNamespaces }}
-          image: {{ .ImagePrometheusOperator }}:master
+          image: {{ .ImagePrometheusOperator }}:{{ .ImageTagPrometheusOperator }}
           name: prometheus-application-operator
           ports:
             - containerPort: 8080
