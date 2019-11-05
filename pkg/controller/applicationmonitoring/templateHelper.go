@@ -94,8 +94,8 @@ type Parameters struct {
 	BlackboxTargets                  []applicationmonitoring.BlackboxtargetData
 	PrometheusRetention              string
 	PrometheusStorageRequest         string
-	PrometheusInstanceNamespaces	 string
-	AlertmanagerInstanceNamespaces	 string
+	PrometheusInstanceNamespaces     string
+	AlertmanagerInstanceNamespaces   string
 	ExtraParams                      map[string]string
 }
 
@@ -156,7 +156,7 @@ func newTemplateHelper(cr *applicationmonitoring.ApplicationMonitoring, extraPar
 		ImageTagBlackboxExporter:         "v0.14.0",
 		PrometheusRetention:              cr.Spec.PrometheusRetention,
 		PrometheusStorageRequest:         cr.Spec.PrometheusStorageRequest,
-		PrometheusInstanceNamespaces:	  cr.Spec.PrometheusInstanceNamespaces,
+		PrometheusInstanceNamespaces:     cr.Spec.PrometheusInstanceNamespaces,
 		AlertmanagerInstanceNamespaces:   cr.Spec.AlertmanagerInstanceNamespaces,
 		ExtraParams:                      extraParams,
 	}
