@@ -26,6 +26,17 @@
   revision = "de5bf2ad457846296e2031421a34e2568e304e35"
 
 [[projects]]
+  digest = "1:0c4193043b1a33c7f9ba4ea42b8af2c09bb3d51970212d42e4dac8aa217b4ca5"
+  name = "github.com/coreos/prometheus-operator"
+  packages = [
+    "pkg/apis/monitoring",
+    "pkg/apis/monitoring/v1",
+  ]
+  pruneopts = "NT"
+  revision = "7a25bf6b6bb2347dacb235659b73bc210117acc7"
+  version = "v0.29.0"
+
+[[projects]]
   digest = "1:4b8b5811da6970495e04d1f4e98bb89518cc3cfc3b3f456bdb876ed7b6c74049"
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
@@ -85,12 +96,12 @@
   version = "v0.18.0"
 
 [[projects]]
-  digest = "1:4da4ea0a664ba528965683d350f602d0f11464e6bb2e17aad0914723bc25d163"
+  branch = "master"
+  digest = "1:97b95774863237dc7589e326d064713cc0372c9ecadbe2e4e7e560a949cbb45d"
   name = "github.com/go-openapi/spec"
   packages = ["."]
   pruneopts = "NT"
-  revision = "5b6cdde3200976e3ecceb2868706ee39b6aff3e4"
-  version = "v0.18.0"
+  revision = "744796356cda816d3166723c28d45c5f58f590df"
 
 [[projects]]
   digest = "1:dc0f590770e5a6c70ea086232324f7b7dc4857c60eca63ab8ff78e0a5cfcdbf3"
@@ -698,8 +709,7 @@
   version = "v0.1.0"
 
 [[projects]]
-  branch = "master"
-  digest = "1:653cd4cf804493513d5ec945e687639e5fe9a1f7adbcf2db5cd21da31a96674e"
+  digest = "1:ee35efed55bb1633cbcce158c6c357c1f8ffc71131feddbc4eeb86fa22ea04a2"
   name = "k8s.io/kube-openapi"
   packages = [
     "cmd/openapi-gen/args",
@@ -710,7 +720,7 @@
     "pkg/util/sets",
   ]
   pruneopts = "NT"
-  revision = "ced9eb3070a5f1c548ef46e8dfe2a97c208d9f03"
+  revision = "c59034cc13d587f5ef4e85ca0ade0c1866ae8e1d"
 
 [[projects]]
   digest = "1:a8fb38656b3b59a487e3f74c7d9ad4d90c4f7a3b45413284311f9751b6905448"
@@ -751,6 +761,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1",
     "github.com/ghodss/yaml",
     "github.com/go-openapi/spec",
     "github.com/openshift/api/route/v1",

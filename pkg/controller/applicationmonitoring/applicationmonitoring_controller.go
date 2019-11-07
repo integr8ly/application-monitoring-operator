@@ -4,7 +4,11 @@ import (
 	"context"
 	"crypto/md5"
 	"fmt"
+	"strings"
 	"time"
+
+	monitoringv1 "github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
 	"k8s.io/apimachinery/pkg/watch"
 
@@ -162,6 +166,7 @@ func (r *ReconcileApplicationMonitoring) Reconcile(request reconcile.Request) (r
 	case PhaseReconcileConfig:
 		r.tryWatchAdditionalScrapeConfigs(instanceCopy)
 		r.checkServiceAccountAnnotationsExist(instance)
+		r.updateCRs(instance)
 		return r.reconcileConfig(instanceCopy)
 	}
 
@@ -178,12 +183,12 @@ func (r *ReconcileApplicationMonitoring) checkServiceAccountAnnotationsExist(cr 
 	key := "serviceaccounts.openshift.io/oauth-redirectreference.primary"
 	namespace := cr.GetNamespace()
 
-	result, err := r.ensureServiceAccountHasOauthAnnotation(AlertManagerServiceAccountName, namespace, key, AlertManagerRouteName)
+	result, err := r.ensureServiceAccountHasOauthAnnotation(cr, AlertManagerServiceAccountName, namespace, key, AlertManagerRouteName)
 	if err != nil {
 		return result, err
 	}
 
-	result, err = r.ensureServiceAccountHasOauthAnnotation(PrometheusServiceAccountName, namespace, key, PrometheusRouteName)
+	result, err = r.ensureServiceAccountHasOauthAnnotation(cr, PrometheusServiceAccountName, namespace, key, PrometheusRouteName)
 	if err != nil {
 		return result, err
 	}
@@ -191,12 +196,77 @@ func (r *ReconcileApplicationMonitoring) checkServiceAccountAnnotationsExist(cr 
 	return reconcile.Result{}, nil
 }
 
-func (r *ReconcileApplicationMonitoring) ensureServiceAccountHasOauthAnnotation(sa string, ns string, key string, route string) (reconcile.Result, error) {
+func (r *ReconcileApplicationMonitoring) updateCRs(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) {
+	log.Info("Phase: Reconciling Config: updateCRs")
+
+	var err error
+	r.extraParams["prometheusHost"], err = r.getHostFromRoute(types.NamespacedName{Namespace: cr.Namespace, Name: PrometheusRouteName})
+	r.extraParams["alertmanagerHost"], err = r.getHostFromRoute(types.NamespacedName{Namespace: cr.Namespace, Name: AlertManagerRouteName})
+	if err != nil {
+		log.Info(fmt.Sprintf("Error in updateCRs resourceName=%s, err=%s", PrometheusCrName, err))
+	} else {
+		prometheusInstance := &monitoringv1.Prometheus{}
+		selector := client.ObjectKey{
+			Namespace: cr.Namespace,
+			Name:      ApplicationMonitoringName,
+		}
+		err := r.client.Get(context.TODO(), selector, prometheusInstance)
+		if err != nil {
+			log.Error(err, "error prometheus getting cr")
+			return
+		}
+		r.updateCR(cr, PrometheusCrName, prometheusInstance.ResourceVersion)
+
+		alertmanagerInstance := &monitoringv1.Alertmanager{}
+		selector = client.ObjectKey{
+			Namespace: cr.Namespace,
+			Name:      ApplicationMonitoringName,
+		}
+		err = r.client.Get(context.TODO(), selector, alertmanagerInstance)
+		if err != nil {
+			log.Error(err, "error alertmanager getting cr")
+			return
+		}
+		r.updateCR(cr, AlertManagerCrName, alertmanagerInstance.ResourceVersion)
+	}
+}
+
+func (r *ReconcileApplicationMonitoring) updateCR(cr *applicationmonitoringv1alpha1.ApplicationMonitoring, crName string, resourceVersion string) {
+	templateHelper := newTemplateHelper(cr, r.extraParams)
+	resourceHelper := newResourceHelper(cr, templateHelper)
+	resource, err := resourceHelper.createResource(crName)
+	if err != nil {
+		log.Error(err, "error updating cr")
+		return
+	}
+
+	raw := resource.(*unstructured.Unstructured).UnstructuredContent()
+	rawMetadata := raw["metadata"].(map[string]interface{})
+	rawMetadata["resourceVersion"] = resourceVersion
+
+	err = r.client.Update(context.TODO(), resource)
+	if err != nil {
+		log.Error(err, "error updating cr")
+		return
+	}
+	log.Info("cr successfully updated")
+}
+
+func (r *ReconcileApplicationMonitoring) ensureServiceAccountHasOauthAnnotation(cr *applicationmonitoringv1alpha1.ApplicationMonitoring, sa string, ns string, key string, route string) (reconcile.Result, error) {
 	instance := &corev1.ServiceAccount{}
 	err := r.client.Get(context.TODO(), pkgclient.ObjectKey{Name: sa, Namespace: ns}, instance)
 	if err != nil {
-		log.Info(fmt.Sprintf("Error retrieving serviceaccount: %s", sa))
-		return reconcile.Result{}, err
+		log.Info(fmt.Sprintf("Error retrieving serviceaccount: %s : %s", sa, err))
+		if strings.Contains(err.Error(), "not found") {
+			log.Info(fmt.Sprintf("Creating serviceaccount: %s", sa))
+			if _, err := r.createResource(cr, sa); err != nil {
+				log.Info(fmt.Sprintf("Error creating serviceaccount, resourceName=%s : err=%s", sa, err))
+				// Requeue so it can be attempted again
+				return reconcile.Result{}, err
+			}
+		} else {
+			return reconcile.Result{}, err
+		}
 	}
 
 	if val, found := instance.Annotations[key]; found {
