@@ -16,6 +16,8 @@ type ApplicationMonitoringSpec struct {
 	AdditionalScrapeConfigSecretKey  string `json:"additionalScrapeConfigSecretKey,omitempty"`
 	PrometheusRetention              string `json:"prometheusRetention,omitempty"`
 	PrometheusStorageRequest         string `json:"prometheusStorageRequest,omitempty"`
+	PrometheusInstanceNamespaces     string `json:"prometheusInstanceNamespaces, omitempty"`
+	AlertmanagerInstanceNamespaces   string `json:"alertmanagerInstanceNamespaces, omitempty"`
 }
 
 // ApplicationMonitoringStatus defines the observed state of ApplicationMonitoring

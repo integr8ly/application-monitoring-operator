@@ -22,7 +22,8 @@ spec:
             - -log-level=warn 
             - --config-reloader-image={{ .ImageConfigMapReloader }}:{{ .ImageTagConfigMapReloader }}
             - --prometheus-config-reloader={{ .ImagePrometheusConfigReloader }}:{{ .ImageTagPrometheusConfigReloader }}
-            - --deny-namespaces=openshift-monitoring,openshift-apiserver-operator,openshift-authentication,openshift-authentication-operator,openshift-controller-manager,openshift-controller-manager-operator,openshift-dns,openshift-image-registry,openshift-ingress,openshift-kube-apiserver-operator,openshift-kube-controller-manager-operator,openshift-operator-lifecycle-manager,openshift-sdn,openshift-service-catalog-controller-manager-operator
+            - --prometheus-instance-namespaces={{ .PrometheusInstanceNamespaces }}
+            - --alertmanager-instance-namespaces={{ .AlertmanagerInstanceNamespaces }}
           image: {{ .ImagePrometheusOperator }}:{{ .ImageTagPrometheusOperator }}
           name: prometheus-application-operator
           ports:
