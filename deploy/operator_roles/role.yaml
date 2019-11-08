@@ -34,8 +34,7 @@ rules:
   - prometheusrules
   - servicemonitors
   verbs:
-  - get
-  - create
+  - '*'
 - apiGroups:
   - applicationmonitoring.integreatly.org
   resources:
