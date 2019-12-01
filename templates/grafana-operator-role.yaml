@@ -21,6 +21,7 @@ rules:
       - apps
     resources:
       - deployments
+      - deployments/finalizers
       - daemonsets
       - replicasets
       - statefulsets
@@ -40,6 +41,9 @@ rules:
       - grafanadashboards
       - grafanas
       - grafanas/finalizers
+      - grafanadashboards/status
+      - grafanadatasources/status
+      - grafanas/status
     verbs:
       - '*'
   - apiGroups:

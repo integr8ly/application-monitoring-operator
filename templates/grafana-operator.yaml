@@ -20,7 +20,6 @@ spec:
           args:
             - '--grafana-image={{ .ImageGrafana }}'
             - '--grafana-image-tag={{ .ImageTagGrafana }}'
-            - '--openshift'
             - '--scan-all'
           ports:
           - containerPort: 60000
