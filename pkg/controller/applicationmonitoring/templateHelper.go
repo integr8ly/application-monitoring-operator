@@ -143,7 +143,7 @@ func newTemplateHelper(cr *applicationmonitoring.ApplicationMonitoring, extraPar
 		ImageGrafana:                     "quay.io/openshift/origin-grafana",
 		ImageTagGrafana:                  "4.2",
 		ImageGrafanaOperator:             "quay.io/integreatly/grafana-operator",
-		ImageTagGrafanaOperator:          "3.0.0-beta",
+		ImageTagGrafanaOperator:          "v3.0.0-beta",
 		ImageConfigMapReloader:           "quay.io/openshift/origin-configmap-reloader",
 		ImageTagConfigMapReloader:        "4.2",
 		ImagePrometheusConfigReloader:    "quay.io/openshift/origin-prometheus-config-reloader",
