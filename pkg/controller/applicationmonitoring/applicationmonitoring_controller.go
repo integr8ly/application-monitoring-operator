@@ -244,6 +244,11 @@ func (r *ReconcileApplicationMonitoring) updateCR(cr *applicationmonitoringv1alp
 	rawMetadata := raw["metadata"].(map[string]interface{})
 	rawMetadata["resourceVersion"] = resourceVersion
 
+	err = controllerutil.SetControllerReference(cr, resource.(v1.Object), r.scheme)
+	if err != nil {
+		log.Error(err, fmt.Sprintf("error setting owner reference on %v", crName))
+	}
+
 	err = r.client.Update(context.TODO(), resource)
 	if err != nil {
 		log.Error(err, "error updating cr")
@@ -346,7 +351,8 @@ func (r *ReconcileApplicationMonitoring) watchAdditionalScrapeConfigs(cr *applic
 				}
 			}
 		}
-		log.Info("stop watching for additional scrape config")
+		log.Info("watch ended for additional scrape config")
+		r.watch = nil
 	}()
 
 	return events, nil
@@ -458,7 +464,7 @@ func (r *ReconcileApplicationMonitoring) createAux(cr *applicationmonitoringv1al
 func (r *ReconcileApplicationMonitoring) installGrafanaOperator(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
 	log.Info("Phase: Install GrafanaOperator")
 
-	for _, resourceName := range []string{GrafanaProxySecretName, GrafanaServiceName, GrafanaRouteName, GrafanaOperatorServiceAccountName, GrafanaOperatorRoleName, GrafanaOperatorRoleBindingName, GrafanaOperatorName} {
+	for _, resourceName := range []string{GrafanaProxySecretName, GrafanaOperatorServiceAccountName, GrafanaOperatorRoleName, GrafanaOperatorRoleBindingName, GrafanaOperatorName} {
 		if _, err := r.createResource(cr, resourceName); err != nil {
 			log.Info(fmt.Sprintf("Error in InstallGrafanaOperator, resourceName=%s : err=%s", resourceName, err))
 			// Requeue so it can be attempted again

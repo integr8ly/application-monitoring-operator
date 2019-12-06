@@ -12,12 +12,13 @@ spec:
       disable_login_form: False
       disable_signout_menu: True
     auth.basic:
-      enabled: False
+      enabled: True
     auth.anonymous:
       enabled: True
   containers:
     - args:
         - '-provider=openshift'
+        - '-pass-basic-auth=false'
         - '-https-address=:9091'
         - '-http-address='
         - '-email-domain=*'
@@ -48,6 +49,25 @@ spec:
   secrets:
     - grafana-k8s-tls
     - grafana-k8s-proxy
+  service:
+    ports:
+      - name: grafana-proxy
+        port: 9091
+        protocol: TCP
+        targetPort: grafana-proxy
+    annotations:
+      service.alpha.openshift.io/serving-cert-secret-name: grafana-k8s-tls
+  ingress:
+    enabled: True
+    targetPort: grafana-proxy
+    termination: reencrypt
+  client:
+    preferService: True
+  compat:
+    fixAnnotations: True
+  serviceAccount:
+    annotations:
+      serviceaccounts.openshift.io/oauth-redirectreference.primary: '{"kind":"OAuthRedirectReference","apiVersion":"v1","reference":{"kind":"Route","name":"grafana-route"}}'
   dashboardLabelSelector:
     - matchExpressions:
       - { key: "monitoring-key", operator: In, values: [{{ .MonitoringKey }}] }
