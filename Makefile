@@ -13,6 +13,7 @@ COMPILE_TARGET=./tmp/_output/bin/$(PROJECT)
 # If you are updating this verion you will need to update the file names in ./scripts/install.sh too
 # You can delete this comment afterwards.
 PROMETHEUS_OPERATOR_VERSION=v0.34.0
+GRAFANA_OPERATOR_VERSION=v3.0.0
 
 
 .PHONY: setup/dep
@@ -101,4 +102,4 @@ cluster/create/examples:
 
 .PHONY: cluster/install
 cluster/install:
-	./scripts/install.sh  ${PROMETHEUS_OPERATOR_VERSION}
+	./scripts/install.sh  ${PROMETHEUS_OPERATOR_VERSION} ${GRAFANA_OPERATOR_VERSION}

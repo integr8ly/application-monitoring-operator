@@ -1,6 +1,7 @@
 #!/bin/bash
 
 PROMETHEUS_OPERATOR_VERSION="$1"
+GRAFANA_OPERATOR_VERSION="$2"
 
 # create the project and add a label
 oc new-project application-monitoring
@@ -20,9 +21,9 @@ oc apply -f ./deploy/operator_roles/role_binding.yaml
 oc apply -f ./deploy/crds/BlackboxTarget.yaml
 
 # Grafana CRDs
-oc apply -f https://raw.githubusercontent.com/integr8ly/grafana-operator/master/deploy/crds/Grafana.yaml
-oc apply -f https://raw.githubusercontent.com/integr8ly/grafana-operator/master/deploy/crds/GrafanaDashboard.yaml
-oc apply -f https://raw.githubusercontent.com/integr8ly/grafana-operator/master/deploy/crds/GrafanaDataSource.yaml
+oc apply -f https://raw.githubusercontent.com/integr8ly/grafana-operator/$GRAFANA_OPERATOR_VERSION/deploy/crds/Grafana.yaml
+oc apply -f https://raw.githubusercontent.com/integr8ly/grafana-operator/$GRAFANA_OPERATOR_VERSION/deploy/crds/GrafanaDashboard.yaml
+oc apply -f https://raw.githubusercontent.com/integr8ly/grafana-operator/$GRAFANA_OPERATOR_VERSION/deploy/crds/GrafanaDataSource.yaml
 
 # Prometheus CRDs
 oc apply -f https://raw.githubusercontent.com/coreos/prometheus-operator/$PROMETHEUS_OPERATOR_VERSION/example/prometheus-operator-crd/podmonitor.crd.yaml
