@@ -8,6 +8,13 @@ PKG=github.com/integr8ly/application-monitoring-operator
 TEST_DIRS?=$(shell sh -c "find $(TOP_SRC_DIRS) -name \\*_test.go -exec dirname {} \\; | sort | uniq")
 TEST_POD_NAME=application-monitoring-operator-test
 COMPILE_TARGET=./tmp/_output/bin/$(PROJECT)
+# PROMETHEUS_OPERATOR_VERSION is used at install time to import crds
+# After v0.34.0 the file names for the resources change
+# If you are updating this verion you will need to update the file names in ./scripts/install.sh too
+# You can delete this comment afterwards.
+PROMETHEUS_OPERATOR_VERSION=v0.34.0
+GRAFANA_OPERATOR_VERSION=v3.0.0
+
 
 .PHONY: setup/dep
 setup/dep:
@@ -91,8 +98,8 @@ cluster/clean:
 
 .PHONY: cluster/create/examples
 cluster/create/examples:
-		-kubectl create -f deploy/examples/ApplicationMonitoring.yaml -n $(NAMESPACE)
+	-kubectl create -f deploy/examples/ApplicationMonitoring.yaml -n $(NAMESPACE)
 
 .PHONY: cluster/install
 cluster/install:
-		./scripts/install.sh
+	./scripts/install.sh  ${PROMETHEUS_OPERATOR_VERSION} ${GRAFANA_OPERATOR_VERSION}
