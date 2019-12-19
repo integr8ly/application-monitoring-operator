@@ -3,7 +3,7 @@ NAMESPACE ?= application-monitoring
 PROJECT ?= application-monitoring-operator
 REG=quay.io
 SHELL=/bin/bash
-TAG ?= 1.0.0
+TAG ?= 1.0.1
 PKG=github.com/integr8ly/application-monitoring-operator
 TEST_DIRS?=$(shell sh -c "find $(TOP_SRC_DIRS) -name \\*_test.go -exec dirname {} \\; | sort | uniq")
 TEST_POD_NAME=application-monitoring-operator-test
@@ -13,7 +13,7 @@ COMPILE_TARGET=./tmp/_output/bin/$(PROJECT)
 # If you are updating this verion you will need to update the file names in ./scripts/install.sh too
 # You can delete this comment afterwards.
 PROMETHEUS_OPERATOR_VERSION=v0.34.0
-GRAFANA_OPERATOR_VERSION=v3.0.0
+GRAFANA_OPERATOR_VERSION=v3.0.1
 
 
 .PHONY: setup/dep
