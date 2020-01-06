@@ -40,7 +40,7 @@ func (in *ApplicationMonitoring) DeepCopyObject() runtime.Object {
 func (in *ApplicationMonitoringList) DeepCopyInto(out *ApplicationMonitoringList) {
 	*out = *in
 	out.TypeMeta = in.TypeMeta
-	out.ListMeta = in.ListMeta
+	in.ListMeta.DeepCopyInto(&out.ListMeta)
 	if in.Items != nil {
 		in, out := &in.Items, &out.Items
 		*out = make([]ApplicationMonitoring, len(*in))
@@ -133,7 +133,7 @@ func (in *BlackboxTarget) DeepCopyObject() runtime.Object {
 func (in *BlackboxTargetList) DeepCopyInto(out *BlackboxTargetList) {
 	*out = *in
 	out.TypeMeta = in.TypeMeta
-	out.ListMeta = in.ListMeta
+	in.ListMeta.DeepCopyInto(&out.ListMeta)
 	if in.Items != nil {
 		in, out := &in.Items, &out.Items
 		*out = make([]BlackboxTarget, len(*in))

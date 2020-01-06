@@ -7,7 +7,7 @@ package v1alpha1
 
 import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"sigs.k8s.io/controller-runtime/pkg/runtime/scheme"
+	"sigs.k8s.io/controller-runtime/pkg/scheme"
 )
 
 var (
@@ -16,4 +16,19 @@ var (
 
 	// SchemeBuilder is used to add go types to the GroupVersionKind scheme
 	SchemeBuilder = &scheme.Builder{GroupVersion: SchemeGroupVersion}
+
+	// SchemaGroupVersionKind ...
+	SchemaGroupVersionKindApplicationMonitoring = schema.GroupVersionKind{Group: "applicationmonitoring.integreatly.org", Version: "v1alpha1", Kind: "ApplicationMonitoring"}
+
+	// SchemaGroupVersionKind ...
+	SchemaGroupVersionKindBlackboxTarget = schema.GroupVersionKind{Group: "applicationmonitoring.integreatly.org", Version: "v1alpha1", Kind: "BlackboxTarget"}
+
+	// SchemaGroupVersionKind ...
+	SchemaGroupVersionKindGrafana = schema.GroupVersionKind{Group: "integreatly.org", Version: "v1alpha1", Kind: "Grafana"}
+
+	// SchemaGroupVersionKind ...
+	SchemaGroupVersionKindGrafanaDashboard = schema.GroupVersionKind{Group: "integreatly.org", Version: "v1alpha1", Kind: "GrafanaDashboard"}
+
+	// SchemaGroupVersionKind ...
+	SchemaGroupVersionKindGrafanaDataSource = schema.GroupVersionKind{Group: "integreatly.org", Version: "v1alpha1", Kind: "GrafanaDataSource"}
 )

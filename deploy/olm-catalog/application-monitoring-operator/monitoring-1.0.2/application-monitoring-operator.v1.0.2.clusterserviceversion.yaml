@@ -1,0 +1,174 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    capabilities: Basic Install
+  name: application-monitoring-operator.v1.0.2
+  namespace: placeholder
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - kind: ApplicationMonitoring
+      name: applicationmonitorings.applicationmonitoring.integreatly.org
+      version: v1alpha1
+    - kind: BlackboxTarget
+      name: blackboxtargets.applicationmonitoring.integreatly.org
+      version: v1alpha1
+    - kind: ApplicationMonitoring
+      name: applicationmonitorings.applicationmonitoring.integreatly.org
+      version: v1alpha1
+    - kind: BlackboxTarget
+      name: blackboxtargets.applicationmonitoring.integreatly.org
+      version: v1alpha1
+  description: Placeholder description
+  displayName: Application Monitoring Operator
+  install:
+    spec:
+      deployments:
+      - name: application-monitoring-operator
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              name: application-monitoring-operator
+          strategy: {}
+          template:
+            metadata:
+              labels:
+                name: application-monitoring-operator
+            spec:
+              containers:
+              - command:
+                - application-monitoring-operator
+                env:
+                - name: TEMPLATE_PATH
+                  value: /usr/local/bin/templates
+                - name: WATCH_NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.annotations['olm.targetNamespaces']
+                - name: POD_NAME
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.name
+                - name: OPERATOR_NAME
+                  value: application-monitoring-operator
+                image: quay.io/integreatly/application-monitoring-operator:1.0.2
+                imagePullPolicy: Always
+                name: application-monitoring-operator
+                ports:
+                - containerPort: 8383
+                  name: metrics
+                readinessProbe:
+                  exec:
+                    command:
+                    - stat
+                    - /tmp/operator-sdk-ready
+                  failureThreshold: 1
+                  initialDelaySeconds: 4
+                  periodSeconds: 10
+                resources: {}
+              serviceAccountName: application-monitoring-operator
+      permissions:
+      - rules:
+        - apiGroups:
+          - ""
+          resources:
+          - pods
+          - services
+          - services/finalizers
+          - endpoints
+          - persistentvolumeclaims
+          - events
+          - configmaps
+          - secrets
+          - serviceaccounts
+          verbs:
+          - '*'
+        - apiGroups:
+          - apps
+          resources:
+          - deployments
+          - deployments/finalizers
+          - daemonsets
+          - replicasets
+          - statefulsets
+          verbs:
+          - '*'
+        - apiGroups:
+          - monitoring.coreos.com
+          resources:
+          - alertmanagers
+          - prometheuses
+          - prometheusrules
+          - servicemonitors
+          verbs:
+          - '*'
+        - apiGroups:
+          - applicationmonitoring.integreatly.org
+          resources:
+          - applicationmonitorings
+          - applicationmonitorings/finalizers
+          - blackboxtargets
+          - blackboxtargets/finalizers
+          verbs:
+          - '*'
+        - apiGroups:
+          - integreatly.org
+          resources:
+          - grafanadatasources
+          - grafanadashboards
+          - grafanas
+          - grafanas/finalizers
+          - grafanadatasources/finalizers
+          - grafanadashboards/finalizers
+          verbs:
+          - '*'
+        - apiGroups:
+          - route.openshift.io
+          resources:
+          - routes
+          - routes/custom-host
+          verbs:
+          - '*'
+        - apiGroups:
+          - rbac.authorization.k8s.io
+          resources:
+          - rolebindings
+          - roles
+          verbs:
+          - '*'
+        - apiGroups:
+          - extensions
+          resources:
+          - ingresses
+          verbs:
+          - '*'
+        - apiGroups:
+          - authentication.k8s.io
+          resources:
+          - tokenreviews
+          verbs:
+          - create
+        - apiGroups:
+          - authorization.k8s.io
+          resources:
+          - subjectaccessreviews
+          verbs:
+          - create
+        serviceAccountName: application-monitoring-operator
+    strategy: deployment
+  installModes:
+  - supported: true
+    type: OwnNamespace
+  - supported: true
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  maturity: alpha
+  provider: {}
+  replaces: application-monitoring-operator.v0.0.0
+  version: 1.0.2
