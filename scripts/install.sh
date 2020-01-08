@@ -39,5 +39,8 @@ until oc auth can-i create prometheus -n application-monitoring --as system:serv
     echo "Waiting for all CRDs and SA permissions to be applied before deploying operator..." && sleep 1
 done
 
-oc apply -f ./deploy/operator.yaml
+if [ -z "$3" ]; then
+   oc apply -f ./deploy/operator.yaml
+fi
+
 oc apply -f ./deploy/examples/ApplicationMonitoring.yaml
