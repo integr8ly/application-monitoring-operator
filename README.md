@@ -131,5 +131,3 @@ $ make code/run
     $ make image/build
     $ make image/push
     ```
-6. Within the [Integr8ly installation repo](https://github.com/integr8ly/installation/pulls), `fh-automatron` automatically creates a pull request named `middleware-monitoring update`, which contains the necessary modifications of the version for the new release
-7. Approve and merge the PR
