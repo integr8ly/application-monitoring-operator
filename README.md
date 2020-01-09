@@ -111,6 +111,7 @@ You can run the Operator locally against a remote namespace. The name of the nam
 
 ```sh
 $ make setup/dep
+$ make cluster/install/local
 $ make code/run
 ```
 
