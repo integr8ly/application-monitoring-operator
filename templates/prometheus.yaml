@@ -73,11 +73,9 @@ spec:
     matchExpressions:
       - { key: "monitoring-key", operator: In, values: [{{ .MonitoringKey }}] }
   serviceMonitorSelector:
-    matchExpressions:
-      - { key: "monitoring-key", operator: In, values: [{{ .MonitoringKey }}] }
+    any: true
   ruleSelector:
-    matchExpressions:
-      - { key: "monitoring-key", operator: In, values: [{{ .MonitoringKey }}] }
+    any: true
   ruleNamespaceSelector:
     matchExpressions:
       - { key: "monitoring-key", operator: In, values: [{{ .MonitoringKey }}] }
