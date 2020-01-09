@@ -48,6 +48,10 @@ An example PrometheusRule can be seen in the example app [template](https://gith
 Represents a Service to pull metrics from. See the [https://github.com/coreos/prometheus-operator/blob/master/Documentation/user-guides/getting-started.md#related-resources](prometheus operator docs) for more details about this resource.
 An example ServiceMonitor can be seen in the example app [template](https://github.com/david-martin/example-prometheus-nodejs/blob/d647b83116519b650e00401f04c8868280c47778/template.yaml#L79-L91)
 
+## PodMonitor
+
+Represents pods to pull metrics from. See the [https://github.com/coreos/prometheus-operator/blob/master/Documentation/user-guides/getting-started.md#include-podmonitors](prometheus operator docs) for more details about this resource.
+
 ## GrafanaDashboard
 
 Represents a Grafana dashboard. You typically create this in the namespace of the service the dashboard is associated with.

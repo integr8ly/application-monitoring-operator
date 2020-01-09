@@ -79,6 +79,11 @@ spec:
   ruleNamespaceSelector:
     matchExpressions:
       - { key: "monitoring-key", operator: In, values: [{{ .MonitoringKey }}] }
+  podMonitorNamespaceSelector:
+    matchExpressions:
+      - { key: "monitoring-key", operator: In, values: [{{ .MonitoringKey }}] }
+  podMonitorSelector:
+    any: true
   additionalScrapeConfigs:
     name: {{ .ScrapeConfigSecretName }}
     key: integreatly.yaml
