@@ -16,8 +16,8 @@ type ApplicationMonitoringSpec struct {
 	AdditionalScrapeConfigSecretKey  string `json:"additionalScrapeConfigSecretKey,omitempty"`
 	PrometheusRetention              string `json:"prometheusRetention,omitempty"`
 	PrometheusStorageRequest         string `json:"prometheusStorageRequest,omitempty"`
-	PrometheusInstanceNamespaces     string `json:"prometheusInstanceNamespaces, omitempty"`
-	AlertmanagerInstanceNamespaces   string `json:"alertmanagerInstanceNamespaces, omitempty"`
+	PrometheusInstanceNamespaces     string `json:"prometheusInstanceNamespaces,omitempty"`
+	AlertmanagerInstanceNamespaces   string `json:"alertmanagerInstanceNamespaces,omitempty"`
 }
 
 // ApplicationMonitoringStatus defines the observed state of ApplicationMonitoring
@@ -32,6 +32,7 @@ type ApplicationMonitoringStatus struct {
 
 // ApplicationMonitoring is the Schema for the applicationmonitorings API
 // +k8s:openapi-gen=true
+// +kubebuilder:resource:path=applicationmonitorings,scope=Namespaced
 type ApplicationMonitoring struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

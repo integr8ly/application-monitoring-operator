@@ -3,7 +3,7 @@ NAMESPACE ?= application-monitoring
 PROJECT ?= application-monitoring-operator
 REG=quay.io
 SHELL=/bin/bash
-TAG ?= 1.0.1
+TAG ?= 1.0.2
 PKG=github.com/integr8ly/application-monitoring-operator
 TEST_DIRS?=$(shell sh -c "find $(TOP_SRC_DIRS) -name \\*_test.go -exec dirname {} \\; | sort | uniq")
 TEST_POD_NAME=application-monitoring-operator-test
@@ -13,15 +13,16 @@ COMPILE_TARGET=./tmp/_output/bin/$(PROJECT)
 # If you are updating this verion you will need to update the file names in ./scripts/install.sh too
 # You can delete this comment afterwards.
 PROMETHEUS_OPERATOR_VERSION=v0.34.0
-GRAFANA_OPERATOR_VERSION=v3.0.1
 LOCAL=local
+GRAFANA_OPERATOR_VERSION=v3.0.2
 
 
-.PHONY: setup/dep
-setup/dep:
-	@echo Installing dep
-	curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-	@echo setup complete
+.PHONY: setup/gomod
+setup/gomod:
+	@echo Running go.mod tidy
+	@go mod tidy
+	@echo Running go.mod vendor
+	@go mod vendor
 
 .PHONY: setup/travis
 setup/travis:
@@ -88,11 +89,6 @@ cluster/clean:
 	-kubectl delete crd grafanas.integreatly.org
 	-kubectl delete crd grafanadashboards.integreatly.org
 	-kubectl delete crd grafanadatasources.integreatly.org
-	-kubectl delete crd podmonitors.monitoring.coreos.com
-	-kubectl delete crd prometheuses.monitoring.coreos.com
-	-kubectl delete crd alertmanagers.monitoring.coreos.com
-	-kubectl delete crd prometheusrules.monitoring.coreos.com
-	-kubectl delete crd servicemonitors.monitoring.coreos.com
 	-kubectl delete crd blackboxtargets.applicationmonitoring.integreatly.org
 	-kubectl delete crd applicationmonitorings.applicationmonitoring.integreatly.org
 	-kubectl delete namespace $(NAMESPACE)
