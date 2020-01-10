@@ -17,6 +17,13 @@ LOCAL=local
 GRAFANA_OPERATOR_VERSION=v3.0.2
 
 
+.PHONY: setup/gomod
+setup/gomod:
+	@echo Running go.mod tidy
+	@go mod tidy
+	@echo Running go.mod vendor
+	@go mod vendor
+
 .PHONY: setup/travis
 setup/travis:
 	@echo Installing Operator SDK
