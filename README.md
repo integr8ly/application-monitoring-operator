@@ -119,3 +119,15 @@ $ make cluster/install/local
 $ make code/run
 ```
 
+# Release
+
+1. Update the version number (e.g. `1.0.1`) in the following files: [Makefile](https://github.com/integr8ly/application-monitoring-operator/blob/master/Makefile#L6), [operator.yaml](https://github.com/integr8ly/application-monitoring-operator/blob/master/deploy/operator.yaml#L18), [version.go](https://github.com/integr8ly/application-monitoring-operator/blob/master/version/version.go#L4]))
+2. Create a pull request with the updated version. Once it has been reviewed and approved, merge it to `master`
+3. Create a new [release](https://github.com/integr8ly/application-monitoring-operator/releases) via the GitHub release page, naming it the same as the version number - e.g. `1.0.1`. Ensure to state what's new in the release
+4. Login to [quay.io](https://quay.io):  `docker login quay.io`
+5. Build the Docker image for the new version, and push it to `quay.io`:
+
+    ```sh
+    $ make image/build
+    $ make image/push
+    ```
