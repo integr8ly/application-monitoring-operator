@@ -20,6 +20,8 @@ type BlackboxTargetSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
 	// Add custom validation using kubebuilder tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html
+
+	// +kubebuilder:default:=[]BlackboxtargetData
 	BlackboxTargets []BlackboxtargetData `json:"blackboxTargets,omitempty"`
 }
 

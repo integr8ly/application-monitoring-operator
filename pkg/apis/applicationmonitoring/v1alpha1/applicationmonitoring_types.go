@@ -11,13 +11,27 @@ import (
 type ApplicationMonitoringSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
-	LabelSelector                    string `json:"labelSelector"`
+
+	// +kubebuilder:default:="middleware"
+	LabelSelector string `json:"labelSelector"`
+
+	// +kubebuilder:default:="integreatly-additional-scrape-configs"
 	AdditionalScrapeConfigSecretName string `json:"additionalScrapeConfigSecretName,omitempty"`
-	AdditionalScrapeConfigSecretKey  string `json:"additionalScrapeConfigSecretKey,omitempty"`
-	PrometheusRetention              string `json:"prometheusRetention,omitempty"`
-	PrometheusStorageRequest         string `json:"prometheusStorageRequest,omitempty"`
-	PrometheusInstanceNamespaces     string `json:"prometheusInstanceNamespaces,omitempty"`
-	AlertmanagerInstanceNamespaces   string `json:"alertmanagerInstanceNamespaces,omitempty"`
+
+	// +kubebuilder:default:="integreatly-additional.yaml"
+	AdditionalScrapeConfigSecretKey string `json:"additionalScrapeConfigSecretKey,omitempty"`
+
+	// +kubebuilder:default:="15d"
+	PrometheusRetention string `json:"prometheusRetention,omitempty"`
+
+	// +kubebuilder:default:="10Gi"
+	PrometheusStorageRequest string `json:"prometheusStorageRequest,omitempty"`
+
+	// +kubebuilder:default:="application-monitoring"
+	PrometheusInstanceNamespaces string `json:"prometheusInstanceNamespaces,omitempty"`
+
+	// +kubebuilder:default:="application-monitoring"
+	AlertmanagerInstanceNamespaces string `json:"alertmanagerInstanceNamespaces,omitempty"`
 }
 
 // ApplicationMonitoringStatus defines the observed state of ApplicationMonitoring
