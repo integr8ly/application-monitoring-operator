@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/md5"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -175,7 +176,12 @@ func (r *ReconcileApplicationMonitoring) Reconcile(request reconcile.Request) (r
 
 func (r *ReconcileApplicationMonitoring) reconcileConfig(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
 	log.Info("Phase: Reconciling Config")
-	err := r.syncBlackboxTargets(cr)
+	err := r.reconcileBlackboxExporterConfig(cr)
+	if err != nil {
+		return reconcile.Result{RequeueAfter: time.Second * ReconcilePauseSeconds}, err
+	}
+
+	err = r.syncBlackboxTargets(cr)
 	return reconcile.Result{RequeueAfter: time.Second * ReconcilePauseSeconds}, err
 }
 
@@ -291,6 +297,52 @@ func (r *ReconcileApplicationMonitoring) ensureServiceAccountHasOauthAnnotation(
 		}
 	}
 	return reconcile.Result{}, nil
+}
+
+// Update the blackbox exporter config if needed
+// e.g. set tls cert config if using self signed certs
+func (r *ReconcileApplicationMonitoring) reconcileBlackboxExporterConfig(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) error {
+	// Read the blackbox exporter configmap, which should already exist
+	blackboxExporterConfigmap := &corev1.ConfigMap{
+		ObjectMeta: v1.ObjectMeta{
+			Name:      "blackbox-exporter-config",
+			Namespace: cr.Namespace,
+		},
+	}
+	if err := r.client.Get(context.TODO(), client.ObjectKey{Name: blackboxExporterConfigmap.Name, Namespace: blackboxExporterConfigmap.Namespace}, blackboxExporterConfigmap); err != nil {
+		log.Error(err, "client.Get")
+		return fmt.Errorf("error getting blackbox exporter configmap.: %w", err)
+	}
+
+	// Build the full blackbox config based on the AMO CR config
+	if r.extraParams == nil {
+		r.extraParams = map[string]string{}
+	}
+	r.extraParams["selfSignedCerts"] = strconv.FormatBool(cr.Spec.SelfSignedCerts)
+	templateHelper := newTemplateHelper(cr, r.extraParams)
+	blackboxExporterConfig, err := templateHelper.loadTemplate("blackbox/blackbox-exporter-config.yaml")
+	if err != nil {
+		log.Error(err, "templateHelper.loadTemplate")
+		return fmt.Errorf("error loading template: %w", err)
+	}
+
+	// Update the configmap if needed
+	log.Info(fmt.Sprintf("blackboxExporterConfigmap.Data[r.Config.GetBlackboxExporterConfigmapKey()] %s", blackboxExporterConfigmap.Data["blackbox.yml"]))
+	log.Info(fmt.Sprintf("blackboxExporterConfig %s", string(blackboxExporterConfig)))
+	// TODO: remove any logs above when no longer needed
+	if blackboxExporterConfigmap.Data["blackbox.yml"] != string(blackboxExporterConfig) {
+		blackboxExporterConfigmap.Data = map[string]string{
+			"blackbox.yml": string(blackboxExporterConfig),
+		}
+		if err := r.client.Update(context.TODO(), blackboxExporterConfigmap); err != nil {
+			log.Error(err, "serverClient.Update")
+			return fmt.Errorf("error updating blackbox exporter configmap: %w", err)
+		}
+
+		// TODO: Kill prometheus pod to redeploy it
+	}
+
+	return nil
 }
 
 func (r *ReconcileApplicationMonitoring) syncBlackboxTargets(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) error {

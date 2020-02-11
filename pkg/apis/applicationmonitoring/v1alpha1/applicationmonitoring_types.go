@@ -18,6 +18,7 @@ type ApplicationMonitoringSpec struct {
 	PrometheusStorageRequest         string `json:"prometheusStorageRequest,omitempty"`
 	PrometheusInstanceNamespaces     string `json:"prometheusInstanceNamespaces,omitempty"`
 	AlertmanagerInstanceNamespaces   string `json:"alertmanagerInstanceNamespaces,omitempty"`
+	SelfSignedCerts                  bool   `json:"selfSignedCerts,omitempty"`
 }
 
 // ApplicationMonitoringStatus defines the observed state of ApplicationMonitoring
