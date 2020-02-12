@@ -320,7 +320,7 @@ func (r *ReconcileApplicationMonitoring) reconcileBlackboxExporterConfig(cr *app
 	}
 	r.extraParams["selfSignedCerts"] = strconv.FormatBool(cr.Spec.SelfSignedCerts)
 	templateHelper := newTemplateHelper(cr, r.extraParams)
-	blackboxExporterConfig, err := templateHelper.loadTemplate("blackbox/blackbox-exporter-config.yaml")
+	blackboxExporterConfig, err := templateHelper.loadTemplate("blackbox/blackbox-exporter-config")
 	if err != nil {
 		log.Error(err, "templateHelper.loadTemplate")
 		return fmt.Errorf("error loading template: %w", err)
@@ -339,7 +339,21 @@ func (r *ReconcileApplicationMonitoring) reconcileBlackboxExporterConfig(cr *app
 			return fmt.Errorf("error updating blackbox exporter configmap: %w", err)
 		}
 
-		// TODO: Kill prometheus pod to redeploy it
+	// TODO: curl reload endpoint if change detected
+	
+	//Get Stateful set - Always called prometheus-monitoring-operator
+	ss := &appsv1.StatefulSet{}
+	err = r.Client.Get(ctx, types.NamespacedName{Name: "prometheus-application-monitoring", Namespace: cr.Namespace}, ss)
+	if err != nil {
+		errMsg := "failed to get *** stateful set"
+		return nil, croType.StatusMessage(errMsg), errorUtil.Wrap(err, errMsg)
+	}
+	//instantiate pod commander
+	pc = common.OpenShiftPodCommander()
+	//pass in command & ss
+
+	//wrap in logic to check if reload required
+
 	}
 
 	return nil
