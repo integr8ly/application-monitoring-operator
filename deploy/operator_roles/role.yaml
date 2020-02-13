@@ -50,8 +50,11 @@ rules:
   - integreatly.org
   resources:
   - grafanadatasources
+  - grafanadatasources/status
   - grafanadashboards
+  - grafanadashboards/status
   - grafanas
+  - grafanas/status
   - grafanas/finalizers
   - grafanadatasources/finalizers
   - grafanadashboards/finalizers
