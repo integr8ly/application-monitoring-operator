@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/md5"
 	"fmt"
-	appsv1 "k8s.io/api/apps/v1"
 	"strconv"
 	"strings"
 	"time"
@@ -342,30 +341,22 @@ func (r *ReconcileApplicationMonitoring) reconcileBlackboxExporterConfig(cr *app
 			log.Error(err, "serverClient.Update")
 			return fmt.Errorf("error updating blackbox exporter configmap: %w", err)
 		}
-		// TODO: curl reload endpoint if change detected
-		//Get Stateful set - Always called prometheus-monitoring-operator
-		ss := &appsv1.StatefulSet{}
-		err = r.client.Get(ctx, types.NamespacedName{Name: "prometheus-application-monitoring", Namespace: cr.Namespace}, ss)
+		pods := &corev1.PodList{}
+		opts := []client.ListOption{
+			client.InNamespace(cr.Namespace),
+			client.MatchingLabels{"app": "prometheus", "prometheus": "application-monitoring"},
+		}
+		err := r.client.List(ctx, pods, opts...)
 		if err != nil {
-			return fmt.Errorf("error getting stateful set: %w", err)
+			return fmt.Errorf("failed to list pods: %s", err)
 		}
-		//instantiate pod commander
-		cs, err := common.GetK8Client()
-		if err != nil {
-			return fmt.Errorf("error instatiating clientSet: %w", err)
+		if len(pods.Items) > 0 {
+			log.Info("Attempting to delete pod")
+			err = r.client.Delete(ctx, &pods.Items[0])
+			if err != nil {
+				return fmt.Errorf("error deleting pod: %w", err)
+			}
 		}
-		pc := common.OpenShiftPodCommander {
-			ClientSet: cs,
-		}
-		//pass in command
-		cmd, container := "curl http://localhost:9115/-/reload -X POST", "prometheus"
-		err = pc.ExecIntoPod(ss, cmd, container)
-		if err != nil {
-			return fmt.Errorf("error executing curl to reload endpoint: %w", err)
-		}
-
-		//wrap in logic to check if reload required
-
 	}
 
 	return nil
