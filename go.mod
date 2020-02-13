@@ -5,7 +5,6 @@ go 1.13
 require (
 	github.com/appc/spec v0.8.11 // indirect
 	github.com/coreos/prometheus-operator v0.29.0
-	github.com/coreos/rkt v1.30.0
 	github.com/emicklei/go-restful v2.11.1+incompatible // indirect
 	github.com/ghodss/yaml v1.0.1-0.20180820084758-c7ce16629ff4
 	github.com/go-openapi/spec v0.19.5-0.20191022081736-744796356cda

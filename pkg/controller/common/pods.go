@@ -3,39 +3,43 @@ package common
 import (
 	"bytes"
 	"io"
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/coreos/rkt/rkt/config"
+	"sigs.k8s.io/controller-runtime/pkg/client/config"
 	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/tools/remotecommand"
+	errorUtil "github.com/pkg/errors"
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
 )
 
-//PodCommander TODO
+var log = logf.Log.WithName("pods")
+
+
 type PodCommander interface {
 	ExecIntoPod(dpl *appsv1.Deployment, cmd string) error
 }
 
-//OpenShiftPodCommander TODO
 type OpenShiftPodCommander struct {
 	ClientSet *kubernetes.Clientset
 }
 
-//ExecIntoPod TODO
-func (pc *OpenShiftPodCommander) ExecIntoPod(ss *appsv1.Deployment, cmd string) error {
+func (pc *OpenShiftPodCommander) ExecIntoPod(ss *appsv1.StatefulSet, cmd string, container string) error {
 	toRun := []string{"/bin/bash", "-c", cmd}
 	podName, err := getStatefulSetPod(pc.ClientSet, ss)
 	if err != nil {
 		return err
 	}
-	if _, stderr, err := runExec(pc.ClientSet, toRun, podName, ss.Namespace); err != nil {
+	if _, stderr, err := runExec(pc.ClientSet, toRun, podName, ss.Namespace, container); err != nil {
 		return errorUtil.Wrapf(err, "failed to exec, %s", stderr)
 	}
 	return nil
 }
 
 // run exec command on pod
-func runExec(cs *kubernetes.Clientset, command []string, pod, ns string) (string, string, error) {
+func runExec(cs *kubernetes.Clientset, command []string, pod, ns string, container string) (string, string, error) {
 	req := cs.CoreV1().RESTClient().Post().
 		Resource("pods").
 		Name(pod).
@@ -43,6 +47,7 @@ func runExec(cs *kubernetes.Clientset, command []string, pod, ns string) (string
 		SubResource("exec")
 
 	req.VersionedParams(&corev1.PodExecOptions{
+		Container: container,
 		Command: command,
 		Stdin:   false,
 		Stdout:  true,
@@ -58,6 +63,7 @@ func runExec(cs *kubernetes.Clientset, command []string, pod, ns string) (string
 
 	var stdout, stderr bytes.Buffer
 	var stdin io.Reader
+
 	err = exec.Stream(remotecommand.StreamOptions{
 		Stdin:  stdin,
 		Stdout: &stdout,
@@ -86,7 +92,6 @@ func getStatefulSetPod(cl *kubernetes.Clientset, ss *appsv1.StatefulSet) (podNam
 	return podName, nil
 }
 
-//GetK8Client silence linter
 func GetK8Client() (*kubernetes.Clientset, error) {
 	cfg, err := config.GetConfig()
 	if err != nil {

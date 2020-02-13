@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/md5"
 	"fmt"
+	appsv1 "k8s.io/api/apps/v1"
 	"strconv"
 	"strings"
 	"time"
@@ -309,7 +310,10 @@ func (r *ReconcileApplicationMonitoring) reconcileBlackboxExporterConfig(cr *app
 			Namespace: cr.Namespace,
 		},
 	}
-	if err := r.client.Get(context.TODO(), client.ObjectKey{Name: blackboxExporterConfigmap.Name, Namespace: blackboxExporterConfigmap.Namespace}, blackboxExporterConfigmap); err != nil {
+
+	ctx := context.TODO()
+
+	if err := r.client.Get(ctx, client.ObjectKey{Name: blackboxExporterConfigmap.Name, Namespace: blackboxExporterConfigmap.Namespace}, blackboxExporterConfigmap); err != nil {
 		log.Error(err, "client.Get")
 		return fmt.Errorf("error getting blackbox exporter configmap.: %w", err)
 	}
@@ -334,25 +338,33 @@ func (r *ReconcileApplicationMonitoring) reconcileBlackboxExporterConfig(cr *app
 		blackboxExporterConfigmap.Data = map[string]string{
 			"blackbox.yml": string(blackboxExporterConfig),
 		}
-		if err := r.client.Update(context.TODO(), blackboxExporterConfigmap); err != nil {
+		if err := r.client.Update(ctx, blackboxExporterConfigmap); err != nil {
 			log.Error(err, "serverClient.Update")
 			return fmt.Errorf("error updating blackbox exporter configmap: %w", err)
 		}
+		// TODO: curl reload endpoint if change detected
+		//Get Stateful set - Always called prometheus-monitoring-operator
+		ss := &appsv1.StatefulSet{}
+		err = r.client.Get(ctx, types.NamespacedName{Name: "prometheus-application-monitoring", Namespace: cr.Namespace}, ss)
+		if err != nil {
+			return fmt.Errorf("error getting stateful set: %w", err)
+		}
+		//instantiate pod commander
+		cs, err := common.GetK8Client()
+		if err != nil {
+			return fmt.Errorf("error instatiating clientSet: %w", err)
+		}
+		pc := common.OpenShiftPodCommander {
+			ClientSet: cs,
+		}
+		//pass in command
+		cmd, container := "curl http://localhost:9115/-/reload -X POST", "prometheus"
+		err = pc.ExecIntoPod(ss, cmd, container)
+		if err != nil {
+			return fmt.Errorf("error executing curl to reload endpoint: %w", err)
+		}
 
-	// TODO: curl reload endpoint if change detected
-	
-	//Get Stateful set - Always called prometheus-monitoring-operator
-	ss := &appsv1.StatefulSet{}
-	err = r.Client.Get(ctx, types.NamespacedName{Name: "prometheus-application-monitoring", Namespace: cr.Namespace}, ss)
-	if err != nil {
-		errMsg := "failed to get *** stateful set"
-		return nil, croType.StatusMessage(errMsg), errorUtil.Wrap(err, errMsg)
-	}
-	//instantiate pod commander
-	pc = common.OpenShiftPodCommander()
-	//pass in command & ss
-
-	//wrap in logic to check if reload required
+		//wrap in logic to check if reload required
 
 	}
 
