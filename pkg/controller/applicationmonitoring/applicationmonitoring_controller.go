@@ -330,9 +330,6 @@ func (r *ReconcileApplicationMonitoring) reconcileBlackboxExporterConfig(cr *app
 	}
 
 	// Update the configmap if needed
-	log.Info(fmt.Sprintf("blackboxExporterConfigmap.Data[r.Config.GetBlackboxExporterConfigmapKey()] %s", blackboxExporterConfigmap.Data["blackbox.yml"]))
-	log.Info(fmt.Sprintf("blackboxExporterConfig %s", string(blackboxExporterConfig)))
-	// TODO: remove any logs above when no longer needed
 	if blackboxExporterConfigmap.Data["blackbox.yml"] != string(blackboxExporterConfig) {
 		blackboxExporterConfigmap.Data = map[string]string{
 			"blackbox.yml": string(blackboxExporterConfig),
@@ -351,14 +348,13 @@ func (r *ReconcileApplicationMonitoring) reconcileBlackboxExporterConfig(cr *app
 			return fmt.Errorf("failed to list pods: %s", err)
 		}
 		if len(pods.Items) > 0 {
-			log.Info("Attempting to delete pod")
+			log.Info("Attempting to delete pod to reload config")
 			err = r.client.Delete(ctx, &pods.Items[0])
 			if err != nil {
 				return fmt.Errorf("error deleting pod: %w", err)
 			}
 		}
 	}
-
 	return nil
 }
 

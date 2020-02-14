@@ -3,13 +3,11 @@ module github.com/integr8ly/application-monitoring-operator
 go 1.13
 
 require (
-	github.com/appc/spec v0.8.11 // indirect
 	github.com/coreos/prometheus-operator v0.29.0
 	github.com/emicklei/go-restful v2.11.1+incompatible // indirect
 	github.com/ghodss/yaml v1.0.1-0.20180820084758-c7ce16629ff4
 	github.com/go-openapi/spec v0.19.5-0.20191022081736-744796356cda
 	github.com/gogo/protobuf v1.3.1 // indirect
-	github.com/hashicorp/errwrap v1.0.0 // indirect
 	github.com/hashicorp/golang-lru v0.5.3 // indirect
 	github.com/json-iterator/go v1.1.9 // indirect
 	github.com/onsi/ginkgo v1.11.0 // indirect
@@ -18,10 +16,8 @@ require (
 	github.com/operator-framework/operator-sdk v0.12.1-0.20191112211508-82fc57de5e5b
 	github.com/pkg/errors v0.8.1
 	github.com/prometheus/client_golang v1.3.0 // indirect
-	github.com/rkt/rkt v1.30.0 // indirect
 	github.com/spf13/pflag v1.0.5
 	go.uber.org/zap v1.13.0 // indirect
-	go4.org v0.0.0-20200104003542-c7e774b10ea0 // indirect
 	golang.org/x/oauth2 v0.0.0-20191202225959-858c2ad4c8b6 // indirect
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0 // indirect
 	k8s.io/api v0.17.0

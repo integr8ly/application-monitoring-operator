@@ -20,4 +20,3 @@ modules:
         ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
         cert_file: /etc/tls/private/tls.crt
         key_file: /etc/tls/private/tls.key{{end}}
-
