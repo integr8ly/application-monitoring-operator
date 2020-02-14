@@ -314,7 +314,7 @@ func (r *ReconcileApplicationMonitoring) reconcileBlackboxExporterConfig(cr *app
 
 	if err := r.client.Get(ctx, client.ObjectKey{Name: blackboxExporterConfigmap.Name, Namespace: blackboxExporterConfigmap.Namespace}, blackboxExporterConfigmap); err != nil {
 		log.Error(err, "client.Get")
-		return fmt.Errorf("error getting blackbox exporter configmap.: %w", err)
+		return fmt.Errorf("error getting blackbox exporter configmap.: %s", err.Error())
 	}
 
 	// Build the full blackbox config based on the AMO CR config
@@ -326,7 +326,7 @@ func (r *ReconcileApplicationMonitoring) reconcileBlackboxExporterConfig(cr *app
 	blackboxExporterConfig, err := templateHelper.loadTemplate("blackbox/blackbox-exporter-config")
 	if err != nil {
 		log.Error(err, "templateHelper.loadTemplate")
-		return fmt.Errorf("error loading template: %w", err)
+		return fmt.Errorf("error loading template: %s", err.Error())
 	}
 
 	// Update the configmap if needed
@@ -336,7 +336,7 @@ func (r *ReconcileApplicationMonitoring) reconcileBlackboxExporterConfig(cr *app
 		}
 		if err := r.client.Update(ctx, blackboxExporterConfigmap); err != nil {
 			log.Error(err, "serverClient.Update")
-			return fmt.Errorf("error updating blackbox exporter configmap: %w", err)
+			return fmt.Errorf("error updating blackbox exporter configmap: %s", err.Error())
 		}
 		pods := &corev1.PodList{}
 		opts := []client.ListOption{
@@ -345,13 +345,13 @@ func (r *ReconcileApplicationMonitoring) reconcileBlackboxExporterConfig(cr *app
 		}
 		err := r.client.List(ctx, pods, opts...)
 		if err != nil {
-			return fmt.Errorf("failed to list pods: %s", err)
+			return fmt.Errorf("failed to list pods: %s", err.Error())
 		}
 		if len(pods.Items) > 0 {
 			log.Info("Attempting to delete pod to reload config")
 			err = r.client.Delete(ctx, &pods.Items[0])
 			if err != nil {
-				return fmt.Errorf("error deleting pod: %w", err)
+				return fmt.Errorf("error deleting pod: %s", err.Error())
 			}
 		}
 	}
