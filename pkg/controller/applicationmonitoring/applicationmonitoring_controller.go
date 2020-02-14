@@ -309,9 +309,12 @@ func (r *ReconcileApplicationMonitoring) reconcileBlackboxExporterConfig(cr *app
 			Namespace: cr.Namespace,
 		},
 	}
-	if err := r.client.Get(context.TODO(), client.ObjectKey{Name: blackboxExporterConfigmap.Name, Namespace: blackboxExporterConfigmap.Namespace}, blackboxExporterConfigmap); err != nil {
+
+	ctx := context.TODO()
+
+	if err := r.client.Get(ctx, client.ObjectKey{Name: blackboxExporterConfigmap.Name, Namespace: blackboxExporterConfigmap.Namespace}, blackboxExporterConfigmap); err != nil {
 		log.Error(err, "client.Get")
-		return fmt.Errorf("error getting blackbox exporter configmap.: %w", err)
+		return fmt.Errorf("error getting blackbox exporter configmap.: %s", err.Error())
 	}
 
 	// Build the full blackbox config based on the AMO CR config
@@ -320,28 +323,38 @@ func (r *ReconcileApplicationMonitoring) reconcileBlackboxExporterConfig(cr *app
 	}
 	r.extraParams["selfSignedCerts"] = strconv.FormatBool(cr.Spec.SelfSignedCerts)
 	templateHelper := newTemplateHelper(cr, r.extraParams)
-	blackboxExporterConfig, err := templateHelper.loadTemplate("blackbox/blackbox-exporter-config.yaml")
+	blackboxExporterConfig, err := templateHelper.loadTemplate("blackbox/blackbox-exporter-config")
 	if err != nil {
 		log.Error(err, "templateHelper.loadTemplate")
-		return fmt.Errorf("error loading template: %w", err)
+		return fmt.Errorf("error loading template: %s", err.Error())
 	}
 
 	// Update the configmap if needed
-	log.Info(fmt.Sprintf("blackboxExporterConfigmap.Data[r.Config.GetBlackboxExporterConfigmapKey()] %s", blackboxExporterConfigmap.Data["blackbox.yml"]))
-	log.Info(fmt.Sprintf("blackboxExporterConfig %s", string(blackboxExporterConfig)))
-	// TODO: remove any logs above when no longer needed
 	if blackboxExporterConfigmap.Data["blackbox.yml"] != string(blackboxExporterConfig) {
 		blackboxExporterConfigmap.Data = map[string]string{
 			"blackbox.yml": string(blackboxExporterConfig),
 		}
-		if err := r.client.Update(context.TODO(), blackboxExporterConfigmap); err != nil {
+		if err := r.client.Update(ctx, blackboxExporterConfigmap); err != nil {
 			log.Error(err, "serverClient.Update")
-			return fmt.Errorf("error updating blackbox exporter configmap: %w", err)
+			return fmt.Errorf("error updating blackbox exporter configmap: %s", err.Error())
 		}
-
-		// TODO: Kill prometheus pod to redeploy it
+		pods := &corev1.PodList{}
+		opts := []client.ListOption{
+			client.InNamespace(cr.Namespace),
+			client.MatchingLabels{"app": "prometheus", "prometheus": "application-monitoring"},
+		}
+		err := r.client.List(ctx, pods, opts...)
+		if err != nil {
+			return fmt.Errorf("failed to list pods: %s", err.Error())
+		}
+		if len(pods.Items) > 0 {
+			log.Info("Attempting to delete pod to reload config")
+			err = r.client.Delete(ctx, &pods.Items[0])
+			if err != nil {
+				return fmt.Errorf("error deleting pod: %s", err.Error())
+			}
+		}
 	}
-
 	return nil
 }
 

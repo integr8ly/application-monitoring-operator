@@ -1,0 +1,22 @@
+modules:
+  http_extern_2xx:
+    prober: http
+    http:
+      preferred_ip_protocol: ip4
+  http_2xx:
+    prober: http
+    http:
+      preferred_ip_protocol: ip4{{if eq (index .ExtraParams "selfSignedCerts") "true"}}
+      tls_config:
+        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        cert_file: /etc/tls/private/tls.crt
+        key_file: /etc/tls/private/tls.key{{end}}
+  http_post_2xx:
+    prober: http
+    http:
+      method: POST
+      preferred_ip_protocol: ip4{{if eq (index .ExtraParams "selfSignedCerts") "true"}}
+      tls_config:
+        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        cert_file: /etc/tls/private/tls.crt
+        key_file: /etc/tls/private/tls.key{{end}}

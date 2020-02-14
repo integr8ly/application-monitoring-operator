@@ -10,3 +10,4 @@ spec:
   prometheusStorageRequest: 10Gi
   prometheusInstanceNamespaces: application-monitoring
   alertmanagerInstanceNamespaces: application-monitoring
+  selfSignedCerts: true
