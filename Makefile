@@ -51,11 +51,11 @@ code/fix:
 
 .PHONY: image/build
 image/build: code/compile
-	@operator-sdk build ${REG}/${ORG}/${PROJECT}:${TAG}
+	@operator-sdk build ${REG}/${ORG}/${PROJECT}:${TAG} --image-builder=buildah
 
 .PHONY: image/push
 image/push:
-	docker push ${REG}/${ORG}/${PROJECT}:${TAG}
+	podman push ${REG}/${ORG}/${PROJECT}:${TAG}
 
 .PHONY: image/build/push
 image/build/push: image/build image/push
