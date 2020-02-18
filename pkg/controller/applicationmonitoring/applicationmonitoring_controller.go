@@ -13,7 +13,7 @@ import (
 
 	"k8s.io/apimachinery/pkg/watch"
 
-	"k8s.io/api/apps/v1beta1"
+	appsv1 "k8s.io/api/apps/v1"
 
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -710,7 +710,7 @@ func (r *ReconcileApplicationMonitoring) createOrUpdateAdditionalScrapeConfig(cr
 }
 
 func (r *ReconcileApplicationMonitoring) getPrometheusOperatorReady(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (bool, error) {
-	resource := v1beta1.Deployment{}
+	resource := appsv1.Deployment{}
 
 	selector := types.NamespacedName{
 		Namespace: cr.Namespace,
