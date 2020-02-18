@@ -55,7 +55,7 @@ image/build: code/compile
 
 .PHONY: image/push
 image/push:
-	podman push ${REG}/${ORG}/${PROJECT}:${TAG}
+	docker push ${REG}/${ORG}/${PROJECT}:${TAG}
 
 .PHONY: image/build/push
 image/build/push: image/build image/push
