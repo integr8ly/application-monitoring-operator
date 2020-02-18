@@ -51,6 +51,15 @@ type ApplicationMonitoringList struct {
 	Items           []ApplicationMonitoring `json:"items"`
 }
 
+type GrafanaDataSource struct {
+	BasicAuthPassword string `json:"basicAuthPassword"`
+	BasicAuthUser     string `json:"basicAuthUSer"`
+}
+
+type GrafanaDataSourceSecret struct {
+	DataSources []GrafanaDataSource `json:"datasources"`
+}
+
 func init() {
 	SchemeBuilder.Register(&ApplicationMonitoring{}, &ApplicationMonitoringList{})
 }
