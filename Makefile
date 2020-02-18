@@ -51,7 +51,7 @@ code/fix:
 
 .PHONY: image/build
 image/build: code/compile
-	@operator-sdk build ${REG}/${ORG}/${PROJECT}:${TAG} --image-builder=buildah
+	@operator-sdk build ${REG}/${ORG}/${PROJECT}:${TAG}
 
 .PHONY: image/push
 image/push:
