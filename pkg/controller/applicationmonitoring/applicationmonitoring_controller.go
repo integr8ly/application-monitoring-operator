@@ -8,27 +8,27 @@ import (
 	"strings"
 	"time"
 
-	monitoringv1 "github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-
-	"k8s.io/apimachinery/pkg/watch"
-
-	"k8s.io/api/apps/v1beta1"
-
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/types"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-	pkgclient "sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+	"github.com/pkg/errors"
 
 	applicationmonitoringv1alpha1 "github.com/integr8ly/application-monitoring-operator/pkg/apis/applicationmonitoring/v1alpha1"
 	"github.com/integr8ly/application-monitoring-operator/pkg/controller/common"
+
+	monitoringv1 "github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1"
+
 	routev1 "github.com/openshift/api/route/v1"
-	"github.com/pkg/errors"
+
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/watch"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	pkgclient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
@@ -250,7 +250,7 @@ func (r *ReconcileApplicationMonitoring) updateCR(cr *applicationmonitoringv1alp
 	rawMetadata := raw["metadata"].(map[string]interface{})
 	rawMetadata["resourceVersion"] = resourceVersion
 
-	err = controllerutil.SetControllerReference(cr, resource.(v1.Object), r.scheme)
+	err = controllerutil.SetControllerReference(cr, resource.(metav1.Object), r.scheme)
 	if err != nil {
 		log.Error(err, fmt.Sprintf("error setting owner reference on %v", crName))
 	}
@@ -304,7 +304,7 @@ func (r *ReconcileApplicationMonitoring) ensureServiceAccountHasOauthAnnotation(
 func (r *ReconcileApplicationMonitoring) reconcileBlackboxExporterConfig(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) error {
 	// Read the blackbox exporter configmap, which should already exist
 	blackboxExporterConfigmap := &corev1.ConfigMap{
-		ObjectMeta: v1.ObjectMeta{
+		ObjectMeta: metav1.ObjectMeta{
 			Name:      "blackbox-exporter-config",
 			Namespace: cr.Namespace,
 		},
@@ -570,7 +570,7 @@ func (r *ReconcileApplicationMonitoring) createResource(cr *applicationmonitorin
 
 	// Set the CR as the owner of this resource so that when
 	// the CR is deleted this resource also gets removed
-	err = controllerutil.SetControllerReference(cr, resource.(v1.Object), r.scheme)
+	err = controllerutil.SetControllerReference(cr, resource.(metav1.Object), r.scheme)
 	if err != nil {
 		return nil, errors.Wrap(err, "error setting controller reference")
 	}
@@ -680,7 +680,7 @@ func (r *ReconcileApplicationMonitoring) createOrUpdateAdditionalScrapeConfig(cr
 		update = false
 	}
 
-	scrapeConfigSecret.ObjectMeta = v1.ObjectMeta{
+	scrapeConfigSecret.ObjectMeta = metav1.ObjectMeta{
 		Name:      ScrapeConfigSecretName,
 		Namespace: cr.Namespace,
 	}
@@ -710,7 +710,7 @@ func (r *ReconcileApplicationMonitoring) createOrUpdateAdditionalScrapeConfig(cr
 }
 
 func (r *ReconcileApplicationMonitoring) getPrometheusOperatorReady(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (bool, error) {
-	resource := v1beta1.Deployment{}
+	resource := appsv1.Deployment{}
 
 	selector := types.NamespacedName{
 		Namespace: cr.Namespace,
