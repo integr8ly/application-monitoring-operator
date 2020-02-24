@@ -15,6 +15,8 @@ COMPILE_TARGET=./tmp/_output/bin/$(PROJECT)
 PROMETHEUS_OPERATOR_VERSION=v0.34.0
 LOCAL=local
 GRAFANA_OPERATOR_VERSION=v3.0.2
+AMO_VERSION=1.1.2
+PREV_AMO_VERSION=1.0.2
 
 
 .PHONY: setup/gomod
@@ -40,6 +42,13 @@ code/compile:
 .PHONY: code/gen
 code/gen:
 	operator-sdk generate k8s
+
+.PHONY: gen/csv
+gen/csv:
+	sed -i.bak 's/image:.*/image: quay\.io\/integreatly\/application-monitoring-operator:v$(AMO_VERSION)/g' deploy/operator.yaml && rm deploy/operator.yaml.bak
+	@operator-sdk olm-catalog gen-csv --operator-name=application-monitoring-operator --csv-version $(AMO_VERSION) --from-version $(PREV_AMO_VERSION) --update-crds --csv-channel=integreatly --default-channel
+	@sed -i.bak 's/$(PREV_AMO_VERSION)/$(AMO_VERSION)/g' deploy/olm-catalog/application-monitoring-operator/application-monitoring-operator.package.yaml && rm deploy/olm-catalog/application-monitoring-operator/application-monitoring-operator.package.yaml.bak
+	@sed -i.bak s/application-monitoring-operator:v$(PREV_AMO_VERSION)/application-monitoring-operator:v$(AMO_VERSION)/g deploy/olm-catalog/application-monitoring-operator/$(AMO_VERSION)/application-monitoring-operator.v$(AMO_VERSION).clusterserviceversion.yaml && rm deploy/olm-catalog/application-monitoring-operator/$(AMO_VERSION)/application-monitoring-operator.v$(AMO_VERSION).clusterserviceversion.yaml.bak
 
 .PHONY: code/check
 code/check:
