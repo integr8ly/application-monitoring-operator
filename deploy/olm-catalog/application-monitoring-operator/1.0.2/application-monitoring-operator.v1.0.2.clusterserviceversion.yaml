@@ -83,7 +83,8 @@ spec:
                 resources: {}
               serviceAccountName: application-monitoring-operator
       permissions:
-      - rules:
+      - serviceAccountName: application-monitoring-operator
+        rules:
         - apiGroups:
           - ""
           resources:
@@ -169,7 +170,145 @@ spec:
           - subjectaccessreviews
           verbs:
           - create
-        serviceAccountName: application-monitoring-operator
+      clusterPermissions:
+      - serviceAccountName: alertmanager-service-account
+        rules:
+        - apiGroups:
+          - authentication.k8s.io
+          resources:
+            - tokenreviews
+          verbs:
+            - create
+        - apiGroups:
+          - authorization.k8s.io
+          resources:
+          - subjectaccessreviews
+          verbs:
+          - create
+      - serviceAccountName: grafana-operator
+        rules:
+        - apiGroups:
+          - integreatly.org
+          resources:
+          - grafanadashboards
+          verbs: ['get', 'list', 'update', 'watch']
+        - apiGroups:
+          - authentication.k8s.io
+          resources:
+          - tokenreviews
+          verbs:
+          - create
+        - apiGroups:
+          - authorization.k8s.io
+          resources:
+          - subjectaccessreviews
+          verbs:
+          - create
+      - serviceAccountName: grafana-serviceaccount
+        rules:
+        - apiGroups:
+          - authentication.k8s.io
+          resources:
+          - tokenreviews
+          verbs:
+          - create
+        - apiGroups:
+          - authorization.k8s.io
+          resources:
+          - subjectaccessreviews
+          verbs:
+          - create
+      - serviceAccountName: prometheus-service-account
+        rules:
+        - apiGroups:
+          - authentication.k8s.io
+          resources:
+          - tokenreviews
+          verbs:
+          - create
+        - apiGroups:
+          - authorization.k8s.io
+          resources:
+          - subjectaccessreviews
+          verbs:
+          - create
+        - apiGroups: [""]
+          resources:
+          - nodes
+          - services
+          - endpoints
+          - pods
+          verbs: ["get", "list", "watch"]
+        - apiGroups: [""]
+          resources:
+          - configmaps
+          - namespaces # Required to get through the alertmanager oauth proxy
+          verbs: ["get"]
+        - nonResourceURLs: ["/metrics"]
+          verbs: ["get"]
+      - serviceAccountName: prometheus-operator
+        rules:
+        - apiGroups:
+          - apiextensions.k8s.io
+          resources:
+          - customresourcedefinitions
+          verbs:
+          - '*'
+        - apiGroups:
+          - monitoring.coreos.com
+          resources:
+          - alertmanagers
+          - prometheuses
+          - prometheuses/finalizers
+          - alertmanagers/finalizers
+          - servicemonitors
+          - prometheusrules
+          - podmonitors
+          verbs:
+          - '*'
+        - apiGroups:
+          - apps
+          resources:
+          - statefulsets
+          verbs:
+          - '*'
+        - apiGroups:
+          - ""
+          resources:
+          - configmaps
+          - secrets
+          verbs:
+          - '*'
+        - apiGroups:
+          - ""
+          resources:
+          - pods
+          verbs:
+          - list
+          - delete
+        - apiGroups:
+          - ""
+          resources:
+          - services
+          - endpoints
+          - services/finalizers
+          verbs:
+          - "*"
+        - apiGroups:
+          - ""
+          resources:
+          - nodes
+          verbs:
+          - list
+          - watch
+        - apiGroups:
+          - ""
+          resources:
+          - namespaces
+          verbs:
+          - get
+          - list
+          - watch
     strategy: deployment
   installModes:
   - supported: true
