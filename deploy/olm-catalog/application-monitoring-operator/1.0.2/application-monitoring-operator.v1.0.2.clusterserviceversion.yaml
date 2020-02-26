@@ -5,11 +5,11 @@ metadata:
     capabilities: Basic Install
     categories: Monitoring stack
     description: Operator managed and installs Prometheus, Alertmanager, Grafana
-    containerImage: quay.io/integreatly/application-monitoring-operator:v1.1.2
+    containerImage: quay.io/integreatly/application-monitoring-operator:v1.0.2
     createdAt: 2019-09-26 10:51:00
     support: Red Hat, Inc.
     certified: "false"
-  name: application-monitoring-operator.v1.1.2
+  name: application-monitoring-operator.v1.0.2
   namespace: placeholder
 spec:
   icon:
@@ -18,21 +18,37 @@ spec:
   apiservicedefinitions: {}
   maintainers:
     - name: Integreatly
+      email: placeholder@email.com
   keywords: ["Prometheus", "Grafana", "Monitoring", "AlertManager"]
   customresourcedefinitions:
     owned:
-    - kind: ApplicationMonitoring
-      name: applicationmonitorings.applicationmonitoring.integreatly.org
-      version: v1alpha1
-    - kind: BlackboxTarget
-      name: blackboxtargets.applicationmonitoring.integreatly.org
-      version: v1alpha1
-    - kind: ApplicationMonitoring
-      name: applicationmonitorings.applicationmonitoring.integreatly.org
-      version: v1alpha1
-    - kind: BlackboxTarget
-      name: blackboxtargets.applicationmonitoring.integreatly.org
-      version: v1alpha1
+      - name: applicationmonitorings.applicationmonitoring.integreatly.org
+        version: v1alpha1
+        kind: ApplicationMonitoring
+        displayName: Integreatly monitoring stack.
+        description: Represents an installation of the Integreatly monitoring stack.
+      - name: blackboxtargets.applicationmonitoring.integreatly.org
+        version: v1alpha1
+        kind: BlackboxTarget
+        displayName: Integreatly monitoring blackbox target.
+        description: Represents a group of blackbox targets which prometheus blackbox exporter in the Integreatly monitoring stack will query.
+      - name: grafanas.integreatly.org
+        version: v1alpha1
+        kind: Grafana
+        displayName: Integreatly monitoring Grafana Operator.
+        description: Represents an installation of the Integreatly Grafana operator.
+      - name: grafanadashboards.integreatly.org
+        version: v1alpha1
+        kind: GrafanaDashboard
+        displayName: Integreatly monitoring Grafana dashboard.
+        description: Represents an instance of the Integreatly Grafana dashboard.
+      - name: grafanadatasources.integreatly.org
+        version: v1alpha1
+        kind: GrafanaDataSource
+        displayName: Integreatly monitoring Grafana datasource.
+        description: Represents an instance of the Integreatly Grafana datasource.
+    description: Placeholder description
+    displayName: Application Monitoring Operator
   description: Placeholder description
   displayName: Application Monitoring Operator
   install:
@@ -82,233 +98,238 @@ spec:
                   periodSeconds: 10
                 resources: {}
               serviceAccountName: application-monitoring-operator
-      permissions:
+    permissions:
       - serviceAccountName: application-monitoring-operator
         rules:
-        - apiGroups:
-          - ""
-          resources:
-          - pods
-          - services
-          - services/finalizers
-          - endpoints
-          - persistentvolumeclaims
-          - events
-          - configmaps
-          - secrets
-          - serviceaccounts
-          verbs:
-          - '*'
-        - apiGroups:
-          - apps
-          resources:
-          - deployments
-          - deployments/finalizers
-          - daemonsets
-          - replicasets
-          - statefulsets
-          verbs:
-          - '*'
-        - apiGroups:
-          - monitoring.coreos.com
-          resources:
-          - alertmanagers
-          - prometheuses
-          - prometheusrules
-          - servicemonitors
-          verbs:
-          - '*'
-        - apiGroups:
-          - applicationmonitoring.integreatly.org
-          resources:
-          - applicationmonitorings
-          - applicationmonitorings/finalizers
-          - blackboxtargets
-          - blackboxtargets/finalizers
-          verbs:
-          - '*'
-        - apiGroups:
-          - integreatly.org
-          resources:
-          - grafanadatasources
-          - grafanadashboards
-          - grafanas
-          - grafanas/finalizers
-          - grafanadatasources/finalizers
-          - grafanadashboards/finalizers
-          verbs:
-          - '*'
-        - apiGroups:
-          - route.openshift.io
-          resources:
-          - routes
-          - routes/custom-host
-          verbs:
-          - '*'
-        - apiGroups:
-          - rbac.authorization.k8s.io
-          resources:
-          - rolebindings
-          - roles
-          verbs:
-          - '*'
-        - apiGroups:
-          - extensions
-          resources:
-          - ingresses
-          verbs:
-          - '*'
-        - apiGroups:
-          - authentication.k8s.io
-          resources:
-          - tokenreviews
-          verbs:
-          - create
-        - apiGroups:
-          - authorization.k8s.io
-          resources:
-          - subjectaccessreviews
-          verbs:
-          - create
-      clusterPermissions:
+          - apiGroups:
+              - ""
+            resources:
+              - pods
+              - pods/finalizers
+              - services
+              - services/finalizers
+              - endpoints
+              - persistentvolumeclaims
+              - events
+              - configmaps
+              - secrets
+              - serviceaccounts
+            verbs:
+              - '*'
+          - apiGroups:
+              - apps
+            resources:
+              - deployments
+              - deployments/finalizers
+              - daemonsets
+              - replicasets
+              - statefulsets
+            verbs:
+              - '*'
+          - apiGroups:
+              - monitoring.coreos.com
+            resources:
+              - alertmanagers
+              - alertmanagers/finalizers
+              - prometheuses
+              - prometheuses/finalizers
+              - prometheusrules
+              - prometheusrules/finalizers
+              - servicemonitors
+              - servicemonitors/finalizers
+            verbs:
+              - '*'
+          - apiGroups:
+              - applicationmonitoring.integreatly.org
+            resources:
+              - applicationmonitorings
+              - applicationmonitorings/finalizers
+              - blackboxtargets
+              - blackboxtargets/finalizers
+            verbs:
+              - '*'
+          - apiGroups:
+              - integreatly.org
+            resources:
+              - grafanadatasources
+              - grafanadashboards
+              - grafanas
+              - grafanas/finalizers
+              - grafanadatasources/finalizers
+              - grafanadashboards/finalizers
+            verbs:
+              - '*'
+          - apiGroups:
+              - route.openshift.io
+            resources:
+              - routes
+              - routes/custom-host
+            verbs:
+              - '*'
+          - apiGroups:
+              - rbac.authorization.k8s.io
+            resources:
+              - rolebindings
+              - roles
+            verbs:
+              - '*'
+          - apiGroups:
+              - extensions
+            resources:
+              - ingresses
+            verbs:
+              - '*'
+          - apiGroups:
+              - authentication.k8s.io
+            resources:
+              - tokenreviews
+            verbs:
+              - create
+          - apiGroups:
+              - authorization.k8s.io
+            resources:
+              - subjectaccessreviews
+            verbs:
+              - create
+    clusterPermissions:
       - serviceAccountName: alertmanager-service-account
         rules:
-        - apiGroups:
-          - authentication.k8s.io
-          resources:
-            - tokenreviews
-          verbs:
-            - create
-        - apiGroups:
-          - authorization.k8s.io
-          resources:
-          - subjectaccessreviews
-          verbs:
-          - create
+          - apiGroups:
+              - authentication.k8s.io
+            resources:
+              - tokenreviews
+            verbs:
+              - create
+          - apiGroups:
+              - authorization.k8s.io
+            resources:
+              - subjectaccessreviews
+            verbs:
+              - create
       - serviceAccountName: grafana-operator
         rules:
-        - apiGroups:
-          - integreatly.org
-          resources:
-          - grafanadashboards
-          verbs: ['get', 'list', 'update', 'watch']
-        - apiGroups:
-          - authentication.k8s.io
-          resources:
-          - tokenreviews
-          verbs:
-          - create
-        - apiGroups:
-          - authorization.k8s.io
-          resources:
-          - subjectaccessreviews
-          verbs:
-          - create
+          - apiGroups:
+              - integreatly.org
+            resources:
+              - grafanadashboards
+            verbs: ['get', 'list', 'update', 'watch']
+          - apiGroups:
+              - authentication.k8s.io
+            resources:
+              - tokenreviews
+            verbs:
+              - create
+          - apiGroups:
+              - authorization.k8s.io
+            resources:
+              - subjectaccessreviews
+            verbs:
+              - create
       - serviceAccountName: grafana-serviceaccount
         rules:
-        - apiGroups:
-          - authentication.k8s.io
-          resources:
-          - tokenreviews
-          verbs:
-          - create
-        - apiGroups:
-          - authorization.k8s.io
-          resources:
-          - subjectaccessreviews
-          verbs:
-          - create
+          - apiGroups:
+              - authentication.k8s.io
+            resources:
+              - tokenreviews
+            verbs:
+              - create
+          - apiGroups:
+              - authorization.k8s.io
+            resources:
+              - subjectaccessreviews
+            verbs:
+              - create
       - serviceAccountName: prometheus-service-account
         rules:
-        - apiGroups:
-          - authentication.k8s.io
-          resources:
-          - tokenreviews
-          verbs:
-          - create
-        - apiGroups:
-          - authorization.k8s.io
-          resources:
-          - subjectaccessreviews
-          verbs:
-          - create
-        - apiGroups: [""]
-          resources:
-          - nodes
-          - services
-          - endpoints
-          - pods
-          verbs: ["get", "list", "watch"]
-        - apiGroups: [""]
-          resources:
-          - configmaps
-          - namespaces # Required to get through the alertmanager oauth proxy
-          verbs: ["get"]
-        - nonResourceURLs: ["/metrics"]
-          verbs: ["get"]
+          - apiGroups:
+              - authentication.k8s.io
+            resources:
+              - tokenreviews
+            verbs:
+              - create
+          - apiGroups:
+              - authorization.k8s.io
+            resources:
+              - subjectaccessreviews
+            verbs:
+              - create
+          - apiGroups: [""]
+            resources:
+              - nodes
+              - services
+              - endpoints
+              - pods
+            verbs: ["get", "list", "watch"]
+          - apiGroups: [""]
+            resources:
+              - configmaps
+              - namespaces # Required to get through the alertmanager oauth proxy
+            verbs: ["get"]
+          - nonResourceURLs: ["/metrics"]
+            verbs: ["get"]
       - serviceAccountName: prometheus-operator
         rules:
-        - apiGroups:
-          - apiextensions.k8s.io
-          resources:
-          - customresourcedefinitions
-          verbs:
-          - '*'
-        - apiGroups:
-          - monitoring.coreos.com
-          resources:
-          - alertmanagers
-          - prometheuses
-          - prometheuses/finalizers
-          - alertmanagers/finalizers
-          - servicemonitors
-          - prometheusrules
-          - podmonitors
-          verbs:
-          - '*'
-        - apiGroups:
-          - apps
-          resources:
-          - statefulsets
-          verbs:
-          - '*'
-        - apiGroups:
-          - ""
-          resources:
-          - configmaps
-          - secrets
-          verbs:
-          - '*'
-        - apiGroups:
-          - ""
-          resources:
-          - pods
-          verbs:
-          - list
-          - delete
-        - apiGroups:
-          - ""
-          resources:
-          - services
-          - endpoints
-          - services/finalizers
-          verbs:
-          - "*"
-        - apiGroups:
-          - ""
-          resources:
-          - nodes
-          verbs:
-          - list
-          - watch
-        - apiGroups:
-          - ""
-          resources:
-          - namespaces
-          verbs:
-          - get
-          - list
-          - watch
+          - apiGroups:
+              - apiextensions.k8s.io
+            resources:
+              - customresourcedefinitions
+            verbs:
+              - '*'
+          - apiGroups:
+              - monitoring.coreos.com
+            resources:
+              - alertmanagers
+              - prometheuses
+              - prometheuses/finalizers
+              - alertmanagers/finalizers
+              - servicemonitors
+              - prometheusrules
+              - podmonitors
+            verbs:
+              - '*'
+          - apiGroups:
+              - apps
+            resources:
+              - statefulsets
+            verbs:
+              - '*'
+          - apiGroups:
+              - ""
+            resources:
+              - configmaps
+              - secrets
+            verbs:
+              - '*'
+          - apiGroups:
+              - ""
+            resources:
+              - pods
+            verbs:
+              - list
+              - delete
+          - apiGroups:
+              - ""
+            resources:
+              - services
+              - endpoints
+              - services/finalizers
+            verbs:
+              - "*"
+          - apiGroups:
+              - ""
+            resources:
+              - nodes
+            verbs:
+              - list
+              - watch
+          - apiGroups:
+              - ""
+            resources:
+              - namespaces
+            verbs:
+              - get
+              - list
+              - watch
     strategy: deployment
   installModes:
   - supported: true
@@ -322,5 +343,4 @@ spec:
   maturity: alpha
   provider:
     name: Red Hat
-  replaces: application-monitoring-operator.v0.0.0
   version: 1.0.2

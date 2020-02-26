@@ -9,16 +9,16 @@ oc label namespace application-monitoring monitoring-key=middleware
 
 # Application Monitoring Operator
 # AMO CRD
-oc apply -f ./deploy/crds/ApplicationMonitoring.yaml
+oc apply -f ./deploy/crds/applicationmonitoring.integreatly.org_applicationmonitorings_crd.yaml
 
 # AMO Cluster Roles & RoleBindings
-oc apply -f ./deploy/roles
+oc apply -f ./deploy/cluster-roles
 oc apply -f ./deploy/service_account.yaml
 oc apply -f ./deploy/role.yaml
 oc apply -f ./deploy/role_binding.yaml
 
 # BlackboxTarget
-oc apply -f ./deploy/crds/BlackboxTarget.yaml
+oc apply -f ./deploy/crds/applicationmonitoring.integreatly.org_blackboxtargets_crd.yaml
 
 # Grafana CRDs
 oc apply -f https://raw.githubusercontent.com/integr8ly/grafana-operator/$GRAFANA_OPERATOR_VERSION/deploy/crds/Grafana.yaml
