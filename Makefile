@@ -3,7 +3,6 @@ NAMESPACE ?= application-monitoring
 PROJECT ?= application-monitoring-operator
 REG=quay.io
 SHELL=/bin/bash
-TAG ?= v1.1.2
 PKG=github.com/integr8ly/application-monitoring-operator
 TEST_DIRS?=$(shell sh -c "find $(TOP_SRC_DIRS) -name \\*_test.go -exec dirname {} \\; | sort | uniq")
 TEST_POD_NAME=application-monitoring-operator-test
@@ -15,6 +14,10 @@ COMPILE_TARGET=./tmp/_output/bin/$(PROJECT)
 PROMETHEUS_OPERATOR_VERSION=v0.34.0
 LOCAL=local
 GRAFANA_OPERATOR_VERSION=v3.0.2
+AMO_VERSION=1.1.2
+PREV_AMO_VERSION=1.0.2
+
+AUTH_TOKEN=$(shell curl -sH "Content-Type: application/json" -XPOST https://quay.io/cnr/api/v1/users/login -d '{"user": {"username": "$(QUAY_USERNAME)", "password": "${QUAY_PASSWORD}"}}' | jq -r '.token')
 
 
 .PHONY: setup/gomod
@@ -41,6 +44,13 @@ code/compile:
 code/gen:
 	operator-sdk generate k8s
 
+.PHONY: gen/csv
+gen/csv:
+	sed -i.bak 's/image:.*/image: quay\.io\/integreatly\/application-monitoring-operator:v$(AMO_VERSION)/g' deploy/operator.yaml && rm deploy/operator.yaml.bak
+	@operator-sdk olm-catalog gen-csv --operator-name=application-monitoring-operator --csv-version $(AMO_VERSION) --from-version $(PREV_AMO_VERSION) --update-crds --csv-channel=integreatly --default-channel
+	@sed -i.bak 's/$(PREV_AMO_VERSION)/$(AMO_VERSION)/g' deploy/olm-catalog/application-monitoring-operator/application-monitoring-operator.package.yaml && rm deploy/olm-catalog/application-monitoring-operator/application-monitoring-operator.package.yaml.bak
+	@sed -i.bak s/application-monitoring-operator:v$(PREV_AMO_VERSION)/application-monitoring-operator:v$(AMO_VERSION)/g deploy/olm-catalog/application-monitoring-operator/$(AMO_VERSION)/application-monitoring-operator.v$(AMO_VERSION).clusterserviceversion.yaml && rm deploy/olm-catalog/application-monitoring-operator/$(AMO_VERSION)/application-monitoring-operator.v$(AMO_VERSION).clusterserviceversion.yaml.bak
+
 .PHONY: code/check
 code/check:
 	@diff -u <(echo -n) <(gofmt -d `find . -type f -name '*.go' -not -path "./vendor/*"`)
@@ -51,18 +61,18 @@ code/fix:
 
 .PHONY: image/build
 image/build: code/compile
-	@operator-sdk build ${REG}/${ORG}/${PROJECT}:${TAG}
+	@operator-sdk build ${REG}/${ORG}/${PROJECT}:v${AMO_VERSION}
 
 .PHONY: image/push
 image/push:
-	docker push ${REG}/${ORG}/${PROJECT}:${TAG}
+	docker push ${REG}/${ORG}/${PROJECT}:v${AMO_VERSION}
 
 .PHONY: image/build/push
 image/build/push: image/build image/push
 
 .PHONY: image/build/test
 image/build/test:
-	operator-sdk build --enable-tests ${REG}/${ORG}/${PROJECT}:${TAG}
+	operator-sdk build --enable-tests ${REG}/${ORG}/${PROJECT}:v${AMO_VERSION}
 
 .PHONY: test/unit
 test/unit:
@@ -85,7 +95,7 @@ cluster/clean:
 	-kubectl delete -n $(NAMESPACE) --all grafanadashboards
 	-kubectl delete -n $(NAMESPACE) --all grafanadatasources
 	-kubectl delete -n $(NAMESPACE) --all applicationmonitorings
-	-kubectl delete -f ./deploy/roles
+	-kubectl delete -f ./deploy/cluster-roles
 	-kubectl delete crd grafanas.integreatly.org
 	-kubectl delete crd grafanadashboards.integreatly.org
 	-kubectl delete crd grafanadatasources.integreatly.org
@@ -104,3 +114,7 @@ cluster/install:
 .PHONY: cluster/install/local
 cluster/install/local:
 	./scripts/install.sh  ${PROMETHEUS_OPERATOR_VERSION} ${GRAFANA_OPERATOR_VERSION} ${LOCAL}
+
+.PHONY: manifest/push
+manifest/push:
+	@operator-courier --verbose push deploy/olm-catalog/application-monitoring-operator/ $(ORG) $(PROJECT) $(AMO_VERSION) "$(AUTH_TOKEN)"

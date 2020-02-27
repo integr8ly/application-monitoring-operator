@@ -33,6 +33,7 @@ type ApplicationMonitoringStatus struct {
 
 // ApplicationMonitoring is the Schema for the applicationmonitorings API
 // +k8s:openapi-gen=true
+// +kubebuilder:subresource:status
 // +kubebuilder:resource:path=applicationmonitorings,scope=Namespaced
 type ApplicationMonitoring struct {
 	metav1.TypeMeta   `json:",inline"`

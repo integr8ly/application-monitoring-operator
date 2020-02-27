@@ -39,7 +39,4 @@ spec:
               description: The list of namespaces to watch for prometheus custom resources
             alertmanagerInstanceNamespaces:
               type: string
-              description: The list of namespaces to watch for alertmanager custom resources 
-            selfSignedCerts:
-              type: boolean
-              description: Indicates whether self signed certs are being used in the cluster. Used by blackbox exporter
+              description: The list of namespaces to watch for alertmanager custom resources

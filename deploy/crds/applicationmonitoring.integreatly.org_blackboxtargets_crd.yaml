@@ -12,7 +12,6 @@ spec:
   scope: Namespaced
   validation:
     openAPIV3Schema:
-      description: BlackboxTarget is the Schema for the blackboxtargets API
       properties:
         apiVersion:
           description: 'APIVersion defines the versioned schema of this representation
@@ -27,16 +26,10 @@ spec:
         metadata:
           type: object
         spec:
-          description: BlackboxTargetSpec defines the desired state of BlackboxTarget
           properties:
             blackboxTargets:
-              description: 'INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-                Important: Run "operator-sdk generate k8s" to regenerate code after
-                modifying this file Add custom validation using kubebuilder tags:
-                https://book.kubebuilder.io/beyond_basics/generating_crd.html'
+              description: 'Defines an endpoint which can be probed using the Prometheus Blackbox exporter'
               items:
-                description: 'BlackboxtargetStructure contains: A target (url, module
-                  and service name) to be probed by the'
                 properties:
                   module:
                     type: string
@@ -45,25 +38,21 @@ spec:
                   url:
                     type: string
                 required:
-                - module
-                - service
                 - url
+                - service
+                - module
                 type: object
               type: array
           type: object
         status:
-          description: BlackboxTargetStatus defines the observed state of BlackboxTarget
           properties:
             phase:
-              description: 'INSERT ADDITIONAL STATUS FIELD - define observed state
-                of cluster Important: Run "operator-sdk generate k8s" to regenerate
-                code after modifying this file Add custom validation using kubebuilder
-                tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html'
+              description: 'The field phase is a status field indicating which phase the controller is with regards to reconciling blackbox target resources.'
+              format: int64
               type: integer
           required:
           - phase
           type: object
-      type: object
   version: v1alpha1
   versions:
   - name: v1alpha1

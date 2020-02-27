@@ -10,64 +10,33 @@ spec:
     plural: applicationmonitorings
     singular: applicationmonitoring
   scope: Namespaced
+  version: v1alpha1
   validation:
     openAPIV3Schema:
-      description: ApplicationMonitoring is the Schema for the applicationmonitorings
-        API
+      required: ["spec"]
       properties:
-        apiVersion:
-          description: 'APIVersion defines the versioned schema of this representation
-            of an object. Servers should convert recognized schemas to the latest
-            internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources'
-          type: string
-        kind:
-          description: 'Kind is a string value representing the REST resource this
-            object represents. Servers may infer this from the endpoint the client
-            submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds'
-          type: string
-        metadata:
-          type: object
         spec:
-          description: ApplicationMonitoringSpec defines the desired state of ApplicationMonitoring
+          required: ["labelSelector"]
           properties:
-            additionalScrapeConfigSecretKey:
+            labelSelector:
               type: string
+              minimum: 1
+              description: The selector used by the Prometheus and Grafana Operators to discover resources
             additionalScrapeConfigSecretName:
               type: string
-            alertmanagerInstanceNamespaces:
+              description: The name of the secret from which additional scrape configs will be passed to the prometheus operator
+            additionalScrapeConfigSecretKey:
               type: string
-            labelSelector:
-              description: 'INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-                Important: Run "operator-sdk generate k8s" to regenerate code after
-                modifying this file'
-              type: string
-            prometheusInstanceNamespaces:
-              type: string
+              description: The key under which additional scrape configs are stored within the secret
             prometheusRetention:
               type: string
+              description: Retention time for prometheus data. See https://prometheus.io/docs/prometheus/latest/storage/
             prometheusStorageRequest:
               type: string
-          required:
-          - alertmanagerInstanceNamespaces
-          - labelSelector
-          - prometheusInstanceNamespaces
-          type: object
-        status:
-          description: ApplicationMonitoringStatus defines the observed state of ApplicationMonitoring
-          properties:
-            lastblackboxconfig:
+              description: How much storage to assign to a volume claim for persisting Prometheus data. See https://github.com/coreos/prometheus-operator/blob/ca400fdc3edd0af0df896a338eca270e115b74d7/Documentation/api.md#storagespec
+            prometheusInstanceNamespaces:
               type: string
-            phase:
-              description: 'INSERT ADDITIONAL STATUS FIELD - define observed state
-                of cluster Important: Run "operator-sdk generate k8s" to regenerate
-                code after modifying this file'
-              type: integer
-          required:
-          - lastblackboxconfig
-          - phase
-          type: object
-  version: v1alpha1
-  versions:
-  - name: v1alpha1
-    served: true
-    storage: true
+              description: The list of namespaces to watch for prometheus custom resources
+            alertmanagerInstanceNamespaces:
+              type: string
+              description: The list of namespaces to watch for alertmanager custom resources

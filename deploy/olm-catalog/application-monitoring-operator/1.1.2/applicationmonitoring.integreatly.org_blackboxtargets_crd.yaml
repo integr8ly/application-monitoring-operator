@@ -28,10 +28,7 @@ spec:
         spec:
           properties:
             blackboxTargets:
-              description: 'INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-                Important: Run "operator-sdk generate k8s" to regenerate code after
-                modifying this file Add custom validation using kubebuilder tags:
-                https://book.kubebuilder.io/beyond_basics/generating_crd.html'
+              description: 'Defines an endpoint which can be probed using the Prometheus Blackbox exporter'
               items:
                 properties:
                   module:
@@ -50,10 +47,7 @@ spec:
         status:
           properties:
             phase:
-              description: 'INSERT ADDITIONAL STATUS FIELD - define observed state
-                of cluster Important: Run "operator-sdk generate k8s" to regenerate
-                code after modifying this file Add custom validation using kubebuilder
-                tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html'
+              description: 'The field phase is a status field indicating which phase the controller is with regards to reconciling blackbox target resources.'
               format: int64
               type: integer
           required:
