@@ -123,7 +123,12 @@ $ make code/run
 
 1. Update the `AMO_VERSION` and `PREV_AMO_VERSION` values in [Makefile](https://github.com/integr8ly/application-monitoring-operator/blob/master/Makefile#L17)
 2. Run `make gen/csv` to generate a new manifest. 
-3. Add `clusterPermissions` block to new `application-monitoring-operator.vX.X.X.clusterserviceversion.yaml` 
+3. Ensure `clusterPermissions` block in generated `csv` is up to date with cluster roles in `cluster-roles` directory.
+
+Ensure: 
+ * The new `csv`  file points to the latest version of the operator image. Note the images are referenced twice in the `csv`.
+ * `deploy/operator.yaml` has the correct image version tag. All image tags should be prefixed with a `v`
+ * `application-monitoring-operator.package.yaml` references the correct version.
 
 # Release
 
