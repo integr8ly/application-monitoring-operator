@@ -1,5 +1,5 @@
 channels:
-- currentCSV: application-monitoring-operator.v1.1.3
+- currentCSV: application-monitoring-operator.v1.1.2
   name: integreatly
 defaultChannel: integreatly
 packageName: application-monitoring-operator

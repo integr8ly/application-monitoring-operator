@@ -119,6 +119,12 @@ $ make cluster/install/local
 $ make code/run
 ```
 
+# Generating CSV
+
+1. Update the `AMO_VERSION` and `PREV_AMO_VERSION` values in [Makefile](https://github.com/integr8ly/application-monitoring-operator/blob/master/Makefile#L17)
+2. Run `make gen/csv` to generate a new manifest. 
+3. Add `clusterPermissions` block to new `application-monitoring-operator.vX.X.X.clusterserviceversion.yaml` 
+
 # Release
 
 1. Update the version number (e.g. `1.0.1`) in the following files: [Makefile](https://github.com/integr8ly/application-monitoring-operator/blob/master/Makefile#L6), [operator.yaml](https://github.com/integr8ly/application-monitoring-operator/blob/master/deploy/operator.yaml#L18), [version.go](https://github.com/integr8ly/application-monitoring-operator/blob/master/version/version.go#L4]))
