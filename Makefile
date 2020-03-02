@@ -61,18 +61,18 @@ code/fix:
 
 .PHONY: image/build
 image/build: code/compile
-	@operator-sdk build ${REG}/${ORG}/${PROJECT}:v${AMO_VERSION}
+	@operator-sdk build ${REG}/${ORG}/${PROJECT}:${AMO_VERSION}
 
 .PHONY: image/push
 image/push:
-	docker push ${REG}/${ORG}/${PROJECT}:v${AMO_VERSION}
+	docker push ${REG}/${ORG}/${PROJECT}:${AMO_VERSION}
 
 .PHONY: image/build/push
 image/build/push: image/build image/push
 
 .PHONY: image/build/test
 image/build/test:
-	operator-sdk build --enable-tests ${REG}/${ORG}/${PROJECT}:v${AMO_VERSION}
+	operator-sdk build --enable-tests ${REG}/${ORG}/${PROJECT}:${AMO_VERSION}
 
 .PHONY: test/unit
 test/unit:
