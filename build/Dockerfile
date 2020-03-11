@@ -9,7 +9,7 @@ COPY build/_output/bin/application-monitoring-operator ${OPERATOR}
 # copy templates
 COPY templates /usr/local/bin/templates
 
-COPY build/_output/bin /usr/local/bin
+COPY build/bin /usr/local/bin
 RUN  /usr/local/bin/user_setup
 
 ENTRYPOINT ["/usr/local/bin/entrypoint"]
