@@ -10,9 +10,6 @@ WORK_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 docker run --rm --entrypoint=/bin/sh ${IMAGE_NAME} -c 'operator-sdk version'
 docker run --rm --entrypoint=/bin/sh ${IMAGE_NAME} -c 'go version'
 
-#docker run --rm -u $UID -v "${WORK_DIR}/../..:/application-monitoring-operator:z" --entrypoint=/bin/sh ${IMAGE_NAME} -c "cd /application-monitoring-operator && make vendor/check"
-#docker run --rm -u $UID -v "${WORK_DIR}/../..:/application-monitoring-operator:z" --entrypoint=/bin/sh ${IMAGE_NAME} -c "cd /application-monitoring-operator && make code/check"
-#docker run --rm -u $UID -v "${WORK_DIR}/../..:/application-monitoring-operator:z" --entrypoint=/bin/sh ${IMAGE_NAME} -c "cd /application-monitoring-operator && make build"
 docker run --rm -u $UID -v "${WORK_DIR}/../..:/application-monitoring-operator:z" --entrypoint=/bin/sh ${IMAGE_NAME} -c "cd /application-monitoring-operator && make test/unit"
 
 echo "SUCCESS!"
