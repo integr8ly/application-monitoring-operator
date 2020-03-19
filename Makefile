@@ -19,6 +19,14 @@ PREV_AMO_VERSION=1.1.2
 
 AUTH_TOKEN=$(shell curl -sH "Content-Type: application/json" -XPOST https://quay.io/cnr/api/v1/users/login -d '{"user": {"username": "$(QUAY_USERNAME)", "password": "${QUAY_PASSWORD}"}}' | jq -r '.token')
 
+# If the _correct_ version of operator-sdk is on the path, use that (faster);
+# otherwise use it through "go run" (slower but will always work and will use correct version)
+OPERATOR_SDK_VERSION ?= 0.12.1
+ifeq ($(shell operator-sdk version 2> /dev/null | sed -e 's/", .*/"/' -e 's/.* //'), "v$(OPERATOR_SDK_VERSION)")
+	OPERATOR_SDK ?= operator-sdk
+else
+	OPERATOR_SDK ?= go run github.com/operator-framework/operator-sdk/cmd/operator-sdk
+endif
 
 .PHONY: setup/gomod
 setup/gomod:
@@ -34,7 +42,7 @@ setup/travis:
 
 .PHONY: code/run
 code/run:
-	@operator-sdk up local --namespace=${NAMESPACE}
+	@$(OPERATOR_SDK) up local --namespace=${NAMESPACE}
 
 .PHONY: code/compile
 code/compile:
@@ -42,12 +50,12 @@ code/compile:
 
 .PHONY: code/gen
 code/gen:
-	operator-sdk generate k8s
+	$(OPERATOR_SDK) generate k8s
 
 .PHONY: gen/csv
 gen/csv:
 	sed -i.bak 's/image:.*/image: quay\.io\/integreatly\/application-monitoring-operator:v$(AMO_VERSION)/g' deploy/operator.yaml && rm deploy/operator.yaml.bak
-	@operator-sdk olm-catalog gen-csv --operator-name=application-monitoring-operator --csv-version $(AMO_VERSION) --from-version $(PREV_AMO_VERSION) --update-crds --csv-channel=integreatly --default-channel
+	@$(OPERATOR_SDK) olm-catalog gen-csv --operator-name=application-monitoring-operator --csv-version $(AMO_VERSION) --from-version $(PREV_AMO_VERSION) --update-crds --csv-channel=integreatly --default-channel
 	@sed -i.bak 's/$(PREV_AMO_VERSION)/$(AMO_VERSION)/g' deploy/olm-catalog/application-monitoring-operator/application-monitoring-operator.package.yaml && rm deploy/olm-catalog/application-monitoring-operator/application-monitoring-operator.package.yaml.bak
 	@sed -i.bak s/application-monitoring-operator:v$(PREV_AMO_VERSION)/application-monitoring-operator:v$(AMO_VERSION)/g deploy/olm-catalog/application-monitoring-operator/$(AMO_VERSION)/application-monitoring-operator.v$(AMO_VERSION).clusterserviceversion.yaml && rm deploy/olm-catalog/application-monitoring-operator/$(AMO_VERSION)/application-monitoring-operator.v$(AMO_VERSION).clusterserviceversion.yaml.bak
 
@@ -61,7 +69,7 @@ code/fix:
 
 .PHONY: image/build
 image/build: code/compile
-	@operator-sdk build ${REG}/${ORG}/${PROJECT}:${AMO_VERSION}
+	@$(OPERATOR_SDK) build ${REG}/${ORG}/${PROJECT}:${AMO_VERSION}
 
 .PHONY: image/push
 image/push:
@@ -72,7 +80,7 @@ image/build/push: image/build image/push
 
 .PHONY: image/build/test
 image/build/test:
-	operator-sdk build --enable-tests ${REG}/${ORG}/${PROJECT}:${AMO_VERSION}
+	$(OPERATOR_SDK) build --enable-tests ${REG}/${ORG}/${PROJECT}:${AMO_VERSION}
 
 .PHONY: test/unit
 test/unit:
