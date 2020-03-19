@@ -4,11 +4,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
-
-// BlackboxtargetStructure contains:
-// A target (url, module and service name) to be probed by the
+// BlackboxtargetData contains: A target (url, module and service name) to be
+// probed by the BlackboxTarget Exporter
 type BlackboxtargetData struct {
 	Url     string `json:"url"`
 	Service string `json:"service"`
@@ -17,17 +14,15 @@ type BlackboxtargetData struct {
 
 // BlackboxTargetSpec defines the desired state of BlackboxTarget
 type BlackboxTargetSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
-	// Add custom validation using kubebuilder tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html
+	// BlackboxTargets defines endpoints which can be probed using the
+	// Prometheus Blackbox exporter
 	BlackboxTargets []BlackboxtargetData `json:"blackboxTargets,omitempty"`
 }
 
 // BlackboxTargetStatus defines the observed state of BlackboxTarget
 type BlackboxTargetStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
-	// Add custom validation using kubebuilder tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html
+	// Phase is a status field indicating which phase the controller is with
+	// regards to reconciling blackbox target resources
 	Phase int `json:"phase"`
 }
 

@@ -12,6 +12,7 @@ spec:
   scope: Namespaced
   validation:
     openAPIV3Schema:
+      description: BlackboxTarget is the Schema for the blackboxtargets API
       properties:
         apiVersion:
           description: 'APIVersion defines the versioned schema of this representation
@@ -26,10 +27,14 @@ spec:
         metadata:
           type: object
         spec:
+          description: BlackboxTargetSpec defines the desired state of BlackboxTarget
           properties:
             blackboxTargets:
-              description: 'Defines an endpoint which can be probed using the Prometheus Blackbox exporter'
+              description: BlackboxTargets defines endpoints which can be probed using
+                the Prometheus Blackbox exporter
               items:
+                description: 'BlackboxtargetData contains: A target (url, module and
+                  service name) to be probed by the BlackboxTarget Exporter'
                 properties:
                   module:
                     type: string
@@ -38,21 +43,23 @@ spec:
                   url:
                     type: string
                 required:
-                - url
-                - service
                 - module
+                - service
+                - url
                 type: object
               type: array
           type: object
         status:
+          description: BlackboxTargetStatus defines the observed state of BlackboxTarget
           properties:
             phase:
-              description: 'The field phase is a status field indicating which phase the controller is with regards to reconciling blackbox target resources.'
-              format: int64
+              description: Phase is a status field indicating which phase the controller
+                is with regards to reconciling blackbox target resources
               type: integer
           required:
           - phase
           type: object
+      type: object
   version: v1alpha1
   versions:
   - name: v1alpha1

@@ -41,8 +41,10 @@ rules:
   - applicationmonitoring.integreatly.org
   resources:
   - applicationmonitorings
+  - applicationmonitorings/status
   - applicationmonitorings/finalizers
   - blackboxtargets
+  - blackboxtargets/status
   - blackboxtargets/finalizers
   verbs:
   - '*'

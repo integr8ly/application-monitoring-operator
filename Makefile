@@ -51,6 +51,10 @@ code/compile:
 .PHONY: code/gen
 code/gen:
 	$(OPERATOR_SDK) generate k8s
+	# this currently fails because of the foreign Grafana CRDs in
+	# ./deploy/crds, but it gets far enough
+	-$(OPERATOR_SDK) generate openapi
+	rm -f deploy/crds/integreatly.org_grafanas_crd.yaml
 
 .PHONY: gen/csv
 gen/csv:
