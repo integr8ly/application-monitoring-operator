@@ -19,15 +19,15 @@ jobs:
   include:
     - stage: test
       script:
-        - make setup/travis code/check test/unit
+        - make code/check test/unit
     - stage: compile
       script:
-        - make setup/travis image/build AMO_VERSION=$(git rev-parse --short ${TRAVIS_COMMIT})
+        - make image/build AMO_VERSION=$(git rev-parse --short ${TRAVIS_COMMIT})
     - stage: push
       script:
         - export BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi)
         - export TAG=$(git rev-parse --short ${TRAVIS_COMMIT})
         - docker login --password "$QUAY_PASSWORD" --username "$QUAY_USERNAME" quay.io
-        - make setup/travis image/build/push AMO_VERSION=$TAG
+        - make image/build/push AMO_VERSION=$TAG
         - docker tag quay.io/integreatly/$OPERATOR_NAME:$TAG quay.io/integreatly/$OPERATOR_NAME:$BRANCH
         - docker push quay.io/integreatly/$OPERATOR_NAME:$BRANCH

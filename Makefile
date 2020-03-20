@@ -35,11 +35,6 @@ setup/gomod:
 	@echo Running go.mod vendor
 	@go mod vendor
 
-.PHONY: setup/travis
-setup/travis:
-	@echo Installing Operator SDK
-	@curl -Lo operator-sdk https://github.com/operator-framework/operator-sdk/releases/download/v0.8.1/operator-sdk-v0.8.1-x86_64-linux-gnu && chmod +x operator-sdk && sudo mv operator-sdk /usr/local/bin/
-
 .PHONY: code/run
 code/run:
 	@$(OPERATOR_SDK) up local --namespace=${NAMESPACE}
