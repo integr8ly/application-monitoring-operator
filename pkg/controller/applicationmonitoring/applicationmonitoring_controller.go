@@ -692,7 +692,7 @@ func (r *ReconcileApplicationMonitoring) createOrUpdateAdditionalScrapeConfig(cr
 	flatList := common.Flatten()
 	cr.Status.LastBlackboxConfig = fmt.Sprintf("%x", md5.Sum([]byte(joinQuote(flatList))))
 
-	err = r.client.Status().Update(context.TODO(), cr)
+	err = r.client.Update(context.TODO(), cr)
 	if err != nil {
 		return err
 	}
@@ -759,7 +759,7 @@ func (r *ReconcileApplicationMonitoring) cleanup(cr *applicationmonitoringv1alph
 
 func (r *ReconcileApplicationMonitoring) updatePhase(cr *applicationmonitoringv1alpha1.ApplicationMonitoring, phase int) (reconcile.Result, error) {
 	cr.Status.Phase = phase
-	err := r.client.Status().Update(context.TODO(), cr)
+	err := r.client.Update(context.TODO(), cr)
 	return reconcile.Result{}, err
 }
 
