@@ -15,7 +15,7 @@ spec:
       serviceAccountName: application-monitoring-operator
       containers:
         - name: application-monitoring-operator
-          image: quay.io/integreatly/application-monitoring-operator:v1.1.4
+          image: quay.io/integreatly/application-monitoring-operator:v1.1.5
           ports:
             - containerPort: 8383
               name: metrics
