@@ -13,9 +13,9 @@ COMPILE_TARGET=./tmp/_output/bin/$(PROJECT)
 # You can delete this comment afterwards.
 PROMETHEUS_OPERATOR_VERSION=v0.34.0
 LOCAL=local
-GRAFANA_OPERATOR_VERSION=v3.0.2
-AMO_VERSION=1.1.4
-PREV_AMO_VERSION=1.1.2
+GRAFANA_OPERATOR_VERSION=v3.2.0
+AMO_VERSION=1.1.5
+PREV_AMO_VERSION=1.1.4
 
 AUTH_TOKEN=$(shell curl -sH "Content-Type: application/json" -XPOST https://quay.io/cnr/api/v1/users/login -d '{"user": {"username": "$(QUAY_USERNAME)", "password": "${QUAY_PASSWORD}"}}' | jq -r '.token')
 

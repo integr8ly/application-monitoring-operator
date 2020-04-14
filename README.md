@@ -114,7 +114,7 @@ The example application provides three endpoints that will produce more metrics:
 You can run the Operator locally against a remote namespace. The name of the namespace should be `application-monitoring`. To run the operator execute:
 
 ```sh
-$ make setup/dep
+$ make setup/gomod
 $ make cluster/install/local
 $ make code/run
 ```
