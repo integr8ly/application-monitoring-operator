@@ -5,11 +5,11 @@ metadata:
     capabilities: Basic Install
     categories: Monitoring stack
     certified: "false"
-    containerImage: quay.io/integreatly/application-monitoring-operator:v1.1.6
+    containerImage: quay.io/integreatly/application-monitoring-operator:v1.1.5
     createdAt: "2019-09-26 10:51:00"
     description: Operator managed and installs Prometheus, Alertmanager, Grafana
     support: Red Hat, Inc.
-  name: application-monitoring-operator.v1.1.6
+  name: application-monitoring-operator.v1.1.5
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -228,7 +228,7 @@ spec:
                       fieldPath: metadata.name
                 - name: OPERATOR_NAME
                   value: application-monitoring-operator
-                image: quay.io/integreatly/application-monitoring-operator:v1.1.6
+                image: quay.io/integreatly/application-monitoring-operator:v1.1.5
                 imagePullPolicy: Always
                 name: application-monitoring-operator
                 ports:
@@ -356,5 +356,5 @@ spec:
   maturity: alpha
   provider:
     name: Red Hat
-  replaces: application-monitoring-operator.v1.1.5
-  version: 1.1.6
+  replaces: application-monitoring-operator.v1.1.4
+  version: 1.1.5
