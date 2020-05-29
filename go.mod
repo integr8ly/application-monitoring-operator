@@ -3,30 +3,22 @@ module github.com/integr8ly/application-monitoring-operator
 go 1.13
 
 require (
-	github.com/coreos/prometheus-operator v0.29.0
+	github.com/coreos/prometheus-operator v0.38.0
 	github.com/emicklei/go-restful v2.11.1+incompatible // indirect
-	github.com/ghodss/yaml v1.0.1-0.20180820084758-c7ce16629ff4
+	github.com/ghodss/yaml v1.0.1-0.20190212211648-25d852aebe32
 	github.com/go-openapi/spec v0.19.5-0.20191022081736-744796356cda
-	github.com/gogo/protobuf v1.3.1 // indirect
-	github.com/hashicorp/golang-lru v0.5.3 // indirect
-	github.com/json-iterator/go v1.1.9 // indirect
 	github.com/onsi/ginkgo v1.11.0 // indirect
 	github.com/onsi/gomega v1.8.1 // indirect
 	github.com/openshift/api v3.9.1-0.20190424152011-77b8897ec79a+incompatible
-	github.com/operator-framework/operator-sdk v0.12.1-0.20191112211508-82fc57de5e5b
-	github.com/pkg/errors v0.8.1
-	github.com/prometheus/client_golang v1.3.0 // indirect
+	github.com/operator-framework/operator-sdk v0.17.1
+	github.com/pkg/errors v0.9.1
 	github.com/spf13/pflag v1.0.5
-	go.uber.org/zap v1.13.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20191202225959-858c2ad4c8b6 // indirect
-	golang.org/x/time v0.0.0-20191024005414-555d28b269f0 // indirect
-	k8s.io/api v0.17.0
-	k8s.io/apiextensions-apiserver v0.17.0 // indirect
-	k8s.io/apimachinery v0.0.0
-	k8s.io/client-go v11.0.0+incompatible
-	k8s.io/klog v1.0.0 // indirect
+	k8s.io/api v0.17.4
+	k8s.io/apimachinery v0.17.4
+	k8s.io/client-go v12.0.0+incompatible
 	k8s.io/kube-openapi v0.0.0-20191107075043-30be4d16710a
-	sigs.k8s.io/controller-runtime v0.3.0
+	sigs.k8s.io/controller-runtime v0.5.2
 )
 
 // Pinned to kubernetes-1.15.4
