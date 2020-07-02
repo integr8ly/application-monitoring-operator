@@ -27,14 +27,6 @@ spec:
           command:
           - "{{ .GrafanaOperatorName }}"
           imagePullPolicy: Always
-          readinessProbe:
-            exec:
-              command:
-                - stat
-                - /tmp/operator-sdk-ready
-            initialDelaySeconds: 4
-            periodSeconds: 10
-            failureThreshold: 1
           env:
             - name: TEMPLATE_PATH
               value: /usr/local/bin/templates
