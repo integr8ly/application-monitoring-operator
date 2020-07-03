@@ -13,7 +13,7 @@ The Application Monitoring CR accepts the following properties in the spec:
 
 * *labelSelector*: The value of the `middleware-monitoring` label that has to be present on all imported resources (prometheus rules, service monitors, grafana dashboards).
 * *prometheusRetention*: Retention time for prometheus data. See https://prometheus.io/docs/prometheus/latest/storage/
-* *prometheusStorageRequest*: How much storage to assign to a volume claim for persisting Prometheus data. See https://github.com/coreos/prometheus-operator/blob/ca400fdc3edd0af0df896a338eca270e115b74d7/Documentation/api.md#storagespec
+* *prometheusStorageRequest*: How much storage to assign to a volume claim for persisting Prometheus data. See [Prometheus Operator API - StorageSpec](https://github.com/coreos/prometheus-operator/blob/ca400fdc3edd0af0df896a338eca270e115b74d7/Documentation/api.md#storagespec)
 
 
 
@@ -39,18 +39,18 @@ where `service` will be added as a label to the metric, `url` is the URL of the 
 
 ## PrometheusRule
 
-Represents a set of alert rules for Prometheus/Alertmanager. See the [https://github.com/coreos/prometheus-operator/blob/f9bc0aa0fd9aa936f500d9d241098863c60d873d/Documentation/user-guides/alerting.md#alerting](prometheus operator docs) for more details about this resource.
+Represents a set of alert rules for Prometheus/Alertmanager. See the [prometheus operator docs](https://github.com/coreos/prometheus-operator/blob/f9bc0aa0fd9aa936f500d9d241098863c60d873d/Documentation/user-guides/alerting.md#alerting) for more details about this resource.
 An example PrometheusRule can be seen in the example app [template](https://github.com/david-martin/example-prometheus-nodejs/blob/d647b83116519b650e00401f04c8868280c47778/template.yaml#L92-L111)
 
 
 ## ServiceMonitor
 
-Represents a Service to pull metrics from. See the [https://github.com/coreos/prometheus-operator/blob/master/Documentation/user-guides/getting-started.md#related-resources](prometheus operator docs) for more details about this resource.
+Represents a Service to pull metrics from. See the [prometheus operator docs](https://github.com/coreos/prometheus-operator/blob/master/Documentation/user-guides/getting-started.md#related-resources) for more details about this resource.
 An example ServiceMonitor can be seen in the example app [template](https://github.com/david-martin/example-prometheus-nodejs/blob/d647b83116519b650e00401f04c8868280c47778/template.yaml#L79-L91)
 
 ## PodMonitor
 
-Represents pods to pull metrics from. See the [https://github.com/coreos/prometheus-operator/blob/master/Documentation/user-guides/getting-started.md#include-podmonitors](prometheus operator docs) for more details about this resource.
+Represents pods to pull metrics from. See the [prometheus operator docs](https://github.com/coreos/prometheus-operator/blob/master/Documentation/user-guides/getting-started.md#include-podmonitors) for more details about this resource.
 
 ## GrafanaDashboard
 
