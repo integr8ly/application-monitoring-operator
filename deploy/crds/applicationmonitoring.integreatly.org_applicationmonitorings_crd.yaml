@@ -10,33 +10,62 @@ spec:
     plural: applicationmonitorings
     singular: applicationmonitoring
   scope: Namespaced
-  version: v1alpha1
+  subresources:
+    status: {}
   validation:
     openAPIV3Schema:
-      required: ["spec"]
+      description: ApplicationMonitoring is the Schema for the applicationmonitorings
+        API
       properties:
+        apiVersion:
+          description: 'APIVersion defines the versioned schema of this representation
+            of an object. Servers should convert recognized schemas to the latest
+            internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+          type: string
+        kind:
+          description: 'Kind is a string value representing the REST resource this
+            object represents. Servers may infer this from the endpoint the client
+            submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+          type: string
+        metadata:
+          type: object
         spec:
-          required: ["labelSelector"]
+          description: ApplicationMonitoringSpec defines the desired state of ApplicationMonitoring
           properties:
-            labelSelector:
-              type: string
-              minimum: 1
-              description: The selector used by the Prometheus and Grafana Operators to discover resources
-            additionalScrapeConfigSecretName:
-              type: string
-              description: The name of the secret from which additional scrape configs will be passed to the prometheus operator
             additionalScrapeConfigSecretKey:
               type: string
-              description: The key under which additional scrape configs are stored within the secret
-            prometheusRetention:
+            additionalScrapeConfigSecretName:
               type: string
-              description: Retention time for prometheus data. See https://prometheus.io/docs/prometheus/latest/storage/
-            prometheusStorageRequest:
-              type: string
-              description: How much storage to assign to a volume claim for persisting Prometheus data. See https://github.com/coreos/prometheus-operator/blob/ca400fdc3edd0af0df896a338eca270e115b74d7/Documentation/api.md#storagespec
-            prometheusInstanceNamespaces:
-              type: string
-              description: The list of namespaces to watch for prometheus custom resources
             alertmanagerInstanceNamespaces:
               type: string
-              description: The list of namespaces to watch for alertmanager custom resources
+            labelSelector:
+              minLength: 1
+              type: string
+            prometheusInstanceNamespaces:
+              type: string
+            prometheusRetention:
+              type: string
+            prometheusStorageRequest:
+              type: string
+            selfSignedCerts:
+              type: boolean
+          required:
+          - labelSelector
+          type: object
+        status:
+          description: ApplicationMonitoringStatus defines the observed state of ApplicationMonitoring
+          properties:
+            lastblackboxconfig:
+              type: string
+            phase:
+              type: integer
+          required:
+          - lastblackboxconfig
+          - phase
+          type: object
+      type: object
+  version: v1alpha1
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
