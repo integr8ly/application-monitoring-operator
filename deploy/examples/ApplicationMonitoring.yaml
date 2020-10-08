@@ -11,3 +11,5 @@ spec:
   prometheusInstanceNamespaces: application-monitoring
   alertmanagerInstanceNamespaces: application-monitoring
   selfSignedCerts: true
+  priorityClassName: "managed-service-priority"
+

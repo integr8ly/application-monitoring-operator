@@ -92,6 +92,7 @@ type Parameters struct {
 	ImageBlackboxExporter            string
 	ImageTagBlackboxExporter         string
 	BlackboxTargets                  []applicationmonitoring.BlackboxtargetData
+	PriorityClassName                string
 	PrometheusRetention              string
 	PrometheusStorageRequest         string
 	PrometheusInstanceNamespaces     string
@@ -154,6 +155,7 @@ func newTemplateHelper(cr *applicationmonitoring.ApplicationMonitoring, extraPar
 		ImageTagPrometheus:               "4.2",
 		ImageBlackboxExporter:            "quay.io/prometheus/blackbox-exporter",
 		ImageTagBlackboxExporter:         "v0.14.0",
+		PriorityClassName:                cr.Spec.PriorityClassName,
 		PrometheusRetention:              cr.Spec.PrometheusRetention,
 		PrometheusStorageRequest:         cr.Spec.PrometheusStorageRequest,
 		PrometheusInstanceNamespaces:     cr.Spec.PrometheusInstanceNamespaces,

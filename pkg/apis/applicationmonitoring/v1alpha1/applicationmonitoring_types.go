@@ -16,6 +16,7 @@ type ApplicationMonitoringSpec struct {
 	LabelSelector                    string `json:"labelSelector"`
 	AdditionalScrapeConfigSecretName string `json:"additionalScrapeConfigSecretName,omitempty"`
 	AdditionalScrapeConfigSecretKey  string `json:"additionalScrapeConfigSecretKey,omitempty"`
+	PriorityClassName                string `json:"priorityClassName,omitempty"`
 	PrometheusRetention              string `json:"prometheusRetention,omitempty"`
 	PrometheusStorageRequest         string `json:"prometheusStorageRequest,omitempty"`
 	PrometheusInstanceNamespaces     string `json:"prometheusInstanceNamespaces,omitempty"`

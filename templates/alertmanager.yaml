@@ -44,3 +44,5 @@ spec:
   secrets:
     - alertmanager-k8s-tls
     - alertmanager-k8s-proxy
+  priorityClassName: "managed-service-priority"
+
