@@ -10,8 +10,6 @@ spec:
     plural: applicationmonitorings
     singular: applicationmonitoring
   scope: Namespaced
-  subresources:
-    status: {}
   validation:
     openAPIV3Schema:
       description: ApplicationMonitoring is the Schema for the applicationmonitorings
