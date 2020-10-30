@@ -464,7 +464,7 @@ func (r *ReconcileApplicationMonitoring) createPrometheusCRs(cr *applicationmoni
 
 	// Create the route first and retrieve the host so that we can assign
 	// it as the external url for the prometheus instance
-	_, err := r.createResource(cr, PrometheusRouteTemplateName)
+	_, err := r.createResource(cr, PrometheusRouteName)
 	if err != nil {
 		return reconcile.Result{}, err
 	}
@@ -490,7 +490,7 @@ func (r *ReconcileApplicationMonitoring) createAlertManagerCRs(cr *applicationmo
 
 	// Create the route first and retrieve the host so that we can assign
 	// it as the external url for the alertmanager instance
-	_, err := r.createResource(cr, AlertManagerRouteTemplateName)
+	_, err := r.createResource(cr, AlertManagerRouteName)
 	if err != nil {
 		return reconcile.Result{}, err
 	}
