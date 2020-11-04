@@ -3,12 +3,17 @@ kind: Alertmanager
 metadata:
   name: {{ .ApplicationMonitoringName }}
   namespace: {{ .Namespace }}
+  labels:
+    alertmanager: {{ .ApplicationMonitoringName }}
 spec:
   baseImage: {{ .ImageAlertManager }}
   tag: "{{ .ImageTagAlertManager }}"
   externalUrl: https://{{ index .ExtraParams "alertmanagerHost" }}
   listenLocal: true
   serviceAccountName: {{ .AlertManagerServiceAccountName }}
+{{- if .Affinity }}
+  replicas: 3
+{{- end }}
   containers:
     - args:
         - '-provider=openshift'
@@ -44,3 +49,4 @@ spec:
   secrets:
     - alertmanager-k8s-tls
     - alertmanager-k8s-proxy
+{{ .Affinity }}
