@@ -22,8 +22,7 @@ type ApplicationMonitoringSpec struct {
 	PrometheusInstanceNamespaces     string           `json:"prometheusInstanceNamespaces,omitempty"`
 	AlertmanagerInstanceNamespaces   string           `json:"alertmanagerInstanceNamespaces,omitempty"`
 	SelfSignedCerts                  bool             `json:"selfSignedCerts,omitempty"`
-	PodAntiAffinity                  bool             `json:"PodAntiAffinity,omitempty"`
-	Affinity                         *corev1.Affinity `json:"Affinity,omitempty"`
+	Affinity                         *corev1.Affinity `json:"affinity,omitempty"`
 }
 
 // ApplicationMonitoringStatus defines the observed state of ApplicationMonitoring

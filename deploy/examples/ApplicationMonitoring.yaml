@@ -11,4 +11,3 @@ spec:
   prometheusInstanceNamespaces: application-monitoring
   alertmanagerInstanceNamespaces: application-monitoring
   selfSignedCerts: true
-  PodAntiAffinity: false

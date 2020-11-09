@@ -10,6 +10,8 @@ spec:
     plural: applicationmonitorings
     singular: applicationmonitoring
   scope: Namespaced
+  subresources:
+    status: {}
   validation:
     openAPIV3Schema:
       description: ApplicationMonitoring is the Schema for the applicationmonitorings
@@ -30,7 +32,11 @@ spec:
         spec:
           description: ApplicationMonitoringSpec defines the desired state of ApplicationMonitoring
           properties:
-            Affinity:
+            additionalScrapeConfigSecretKey:
+              type: string
+            additionalScrapeConfigSecretName:
+              type: string
+            affinity:
               description: Affinity is a group of affinity scheduling rules.
               properties:
                 nodeAffinity:
@@ -602,12 +608,6 @@ spec:
                       type: array
                   type: object
               type: object
-            PodAntiAffinity:
-              type: boolean
-            additionalScrapeConfigSecretKey:
-              type: string
-            additionalScrapeConfigSecretName:
-              type: string
             alertmanagerInstanceNamespaces:
               type: string
             labelSelector:

@@ -5,8 +5,8 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"fmt"
+	"github.com/Masterminds/sprig"
 	"github.com/ghodss/yaml"
-	"github.com/openconfig/goyang/pkg/indent"
 	"io/ioutil"
 	corev1 "k8s.io/api/core/v1"
 	"os"
@@ -214,7 +214,7 @@ func (h *TemplateHelper) loadTemplate(name string) ([]byte, error) {
 	parser := template.New("application-monitoring")
 	parser.Funcs(template.FuncMap{
 		"JoinQuote": joinQuote,
-	})
+	}).Funcs(sprig.TxtFuncMap())
 
 	parsed, err := parser.Parse(string(tpl))
 	if err != nil {
@@ -255,6 +255,5 @@ func PopulateAffinityRule(affinity *corev1.Affinity) string {
 		return ""
 	}
 
-	// Indent 2 spaces and return
-	return indent.String("  ", string(affinityRule))
+	return string(affinityRule)
 }

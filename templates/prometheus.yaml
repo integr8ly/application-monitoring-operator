@@ -98,4 +98,7 @@ spec:
           requests:
             storage: {{.PrometheusStorageRequest}}
 {{- end}}
-{{ .Affinity }}
+{{- if .Affinity }}
+  affinity:
+{{ .Affinity | indent 4 }}
+{{- end }}

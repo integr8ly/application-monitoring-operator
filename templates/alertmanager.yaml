@@ -49,4 +49,7 @@ spec:
   secrets:
     - alertmanager-k8s-tls
     - alertmanager-k8s-proxy
-{{ .Affinity }}
+{{- if .Affinity }}
+  affinity:
+{{ .Affinity | indent 4 }}
+{{- end }}
