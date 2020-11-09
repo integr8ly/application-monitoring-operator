@@ -100,7 +100,6 @@ type Parameters struct {
 	PrometheusInstanceNamespaces     string
 	AlertmanagerInstanceNamespaces   string
 	Affinity                         string
-	ZoneTopologyLabel                string
 	ExtraParams                      map[string]string
 }
 
