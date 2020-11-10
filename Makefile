@@ -9,7 +9,7 @@ TEST_POD_NAME=application-monitoring-operator-test
 COMPILE_TARGET=./tmp/_output/bin/$(PROJECT)
 # PROMETHEUS_OPERATOR_VERSION is used at install time to import crds
 # After v0.34.0 the file names for the resources change
-# If you are updating this verion you will need to update the file names in ./scripts/install.sh too
+# If you are updating this version you will need to update the file names in ./scripts/install.sh too
 # You can delete this comment afterwards.
 PROMETHEUS_OPERATOR_VERSION=v0.34.0
 LOCAL=local

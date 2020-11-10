@@ -3,6 +3,7 @@ module github.com/integr8ly/application-monitoring-operator
 go 1.13
 
 require (
+	github.com/Masterminds/sprig v2.22.0+incompatible
 	github.com/coreos/prometheus-operator v0.34.0
 	github.com/ghodss/yaml v1.0.1-0.20190212211648-25d852aebe32
 	github.com/go-openapi/spec v0.19.4
@@ -10,6 +11,9 @@ require (
 	github.com/operator-framework/operator-sdk v0.15.2
 	github.com/pkg/errors v0.8.1
 	github.com/spf13/pflag v1.0.5
+	golang.org/x/crypto v0.0.0-20200302210943-78000ba7a073 // indirect
+	golang.org/x/net v0.0.0-20200301022130-244492dfa37a // indirect
+	google.golang.org/protobuf v1.21.0 // indirect
 	k8s.io/api v0.0.0
 	k8s.io/apimachinery v0.0.0
 	k8s.io/client-go v12.0.0+incompatible
