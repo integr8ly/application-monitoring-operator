@@ -5,7 +5,10 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"fmt"
+	"github.com/Masterminds/sprig"
+	"github.com/ghodss/yaml"
 	"io/ioutil"
+	corev1 "k8s.io/api/core/v1"
 	"os"
 	"strings"
 	"text/template"
@@ -97,6 +100,7 @@ type Parameters struct {
 	PrometheusStorageRequest         string
 	PrometheusInstanceNamespaces     string
 	AlertmanagerInstanceNamespaces   string
+	Affinity                         string
 	ExtraParams                      map[string]string
 }
 
@@ -105,7 +109,7 @@ type TemplateHelper struct {
 	TemplatePath string
 }
 
-// Creates a new templates helper and populates the values for all
+// Creates a new template helper and populates the values for all
 // templates properties. Some of them (like the hostname) are set
 // by the user in the custom resource
 func newTemplateHelper(cr *applicationmonitoring.ApplicationMonitoring, extraParams map[string]string) *TemplateHelper {
@@ -160,6 +164,7 @@ func newTemplateHelper(cr *applicationmonitoring.ApplicationMonitoring, extraPar
 		PrometheusStorageRequest:         cr.Spec.PrometheusStorageRequest,
 		PrometheusInstanceNamespaces:     cr.Spec.PrometheusInstanceNamespaces,
 		AlertmanagerInstanceNamespaces:   cr.Spec.AlertmanagerInstanceNamespaces,
+		Affinity:                         PopulateAffinityRule(cr.Spec.Affinity),
 		ExtraParams:                      extraParams,
 	}
 
@@ -210,7 +215,7 @@ func (h *TemplateHelper) loadTemplate(name string) ([]byte, error) {
 	parser := template.New("application-monitoring")
 	parser.Funcs(template.FuncMap{
 		"JoinQuote": joinQuote,
-	})
+	}).Funcs(sprig.TxtFuncMap())
 
 	parsed, err := parser.Parse(string(tpl))
 	if err != nil {
@@ -235,4 +240,21 @@ func GeneratePassword(n int) (string, error) {
 	}
 
 	return base64.StdEncoding.EncodeToString(b), err
+}
+
+// PopulateAffinityRule returns the yaml representation of the affinity scheduling rule
+func PopulateAffinityRule(affinity *corev1.Affinity) string {
+	// Check if the affinty rule is empty
+	if affinity.Size() < 1 {
+		return ""
+	}
+
+	// Marshall affinty rule into yaml format
+	affinityRule, err := yaml.Marshal(affinity)
+	if err != nil {
+		log.Info(fmt.Sprintf("Error executing PopulateAffinityRule: %s", err))
+		return ""
+	}
+
+	return string(affinityRule)
 }
