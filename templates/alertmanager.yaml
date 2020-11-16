@@ -49,6 +49,9 @@ spec:
   secrets:
     - alertmanager-k8s-tls
     - alertmanager-k8s-proxy
+{{- if .PriorityClassName }}
+  priorityClassName: {{.PriorityClassName}}
+{{- end }}
 {{- if .Affinity }}
   affinity:
 {{ .Affinity | indent 4 }}
