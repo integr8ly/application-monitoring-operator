@@ -11,5 +11,5 @@ spec:
   prometheusInstanceNamespaces: application-monitoring
   alertmanagerInstanceNamespaces: application-monitoring
   selfSignedCerts: true
-  priorityClassName: "rhoam-pod-priority"
+  priorityClassName: ""
 
