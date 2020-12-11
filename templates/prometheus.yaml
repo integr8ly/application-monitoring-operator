@@ -6,8 +6,7 @@ metadata:
   labels:
     prometheus: {{ .ApplicationMonitoringName }}
 spec:
-  baseImage: {{ .ImagePrometheus }}
-  tag: "{{ .ImageTagPrometheus }}"
+  image: {{ .ImagePrometheus }}:{{ .ImageTagPrometheus }}
 {{- if .Affinity }}
   replicas: 3
 {{- end }}
@@ -105,3 +104,4 @@ spec:
   affinity:
 {{ .Affinity | indent 4 }}
 {{- end }}
+  version:  {{ .PrometheusVersion }}

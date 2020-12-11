@@ -101,6 +101,7 @@ type Parameters struct {
 	PrometheusInstanceNamespaces     string
 	AlertmanagerInstanceNamespaces   string
 	Affinity                         string
+	PrometheusVersion                string
 	ExtraParams                      map[string]string
 }
 
@@ -150,15 +151,16 @@ func newTemplateHelper(cr *applicationmonitoring.ApplicationMonitoring, extraPar
 		ImageGrafanaOperator:             "quay.io/integreatly/grafana-operator",
 		ImageTagGrafanaOperator:          "v3.6.0",
 		ImageConfigMapReloader:           "quay.io/openshift/origin-configmap-reloader",
-		ImageTagConfigMapReloader:        "4.2",
+		ImageTagConfigMapReloader:        "4.4",
 		ImagePrometheusConfigReloader:    "quay.io/openshift/origin-prometheus-config-reloader",
-		ImageTagPrometheusConfigReloader: "4.2",
+		ImageTagPrometheusConfigReloader: "4.4",
 		ImagePrometheusOperator:          "quay.io/coreos/prometheus-operator",
-		ImageTagPrometheusOperator:       "v0.34.0",
+		ImageTagPrometheusOperator:       "v0.38.1",
 		ImagePrometheus:                  "quay.io/openshift/origin-prometheus",
-		ImageTagPrometheus:               "4.2",
+		ImageTagPrometheus:               "4.4",
 		ImageBlackboxExporter:            "quay.io/prometheus/blackbox-exporter",
 		ImageTagBlackboxExporter:         "v0.14.0",
+		PrometheusVersion:                "v2.15.2",
 		PriorityClassName:                cr.Spec.PriorityClassName,
 		PrometheusRetention:              cr.Spec.PrometheusRetention,
 		PrometheusStorageRequest:         cr.Spec.PrometheusStorageRequest,
