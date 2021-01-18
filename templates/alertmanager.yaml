@@ -6,8 +6,7 @@ metadata:
   labels:
     alertmanager: {{ .ApplicationMonitoringName }}
 spec:
-  baseImage: {{ .ImageAlertManager }}
-  tag: "{{ .ImageTagAlertManager }}"
+  image: {{ .ImageAlertManager }}:{{ .ImageTagAlertManager }}
   externalUrl: https://{{ index .ExtraParams "alertmanagerHost" }}
   listenLocal: true
   serviceAccountName: {{ .AlertManagerServiceAccountName }}

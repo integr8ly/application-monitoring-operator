@@ -28,11 +28,13 @@ oc apply -f https://raw.githubusercontent.com/integr8ly/grafana-operator/$GRAFAN
 # Prometheus CRDs
 oc get crd | grep prometheus > /dev/null 2>&1
 if [ $? != 0 ]; then
-  oc apply -f https://raw.githubusercontent.com/coreos/prometheus-operator/$PROMETHEUS_OPERATOR_VERSION/example/prometheus-operator-crd/podmonitor.crd.yaml
-  oc apply -f https://raw.githubusercontent.com/coreos/prometheus-operator/$PROMETHEUS_OPERATOR_VERSION/example/prometheus-operator-crd/prometheus.crd.yaml
-  oc apply -f https://raw.githubusercontent.com/coreos/prometheus-operator/$PROMETHEUS_OPERATOR_VERSION/example/prometheus-operator-crd/alertmanager.crd.yaml
-  oc apply -f https://raw.githubusercontent.com/coreos/prometheus-operator/$PROMETHEUS_OPERATOR_VERSION/example/prometheus-operator-crd/prometheusrule.crd.yaml
-  oc apply -f https://raw.githubusercontent.com/coreos/prometheus-operator/$PROMETHEUS_OPERATOR_VERSION/example/prometheus-operator-crd/servicemonitor.crd.yaml
+  oc apply -f https://raw.githubusercontent.com/coreos/prometheus-operator/$PROMETHEUS_OPERATOR_VERSION/example/prometheus-operator-crd/monitoring.coreos.com_podmonitors.yaml
+  oc apply -f https://raw.githubusercontent.com/coreos/prometheus-operator/$PROMETHEUS_OPERATOR_VERSION/example/prometheus-operator-crd/monitoring.coreos.com_prometheuses.yaml
+  oc apply -f https://raw.githubusercontent.com/coreos/prometheus-operator/$PROMETHEUS_OPERATOR_VERSION/example/prometheus-operator-crd/monitoring.coreos.com_alertmanagers.yaml
+  oc apply -f https://raw.githubusercontent.com/coreos/prometheus-operator/$PROMETHEUS_OPERATOR_VERSION/example/prometheus-operator-crd/monitoring.coreos.com_prometheusrules.yaml
+  oc apply -f https://raw.githubusercontent.com/coreos/prometheus-operator/$PROMETHEUS_OPERATOR_VERSION/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml
+  oc apply -f https://raw.githubusercontent.com/coreos/prometheus-operator/$PROMETHEUS_OPERATOR_VERSION/example/prometheus-operator-crd/monitoring.coreos.com_thanosrulers.yaml
+
 fi
 
 # AMO Deployment

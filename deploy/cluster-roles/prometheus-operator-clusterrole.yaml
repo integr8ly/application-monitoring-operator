@@ -14,8 +14,10 @@ rules:
   resources:
   - alertmanagers
   - prometheuses
+  - thanosrulers
   - prometheuses/finalizers
   - alertmanagers/finalizers
+  - thanosrulers/finalizers
   - servicemonitors
   - prometheusrules
   - podmonitors
