@@ -2,6 +2,9 @@
 
 An OpenShift Operator using the Operator SDK that installs an Application Monitoring Stack consisting of Grafana, Prometheus & Alertmanager.
 
+
+# Warning:
+### This operator isn't being actively maintained, issues may not be resolved unless they are security related.
 # Supported Custom Resources
 
 The following resources are supported:
