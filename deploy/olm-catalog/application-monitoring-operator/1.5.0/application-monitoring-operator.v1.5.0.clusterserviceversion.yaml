@@ -333,4 +333,4 @@ spec:
   provider:
     name: Red Hat
   replaces: application-monitoring-operator.v1.4.0
-  version: test
+  version: 1.5.0
