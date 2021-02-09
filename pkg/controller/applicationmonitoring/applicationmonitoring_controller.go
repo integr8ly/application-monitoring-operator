@@ -168,6 +168,7 @@ func (r *ReconcileApplicationMonitoring) Reconcile(request reconcile.Request) (r
 		r.tryWatchAdditionalScrapeConfigs(instanceCopy)
 		r.checkServiceAccountAnnotationsExist(instance)
 		r.updateCRs(instance)
+		r.updateOperatorDeployments(instance)
 		return r.reconcileConfig(instanceCopy)
 	}
 
@@ -200,6 +201,46 @@ func (r *ReconcileApplicationMonitoring) checkServiceAccountAnnotationsExist(cr 
 	}
 
 	return reconcile.Result{}, nil
+}
+
+func (r *ReconcileApplicationMonitoring) updateOperatorDeployments(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) (reconcile.Result, error) {
+	for _, resourceName := range []string{GrafanaOperatorName, PrometheusOperatorName} {
+		if err := r.updateResource(cr, resourceName); err != nil {
+			log.Info(fmt.Sprintf("Error in Operator update, resourceName=%s : err=%s", resourceName, err))
+			// Requeue so it can be attempted again
+			return reconcile.Result{}, err
+		}
+	}
+	return reconcile.Result{}, nil
+}
+
+func (r *ReconcileApplicationMonitoring) updateResource(cr *applicationmonitoringv1alpha1.ApplicationMonitoring, resourceName string) error {
+
+	log.Info(fmt.Sprintf("Starting update of resource: %s", resourceName))
+
+	templateHelper := newTemplateHelper(cr, r.extraParams)
+	resourceHelper := newResourceHelper(cr, templateHelper)
+	resource, err := resourceHelper.createResource(resourceName)
+
+	if err != nil {
+		return errors.Wrap(err, "createResource failed in updateResource")
+	}
+
+	// Set the CR as the owner of this resource so that when
+	// the CR is deleted this resource also gets removed
+	err = controllerutil.SetControllerReference(cr, resource.(metav1.Object), r.scheme)
+	if err != nil {
+		return errors.Wrap(err, "error setting controller reference")
+	}
+
+	err = r.client.Update(context.TODO(), resource)
+	if err != nil {
+		return errors.Wrap(err, "error updating creating resource")
+	}
+
+	log.Info(fmt.Sprintf("Successfully updated resource: %s", resourceName))
+
+	return nil
 }
 
 func (r *ReconcileApplicationMonitoring) updateCRs(cr *applicationmonitoringv1alpha1.ApplicationMonitoring) {
