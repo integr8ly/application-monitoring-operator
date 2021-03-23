@@ -11,11 +11,11 @@ COMPILE_TARGET=./tmp/_output/bin/$(PROJECT)
 # After v0.34.0 the file names for the resources change
 # If you are updating this version you will need to update the file names in ./scripts/install.sh too
 # You can delete this comment afterwards.
-PROMETHEUS_OPERATOR_VERSION=v0.34.0
+PROMETHEUS_OPERATOR_VERSION=v0.40.0
 LOCAL=local
-GRAFANA_OPERATOR_VERSION=v3.8.1
-AMO_VERSION=1.5.1
-PREV_AMO_VERSION=1.5.0
+GRAFANA_OPERATOR_VERSION=v3.10.1
+AMO_VERSION=1.6.0
+PREV_AMO_VERSION=1.5.1
 
 AUTH_TOKEN=$(shell curl -sH "Content-Type: application/json" -XPOST https://quay.io/cnr/api/v1/users/login -d '{"user": {"username": "$(QUAY_USERNAME)", "password": "${QUAY_PASSWORD}"}}' | jq -r '.token')
 
@@ -34,7 +34,7 @@ setup/travis:
 
 .PHONY: code/run
 code/run:
-	@operator-sdk up local --namespace=${NAMESPACE}
+	@operator-sdk run --local --namespace=${NAMESPACE}
 
 .PHONY: code/compile
 code/compile:
