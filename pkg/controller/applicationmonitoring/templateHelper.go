@@ -5,13 +5,14 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"fmt"
-	"github.com/Masterminds/sprig"
-	"github.com/ghodss/yaml"
 	"io/ioutil"
-	corev1 "k8s.io/api/core/v1"
 	"os"
 	"strings"
 	"text/template"
+
+	"github.com/Masterminds/sprig"
+	"github.com/ghodss/yaml"
+	corev1 "k8s.io/api/core/v1"
 
 	applicationmonitoring "github.com/integr8ly/application-monitoring-operator/pkg/apis/applicationmonitoring/v1alpha1"
 	"github.com/integr8ly/application-monitoring-operator/pkg/controller/common"
@@ -149,7 +150,7 @@ func newTemplateHelper(cr *applicationmonitoring.ApplicationMonitoring, extraPar
 		ImageGrafana:                     "quay.io/openshift/origin-grafana",
 		ImageTagGrafana:                  "4.9",
 		ImageGrafanaOperator:             "quay.io/integreatly/grafana-operator",
-		ImageTagGrafanaOperator:          "v3.10.1",
+		ImageTagGrafanaOperator:          "v3.10.2",
 		ImageConfigMapReloader:           "quay.io/openshift/origin-configmap-reloader",
 		ImageTagConfigMapReloader:        "4.9",
 		ImagePrometheusConfigReloader:    "quay.io/openshift/origin-prometheus-config-reloader",
