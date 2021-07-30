@@ -146,7 +146,7 @@ func newTemplateHelper(cr *applicationmonitoring.ApplicationMonitoring, extraPar
 		ImageAlertManager:                "quay.io/openshift/origin-prometheus-alertmanager",
 		ImageTagAlertManager:             "4.9",
 		ImageOAuthProxy:                  "quay.io/openshift/origin-oauth-proxy",
-		ImageTagOAuthProxy:               "4.9",
+		ImageTagOAuthProxy:               "4.8",
 		ImageGrafana:                     "quay.io/openshift/origin-grafana",
 		ImageTagGrafana:                  "4.9",
 		ImageGrafanaOperator:             "quay.io/integreatly/grafana-operator",
