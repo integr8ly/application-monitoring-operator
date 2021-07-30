@@ -14,8 +14,8 @@ COMPILE_TARGET=./tmp/_output/bin/$(PROJECT)
 PROMETHEUS_OPERATOR_VERSION=v0.40.0
 LOCAL=local
 GRAFANA_OPERATOR_VERSION=v3.10.2
-AMO_VERSION=1.6.1
-PREV_AMO_VERSION=1.6.0
+AMO_VERSION=1.6.2
+PREV_AMO_VERSION=1.6.1
 
 AUTH_TOKEN=$(shell curl -sH "Content-Type: application/json" -XPOST https://quay.io/cnr/api/v1/users/login -d '{"user": {"username": "$(QUAY_USERNAME)", "password": "${QUAY_PASSWORD}"}}' | jq -r '.token')
 
