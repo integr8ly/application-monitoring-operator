@@ -159,7 +159,7 @@ func newTemplateHelper(cr *applicationmonitoring.ApplicationMonitoring, extraPar
 		ImageTagPrometheusOperator:       "v0.40.0",
 		ImagePrometheus:                  "quay.io/openshift/origin-prometheus",
 		ImageTagPrometheus:               "4.9",
-		ImageBlackboxExporter:            "quay.io/prometheus/blackbox-exporter",
+		ImageBlackboxExporter:            "quay.io/integreatly/prometheus-blackbox-exporter",
 		ImageTagBlackboxExporter:         "v0.19.0",
 		PrometheusVersion:                "v2.19.0",
 		PriorityClassName:                cr.Spec.PriorityClassName,
