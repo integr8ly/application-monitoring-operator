@@ -367,7 +367,7 @@ func (r *ReconcileApplicationMonitoring) reconcileBlackboxExporterConfig(cr *app
 	// Add bearer_token to ConfigMap to allow Blackbox exporter requests to get through proxy in front of Grafana service
 	blackboxServiceAccount := &corev1.ServiceAccount{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: "blackbox-exporter-service-account",
+			Name:      "blackbox-exporter-service-account",
 			Namespace: cr.GetNamespace(),
 		},
 	}
@@ -383,7 +383,7 @@ func (r *ReconcileApplicationMonitoring) reconcileBlackboxExporterConfig(cr *app
 	}
 	blackboxServiceAccountSecret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: secretName,
+			Name:      secretName,
 			Namespace: blackboxServiceAccount.Namespace,
 		},
 	}
