@@ -368,7 +368,7 @@ func (r *ReconcileApplicationMonitoring) reconcileBlackboxExporterConfig(cr *app
 	blackboxServiceAccount := &corev1.ServiceAccount{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "blackbox-exporter-service-account",
-			Namespace: "redhat-rhoam-middleware-monitoring-operator",
+			Namespace: cr.GetNamespace(),
 		},
 	}
 	if err := r.client.Get(ctx, client.ObjectKey{Name: blackboxServiceAccount.Name, Namespace: blackboxServiceAccount.Namespace}, blackboxServiceAccount); err != nil {
@@ -384,7 +384,7 @@ func (r *ReconcileApplicationMonitoring) reconcileBlackboxExporterConfig(cr *app
 	blackboxServiceAccountSecret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: secretName,
-			Namespace: "redhat-rhoam-middleware-monitoring-operator",
+			Namespace: blackboxServiceAccount.Namespace,
 		},
 	}
 	if err := r.client.Get(ctx, client.ObjectKey{Name: blackboxServiceAccountSecret.Name, Namespace: blackboxServiceAccountSecret.Namespace}, blackboxServiceAccountSecret); err != nil {

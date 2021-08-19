@@ -9,6 +9,6 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: blackbox-exporter-service-account
-    namespace: redhat-rhoam-middleware-monitoring-operator
+    namespace: application-monitoring
 userNames:
   - system:serviceaccount:application-monitoring:blackbox-exporter-service-account
