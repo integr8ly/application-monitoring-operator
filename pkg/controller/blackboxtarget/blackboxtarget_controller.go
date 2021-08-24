@@ -3,6 +3,8 @@ package blackboxtarget
 import (
 	"context"
 	"fmt"
+	v1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	applicationmonitoringv1alpha1 "github.com/integr8ly/application-monitoring-operator/pkg/apis/applicationmonitoring/v1alpha1"
 	"github.com/integr8ly/application-monitoring-operator/pkg/controller/common"
@@ -10,6 +12,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
@@ -115,6 +118,20 @@ func (r *ReconcileBlackboxTarget) Reconcile(request reconcile.Request) (reconcil
 // reconcileConfig not sure if these CRs need to be watched for changes, presume I'll do it here
 func (r *ReconcileBlackboxTarget) reconcileConfig(cr *applicationmonitoringv1alpha1.BlackboxTarget) (reconcile.Result, error) {
 	log.Info(fmt.Sprintf("BlackboxTarget reconcileConfig CR:%s Phase: %v", cr.ObjectMeta.Name, cr.Status.Phase))
+
+	// Create blackbox-exporter-service-account
+	blackBoxExporterServiceAccount := &v1.ServiceAccount{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "blackbox-exporter-service-account",
+			Namespace: cr.GetNamespace(),
+		},
+	}
+	_, err := controllerutil.CreateOrUpdate(context.TODO(), r.client, blackBoxExporterServiceAccount, func() error {
+		return nil
+	})
+	if err != nil {
+		log.Error(err, "Unable to create: blackbox-exporter-service-account")
+	}
 
 	bbtList := common.GetBTConfig()
 	crName := cr.ObjectMeta.Name

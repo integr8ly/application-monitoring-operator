@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/md5"
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -362,6 +363,36 @@ func (r *ReconcileApplicationMonitoring) reconcileBlackboxExporterConfig(cr *app
 	if r.extraParams == nil {
 		r.extraParams = map[string]string{}
 	}
+
+	// Add bearer_token to ConfigMap to allow Blackbox exporter requests to get through proxy in front of Grafana service
+	blackboxServiceAccount := &corev1.ServiceAccount{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "blackbox-exporter-service-account",
+			Namespace: cr.GetNamespace(),
+		},
+	}
+	if err := r.client.Get(ctx, client.ObjectKey{Name: blackboxServiceAccount.Name, Namespace: blackboxServiceAccount.Namespace}, blackboxServiceAccount); err != nil {
+		log.Error(err, "client.Get")
+		return fmt.Errorf("error getting blackbox exporter service account: %s", err.Error())
+	}
+	var secretName string
+	for _, secret := range blackboxServiceAccount.Secrets {
+		if res, _ := regexp.MatchString("blackbox-exporter-service-account-token", secret.Name); res {
+			secretName = secret.Name
+		}
+	}
+	blackboxServiceAccountSecret := &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      secretName,
+			Namespace: blackboxServiceAccount.Namespace,
+		},
+	}
+	if err := r.client.Get(ctx, client.ObjectKey{Name: blackboxServiceAccountSecret.Name, Namespace: blackboxServiceAccountSecret.Namespace}, blackboxServiceAccountSecret); err != nil {
+		log.Error(err, "client.Get")
+		return fmt.Errorf("error getting blackbox exporter secret: %s", err.Error())
+	}
+	blackboxServiceAccountToken := blackboxServiceAccountSecret.Data["token"]
+	r.extraParams["bearerToken"] = string(blackboxServiceAccountToken)
 	r.extraParams["selfSignedCerts"] = strconv.FormatBool(cr.Spec.SelfSignedCerts)
 	templateHelper := newTemplateHelper(cr, r.extraParams)
 	blackboxExporterConfig, err := templateHelper.loadTemplate("blackbox/blackbox-exporter-config")
