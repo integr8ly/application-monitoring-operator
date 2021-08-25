@@ -17,10 +17,12 @@ rules:
   - thanosrulers
   - prometheuses/finalizers
   - alertmanagers/finalizers
+  - alertmanagerconfigs
   - thanosrulers/finalizers
   - servicemonitors
   - prometheusrules
   - podmonitors
+  - probes
   verbs:
   - '*'
 - apiGroups:
@@ -66,3 +68,25 @@ rules:
   - get
   - list
   - watch
+- apiGroups:
+  - applicationmonitoring.integreatly.org
+  resources:
+  - applicationmonitorings
+  verbs:
+   - get
+   - list
+   - update
+   - watch
+- apiGroups:
+  - integreatly.org
+  resources:
+  - grafanas
+  - grafanas/finalizers
+  - grafanadashboards
+  - grafanadashboards/status
+  - grafanadashboards/finalizers
+  - grafanadatasources
+  - grafanadatasources/finalizers
+  verbs:
+  - get
+  - list

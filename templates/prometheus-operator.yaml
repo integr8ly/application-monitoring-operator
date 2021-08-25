@@ -18,13 +18,12 @@ spec:
       containers:
         - args:
             - --kubelet-service=kube-system/kubelet
-            - --logtostderr=true
             - -log-level=warn
-            - --config-reloader-image={{ .ImageConfigMapReloader }}:{{ .ImageTagConfigMapReloader }}
             - --prometheus-config-reloader={{ .ImagePrometheusConfigReloader }}:{{ .ImageTagPrometheusConfigReloader }}
             - --prometheus-instance-namespaces={{ .PrometheusInstanceNamespaces }}
             - --alertmanager-instance-namespaces={{ .AlertmanagerInstanceNamespaces }}
-          image: {{ .ImagePrometheusOperator }}:{{ .ImageTagPrometheusOperator }}
+            - --thanos-ruler-instance-namespaces={{ .Namespace }}
+          image: {{ .ImagePrometheusOperator }}
           name: prometheus-application-operator
           ports:
             - containerPort: 8080

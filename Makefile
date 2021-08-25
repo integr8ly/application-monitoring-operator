@@ -13,9 +13,9 @@ COMPILE_TARGET=./tmp/_output/bin/$(PROJECT)
 # You can delete this comment afterwards.
 PROMETHEUS_OPERATOR_VERSION=v0.40.0
 LOCAL=local
-GRAFANA_OPERATOR_VERSION=v3.10.2
-AMO_VERSION=1.7.0
-PREV_AMO_VERSION=1.6.3
+GRAFANA_OPERATOR_VERSION=v3.10.3
+AMO_VERSION=1.8.0
+PREV_AMO_VERSION=1.7.0
 
 AUTH_TOKEN=$(shell curl -sH "Content-Type: application/json" -XPOST https://quay.io/cnr/api/v1/users/login -d '{"user": {"username": "$(QUAY_USERNAME)", "password": "${QUAY_PASSWORD}"}}' | jq -r '.token')
 
@@ -34,7 +34,7 @@ setup/travis:
 
 .PHONY: code/run
 code/run:
-	@operator-sdk run --local --namespace=${NAMESPACE}
+	LOCAL_INSTALL="True" operator-sdk run --local --namespace=${NAMESPACE}
 
 .PHONY: code/compile
 code/compile:
@@ -61,11 +61,11 @@ code/fix:
 
 .PHONY: image/build
 image/build: code/compile
-	@operator-sdk build ${REG}/${ORG}/${PROJECT}:${AMO_VERSION}
+	@operator-sdk build ${REG}/${ORG}/${PROJECT}:v${AMO_VERSION}
 
 .PHONY: image/push
 image/push:
-	docker push ${REG}/${ORG}/${PROJECT}:${AMO_VERSION}
+	docker push ${REG}/${ORG}/${PROJECT}:v${AMO_VERSION}
 
 .PHONY: image/build/push
 image/build/push: image/build image/push
