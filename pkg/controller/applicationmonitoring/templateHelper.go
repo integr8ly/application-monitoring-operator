@@ -61,6 +61,7 @@ type Parameters struct {
 	GrafanaSessionSecret             string
 	GrafanaProxySecretName           string
 	GrafanaRouteName                 string
+	SkipGrafanaServiceAccount        string
 	PrometheusCrName                 string
 	PrometheusRouteName              string
 	PrometheusServiceName            string
@@ -124,6 +125,7 @@ func newTemplateHelper(cr *applicationmonitoring.ApplicationMonitoring, extraPar
 		GrafanaProxySecretName:           GrafanaProxySecretName,
 		GrafanaServiceName:               GrafanaServiceName,
 		GrafanaRouteName:                 GrafanaRouteName,
+		SkipGrafanaServiceAccount:        SkipGrafanaServiceAccount(),
 		PrometheusOperatorName:           PrometheusOperatorName,
 		ApplicationMonitoringName:        ApplicationMonitoringName,
 		PrometheusCrName:                 PrometheusCrName,
@@ -149,17 +151,17 @@ func newTemplateHelper(cr *applicationmonitoring.ApplicationMonitoring, extraPar
 		ImageTagOAuthProxy:               "4.8",
 		ImageGrafana:                     "quay.io/openshift/origin-grafana",
 		ImageTagGrafana:                  "4.9",
-		ImageGrafanaOperator:             "quay.io/integreatly/grafana-operator",
-		ImageTagGrafanaOperator:          "v3.10.2",
+		ImageGrafanaOperator:             "quay.io/rhoas/grafana-operator",
+		ImageTagGrafanaOperator:          "v3.10.3",
 		ImageConfigMapReloader:           "quay.io/openshift/origin-configmap-reloader",
 		ImageTagConfigMapReloader:        "4.9",
 		ImagePrometheusConfigReloader:    "quay.io/openshift/origin-prometheus-config-reloader",
 		ImageTagPrometheusConfigReloader: "4.9",
-		ImagePrometheusOperator:          "quay.io/coreos/prometheus-operator",
-		ImageTagPrometheusOperator:       "v0.40.0",
+		ImagePrometheusOperator:          "quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:19ecf8f3cb62545bc81eeddd3ef8adc105ec5bad5538ee556aade7eb8f9d6dbf",
+		ImageTagPrometheusOperator:       "",
 		ImagePrometheus:                  "quay.io/openshift/origin-prometheus",
 		ImageTagPrometheus:               "4.9",
-		ImageBlackboxExporter:            "quay.io/prometheus/blackbox-exporter",
+		ImageBlackboxExporter:            "quay.io/integreatly/prometheus-blackbox-exporter",
 		ImageTagBlackboxExporter:         "v0.19.0",
 		PrometheusVersion:                "v2.19.0",
 		PriorityClassName:                cr.Spec.PriorityClassName,
@@ -170,7 +172,6 @@ func newTemplateHelper(cr *applicationmonitoring.ApplicationMonitoring, extraPar
 		Affinity:                         PopulateAffinityRule(cr.Spec.Affinity),
 		ExtraParams:                      extraParams,
 	}
-
 	templatePath, exists := os.LookupEnv("TEMPLATE_PATH")
 	if !exists {
 		templatePath = "./templates"
@@ -185,6 +186,20 @@ func newTemplateHelper(cr *applicationmonitoring.ApplicationMonitoring, extraPar
 		Parameters:   param,
 		TemplatePath: templatePath,
 	}
+}
+
+func SkipGrafanaServiceAccount() string {
+	value, exist := os.LookupEnv("LOCAL_INSTALL")
+	if exist {
+		// If local install is true then do not skip service account creation
+		if value == "True" {
+			return "False"
+		} else {
+			return "True"
+		}
+	}
+
+	return "False"
 }
 
 // PopulateSessionProxySecret generates a session secret
