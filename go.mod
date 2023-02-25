@@ -11,8 +11,7 @@ require (
 	github.com/operator-framework/operator-sdk v0.15.2
 	github.com/pkg/errors v0.8.1
 	github.com/spf13/pflag v1.0.5
-	golang.org/x/crypto v0.0.0-20200302210943-78000ba7a073 // indirect
-	golang.org/x/net v0.0.0-20200301022130-244492dfa37a // indirect
+	golang.org/x/net v0.7.0 // indirect
 	google.golang.org/protobuf v1.21.0 // indirect
 	k8s.io/api v0.17.3
 	k8s.io/apimachinery v0.17.3
